@@ -1,0 +1,35 @@
+<div *ngIf="isLoading">
+  THIS IS LOADING
+</div>
+
+<div *ngIf="!isLoading" class="col-md-12">
+  <div class="jumbotron col-md-9">
+    <div class="container text-center">
+      <h2 class="text-secondary">Results</h2>
+      <div class="row">
+        <div *ngIf="paginate" class="col-sm">
+          <p>Number of found pictures : {{ paginate.pictureCount }}</p>
+          <p>Page {{ paginate.page }} out of {{(paginate.pictureCount / paginate.pageSize) | ceil }} page(s)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-light">
+    <div class="container col-md-9">
+
+      <div class="row card-deck justify-content-center">
+        <app-picture-details *ngFor="let picture of pictures | paginate: {
+            itemsPerPage: paginate.pageSize,
+            currentPage: paginate.page,
+            totalItems: paginate.pictureCount
+          }" [picture]="picture"></app-picture-details>
+      </div>
+
+      <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
+    </div>
+  </div>
+
+</div>
+
+

@@ -1,0 +1,29 @@
+<div class="card mb-4 box-shadow " style="width: 20rem">
+  <div class="productImage" style="height: 225px;">
+    <div class="img-wrapper">
+      <a class="thumb">
+        <img [attr.src]="picture.path"
+             alt="pic" style="max-width:100%;max-height:100%;height: auto;width:auto;">
+      </a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="content py-2">
+      <p class="card-text">Keywords : {{picture.tags.toString()}} </p>
+      <hr/>
+      <p class="card-text">Crédits : <a>https://derpibooru.org</a> / userName </p>
+      <hr/>
+      <p class="card-text">Taille : 1920 x 1080</p>
+      <p class="card-text"><small class="text-muted">Date d'ajout : YYYY-MM-DD</small></p>
+    </div>
+    <div class="d-flex justify-content-center align-items-center">
+      <div class="btn-group">
+        <button (click)="picture.path" class="btn btn-sm btn-outline-secondary" type="button">Download</button>
+        <button (click)="onEdit()" class="btn btn-sm btn-outline-info" type="button">Edit</button>
+        <button (click)="onDelete()" class="btn btn-sm btn-outline-danger" data-target="#deleteModal"
+                data-toggle="modal" type="button">Delete
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

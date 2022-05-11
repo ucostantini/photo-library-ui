@@ -1,0 +1,65 @@
+{
+  "pictures": {
+    "pictures": [
+      {
+        "id": 1,
+        "path": "assets/img/1.jpg",
+        "tags": [
+          "tag1",
+          "tag2",
+          "tag3"
+        ]
+      },
+      {
+        "id": 2,
+        "path": "assets/img/2.jpg",
+        "tags": [
+          "tag4",
+          "tag5",
+          "tag6"
+        ]
+      },
+      {
+        "id": 3,
+        "path": "assets/img/3.jpg",
+        "tags": [
+          "tag1",
+          "tag5",
+          "tag3"
+        ]
+      },
+      {
+        "id": 4,
+        "path": "assets/img/4.jpg",
+        "tags": [
+          "tag3",
+          "tag2",
+          "tag4"
+        ]
+      },
+      {
+        "id": 5,
+        "path": "assets/img/5.jpg",
+        "tags": [
+          "tag5",
+          "tag1",
+          "tag2"
+        ]
+      },
+      {
+        "id": 6,
+        "path": "assets/img/6.jpg",
+        "tags": [
+          "tag3",
+          "tag2",
+          "tag3"
+        ]
+      }
+    ],
+    "paginate": {
+      "page": 1,
+      "pageSize": 4,
+      "pictureCount": 6
+    }
+  }
+}

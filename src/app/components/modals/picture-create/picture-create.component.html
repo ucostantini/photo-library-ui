@@ -1,0 +1,60 @@
+<div class="modal-content">
+  <form (ngSubmit)="onSubmit()" [formGroup]="pictureForm" enctype="multipart/form-data" method="post"
+        novalidate role="form">
+    <div class="modal-header">
+      <h5 class="modal-title">Upload d'une image</h5>
+      <button (click)="bsModalRef.hide()" aria-label="Close" class="close" data-dismiss="modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-group">
+        <label *ngIf="!isCreate" for="file">Nouveau fichier (l'ancien sera supprimé.)</label>
+        <input [required]="!isCreate" class="form-control" formControlName="file" id="file" type="file">
+      </div>
+
+      <div [formGroup]="'chips'" class="form-group" id="tags-form">
+        <label class="control-label" for="tags-input">* Keywords : </label>
+        <tag-input (onValidationError)="onValidationError($event)" [errorMessages]="errorMessages"
+                   [formControlName]="'tags'"
+                   [placeholder]="'Enter at least 3 characters'" [separatorKeyCodes]="[32, 188]"
+                   [theme]="'bootstrap'"
+                   [validators]="tagsValidators()"
+                   id="tags-input">
+          <tag-input-dropdown
+            [appendToBody]="false"
+            [autocompleteObservable]="autoCompleteTags"
+            [displayBy]="'name'" [identifyBy]="'tagId'"
+            [minimumTextLength]="3">
+          </tag-input-dropdown>
+        </tag-input>
+      </div>
+
+      <fieldset class="scheduler-border" formGroupName="source">
+        <legend class="scheduler-border">* Source</legend>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="website">Website</label>
+          <div class="col-sm-10">
+            <input class="form-control" formControlName="website" id="website" type="text">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="control-label col-sm-2" for="author">User Name</label>
+          <div class="col-sm-10">
+            <input formControlName="userName" id="author" type="text">
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="modal-footer">
+      <div class="form-group">
+        <button [disabled]="this.pictureForm.invalid" class="btn btn-primary" name='values'
+                type="submit">{{this.isCreate ? "Ajouter" : "Modifier"}}</button>
+      </div>
+    </div>
+
+  </form>
+</div>

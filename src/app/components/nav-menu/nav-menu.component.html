@@ -1,0 +1,69 @@
+<header>
+  <nav
+    class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"
+  >
+    <div class="container">
+      <a [routerLink]="['/']" class="navbar-brand">photo_library</a>
+      <button
+        (click)="toggle()"
+        [attr.aria-expanded]="isExpanded"
+        aria-label="Toggle navigation"
+        class="navbar-toggler"
+        data-target=".navbar-collapse"
+        data-toggle="collapse"
+        type="button"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div
+        [ngClass]="{ show: isExpanded }"
+        class="navbar-collapse collapse d-sm-inline-flex justify-content-end"
+      >
+        <ul class="navbar-nav flex-grow">
+          <li class="nav-item">
+            <button (click)="onAdd()" class="btn m-2 btn-primary">Ajouter</button>
+          </li>
+          <li class="nav-item">
+            <button (click)="onSearch()" class="btn m-2 btn-secondary">Rechercher</button>
+          </li>
+          <li class="nav-item dropdown ">
+            <button aria-expanded="false" aria-haspopup="true" class="btn m-2 btn-secondary dropdown-toggle"
+                    data-toggle="dropdown"
+                    id="tri" type="button">
+              Trier par
+            </button>
+            <div class=" dropdown-menu " style="width: 15rem;">
+              <form action="routes.php" class="px-4 py-3" method="get">
+                <input hidden name="route" type="text" value="search">
+
+                <div class="form-group btn-group btn-group-toggle" data-toggle="buttons">
+                  <label class="btn btn-secondary <?= $sort === 'date' ? 'active' : '' ?>">
+                    <input autocomplete="off" id="date" name="sort" type="radio" value="date"> Date d'ajout
+                  </label>
+                  <label class="btn btn-secondary <?= $sort !== 'date' ? 'active' : '' ?>">
+                    <input autocomplete="off" id="titre" name="sort" type="radio" value="titre"> Titre
+                  </label>
+                </div>
+                <div class="form-group">
+                  <div class="form-check">
+                    <input class="form-check-input" id="asc" name="order" type="radio" value="asc">
+                    <label class="form-check-label" for="asc">
+                      Ascendant
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" id="desc" name="order" type="radio" value="desc">
+                    <label class="form-check-label" for="desc">
+                      Descendant
+                    </label>
+                  </div>
+                </div>
+                <button class="btn btn-block btn-primary" type="submit">Valider</button>
+              </form>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
