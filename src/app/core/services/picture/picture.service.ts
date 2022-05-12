@@ -14,7 +14,7 @@ export class PictureService {
   }
 
   readAll(): Observable<{ pictures: Picture[], paginate: Paginate }> {
-    return this.httpClient.get<{ pictures: Picture[], paginate: Paginate }>(baseURL + "s");
+    return this.httpClient.get<{ pictures: Picture[], paginate: Paginate }>(baseURL + 's');
   }
 
   read(id): Observable<Picture> {
@@ -41,4 +41,15 @@ export class PictureService {
     return this.httpClient.get(`${baseURL}?name=${name}`);
   }
 
+  fetchCount(pageIndex: number, pageSize: number): Observable<Paginate> {
+    const from = pageIndex * pageSize;
+    const to = from + pageSize;
+    return this.httpClient.get<Paginate>(`${baseURL}sCount?from=${from}to${to}`);
+  }
+
+  fetch(pageIndex: number, pageSize: number): Observable<Picture[]> {
+    const from = pageIndex * pageSize;
+    const to = from + pageSize;
+    return this.httpClient.get<Picture[]>(`${baseURL}s?from=${from}to${to}`);
+  }
 }

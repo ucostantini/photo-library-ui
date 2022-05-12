@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Picture } from "../../../core/models/picture";
-import { PictureService } from "../../../core/services/picture/picture.service";
-import { BsModalRef } from "ngx-bootstrap/modal";
-import { FormControl, FormGroup, ValidatorFn, Validators } from "@angular/forms";
-import { Observable, of } from "rxjs";
-import { map } from "rxjs/operators";
-import { TagService } from "../../../core/services/tag/tag.service";
-import { TagModel } from "ngx-chips/core/accessor";
+import { Picture } from '../../../core/models/picture';
+import { PictureService } from '../../../core/services/picture/picture.service';
+import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { TagService } from '../../../core/services/tag/tag.service';
 
 @Component({
   selector: 'app-picture-create',
@@ -16,7 +14,7 @@ import { TagModel } from "ngx-chips/core/accessor";
 export class PictureCreateComponent implements OnInit {
 
   pictureForm: FormGroup;
-  isCreate: boolean = true;
+  isCreate = true;
   submitted = false;
   public errorMessages = {
     'minLength': 'Minimum tag length is 3 chars',
@@ -60,7 +58,7 @@ export class PictureCreateComponent implements OnInit {
 
   onAdd = (tag: TagModel): Observable<TagModel> => {
     return of(tag).pipe(map(tag.toLowerCase)).pipe(map(tag.normalize));
-  };
+  }
 
   tagsValidators(): ValidatorFn[] {
     return [Validators.minLength(3), Validators.maxLength(20)];
@@ -82,9 +80,9 @@ export class PictureCreateComponent implements OnInit {
 
   onSubmit() {
     if (this.pictureForm.valid) {
-      console.log("Valid & submitted");
+      console.log('Valid & submitted');
     } else {
-      console.error("Form Invalid and not submitted");
+      console.error('Form Invalid and not submitted');
     }
   }
 

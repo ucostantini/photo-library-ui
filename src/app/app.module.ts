@@ -12,14 +12,21 @@ import { PictureSearchComponent } from './components/modals/picture-search/pictu
 import { PictureCreateComponent } from "./components/modals/picture-create/picture-create.component";
 import { CommonModule } from "@angular/common";
 import { PictureDeleteComponent } from './components/modals/picture-delete/picture-delete.component';
-import { NgxPaginationModule } from "ngx-pagination";
-import { BsModalService } from "ngx-bootstrap/modal";
-import { ComponentLoaderFactory } from "ngx-bootstrap/component-loader";
 import { PictureService } from "./core/services/picture/picture.service";
-import { PositioningService } from "ngx-bootstrap/positioning";
-import { TagInputModule } from "ngx-chips";
 import { CeilPipe } from './core/pipes/ceil.pipe';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatButtonModule } from '@angular/material/button';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDialogModule } from '@angular/material/dialog';
 
 @NgModule({
   declarations: [
@@ -32,18 +39,28 @@ import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
     PictureDeleteComponent,
     CeilPipe
   ],
-  imports: [
-    BrowserAnimationsModule,
-    AppRoutingModule,
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
-    CommonModule,
-    NgxPaginationModule,
-    TagInputModule
-  ],
-  providers: [BsModalService, ComponentLoaderFactory, PictureService, PositioningService],
+    imports: [
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        ReactiveFormsModule,
+        CommonModule,
+        MatGridListModule,
+        MatCardModule,
+        MatIconModule,
+        MatMenuModule,
+        MatButtonModule,
+        MatPaginatorModule,
+        MatCheckboxModule,
+        MatRadioModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatToolbarModule,
+        MatDialogModule
+    ],
+  providers: [PictureService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

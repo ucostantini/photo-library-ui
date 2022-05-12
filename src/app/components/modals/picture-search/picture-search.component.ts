@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { BsModalRef } from "ngx-bootstrap/modal";
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-picture-search',
@@ -7,8 +7,19 @@ import { BsModalRef } from "ngx-bootstrap/modal";
   styleUrls: ['./picture-search.component.css']
 })
 export class PictureSearchComponent implements OnInit {
+  options: FormGroup;
+  titleControl = new FormControl();
+  tagsControl = new FormControl();
+  websiteControl = new FormControl();
+  authorControl = new FormControl();
 
-  constructor(public bsModalRef: BsModalRef) {
+  constructor(fb: FormBuilder) {
+    this.options = fb.group({
+      title: this.titleControl,
+      tags: this.tagsControl,
+      website: this.websiteControl,
+      author: this.authorControl
+    });
   }
 
   ngOnInit() {

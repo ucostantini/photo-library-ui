@@ -1,9 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Picture } from "../../core/models/picture";
-import { PictureService } from "../../core/services/picture/picture.service";
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { PictureDeleteComponent } from "../modals/picture-delete/picture-delete.component";
-import { PictureCreateComponent } from "../modals/picture-create/picture-create.component";
+import { Picture } from '../../core/models/picture';
+import { PictureService } from '../../core/services/picture/picture.service';
+import { PictureDeleteComponent } from '../modals/picture-delete/picture-delete.component';
+import { PictureCreateComponent } from '../modals/picture-create/picture-create.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-picture-details',
@@ -13,9 +13,8 @@ import { PictureCreateComponent } from "../modals/picture-create/picture-create.
 export class PictureDetailsComponent implements OnInit {
 
   @Input() picture: Picture;
-  modalRef: BsModalRef;
 
-  constructor(private pictureService: PictureService, private modalService: BsModalService) {
+  constructor(private pictureService: PictureService, public dialog: MatDialog) {
   }
 
   ngOnInit(): void {
@@ -33,22 +32,17 @@ export class PictureDetailsComponent implements OnInit {
 
 
   onEdit() {
-    this.modalRef = this.modalService.show(PictureCreateComponent, {
-      class: 'modal-lg',
-      keyboard: false,
-      ignoreBackdropClick: true,
-      focus: true,
-      initialState: {
-        isCreate: false
-      }
-    })
   }
 
   onDelete() {
-    this.modalRef = this.modalService.show(PictureDeleteComponent, {
-      initialState: {
-        pictureId: this.picture.pictureId
-      }
-    })
+    const dialogRef = this.dialog.open(PictureDeleteComponent, {
+      width: '250px',
+      data: this.picture.pictureId,
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+      // TODO send request to delete picture in DB
+    });
   }
 }

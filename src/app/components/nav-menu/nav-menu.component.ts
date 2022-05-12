@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
-import { BsModalRef, BsModalService } from "ngx-bootstrap/modal";
-import { PictureCreateComponent } from "../modals/picture-create/picture-create.component";
-import { PictureSearchComponent } from "../modals/picture-search/picture-search.component";
+import { PictureCreateComponent } from '../modals/picture-create/picture-create.component';
+import { PictureSearchComponent } from '../modals/picture-search/picture-search.component';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-nav-menu',
@@ -9,38 +9,22 @@ import { PictureSearchComponent } from "../modals/picture-search/picture-search.
   styleUrls: ['./nav-menu.component.css']
 })
 export class NavMenuComponent {
-  isExpanded = false;
-  modalRef: BsModalRef;
+  options: FormGroup;
+  sortByControl = new FormControl('date');
+  orderByControl = new FormControl('asc');
 
-  constructor(private modalService: BsModalService) {
-  }
-
-  collapse() {
-    this.isExpanded = false;
-  }
-
-  toggle() {
-    this.isExpanded = !this.isExpanded;
+  constructor(fb: FormBuilder) {
+    this.options = fb.group({
+      sortBy: this.sortByControl,
+      orderBy: this.orderByControl,
+    });
   }
 
   onAdd() {
-    this.modalRef = this.modalService.show(PictureCreateComponent, {
-      class: 'modal-lg',
-      keyboard: false,
-      ignoreBackdropClick: true,
-      focus: true,
-      initialState: {
-        isCreate: true
-      }
-    })
+
   }
 
   onSearch() {
-    this.modalRef = this.modalService.show(PictureSearchComponent, {
-      class: 'modal-lg',
-      keyboard: false,
-      ignoreBackdropClick: true,
-      focus: true
-    })
+
   }
 }

@@ -23,7 +23,7 @@ export interface Picture {
 }
 
 export interface Paginate {
-  page: number,
-  pageSize: number,
-  pictureCount: number
+  pageIndex: number;
+  pageSize: number;
+  length: number;
 }

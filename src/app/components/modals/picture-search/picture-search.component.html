@@ -1,45 +1,31 @@
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title" id="searchModalLabel">Recherche d'une image</h5>
-    <button aria-label="Close" class="close" data-dismiss="modal" type="button">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <form action="routes.php?route=search" method="post" role="form">
-    <div class="modal-body">
-      <div class="form-group">
-        <label class="control-label" for="title">Titre</label>
-        <input class="form-control" id="title" name="title" type="text">
-      </div>
+<h1 mat-dialog-title>Search</h1>
+<div mat-dialog-content>
+  <form [formGroup]="options">
+    <mat-form-field appearance="fill">
+      <mat-label>Enter a title</mat-label>
+      <input matInput placeholder="Advices for yoga" [formControl]="titleControl.value">
+    </mat-form-field>
 
-      <div class="form-group" id="tags">
-        <label class="control-label" for="tags-input">Mots-Clés</label>
-        <input aria-describedby="tagsHelp" class="form-control tm-input" id="tags-input" name="input-tags" type="text">
-        <small class="form-text text-muted" id="tagsHelp">Entrée pour valider le mot-clé tapé.</small>
-      </div>
+    <mat-form-field appearance="fill">
+      <mat-label>Enter keywords separated by commas</mat-label>
+      <input matInput placeholder="technology,health,science" [formControl]="tagsControl.value">
+    </mat-form-field>
 
-      <fieldset class="scheduler-border">
-        <legend class="scheduler-border">Crédits</legend>
-        <div class="form-group">
-          <label class="control-label" for="website">Site Web</label>
-          <div class="col-sm-10">
-            <input class="form-control typeahead" id="website" name="website" type="text">
-          </div>
+    <fieldset class="scheduler-border">
+      <legend class="scheduler-border">Credits</legend>
+      <mat-form-field appearance="fill">
+        <mat-label>Enter a website</mat-label>
+        <input matInput placeholder="Twitter" [formControl]="websiteControl.value">
+      </mat-form-field>
 
-        </div>
-        <div class="form-group">
-          <label class="control-label" for="author">Photographe</label>
-          <div class="col-sm-10">
-            <input class="form-control typeahead" id="author" name="author" type="text">
-          </div>
-        </div>
-      </fieldset>
-    </div>
-    <div class="modal-footer">
-      <div class="form-group">
-        <button class="btn btn-secondary" data-dismiss="modal" type="button">Annuler</button>
-        <button class="btn btn-primary" name='values' type="submit">Rechercher</button>
-      </div>
-    </div>
+      <mat-form-field appearance="fill">
+        <mat-label>Enter an author</mat-label>
+        <input matInput placeholder="Joe Schmoe" [formControl]="authorControl.value">
+      </mat-form-field>
+    </fieldset>
   </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()" cdkFocusInitial>Cancel</button>
+  <button mat-button [mat-dialog-close]="data">Submit</button>
 </div>

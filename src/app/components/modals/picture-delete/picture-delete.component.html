@@ -1,16 +1,9 @@
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title" id="deleteModalLabel">Suppression d'une image</h5>
-    <button (click)="bsModalRef.hide()" aria-label="Close" class="close" data-dismiss="modal" type="button">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="modal-body">
-    <p>Souhaitez-vous vraiment supprimer cette image ?</p>
-    <p>Attention, cette action est irréversible.</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn btn-primary" data-dismiss="modal" type="button">Non</button>
-    <button class="btn btn-secondary btn-ok" type="button">Oui</button>
-  </div>
+<h1 mat-dialog-title>Deletion of a picture</h1>
+<div mat-dialog-content>
+  <p>Do you really want to delete this picture ?</p>
+  <p>Beware, you can't undo this action.</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onCancel()" cdkFocusInitial>No</button>
+  <button mat-button [mat-dialog-close]="pictureId">Yes</button>
 </div>

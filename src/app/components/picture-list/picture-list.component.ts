@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Paginate, Picture } from "../../core/models/picture";
-import { PictureService } from "../../core/services/picture/picture.service";
+import { Paginate, Picture } from '../../core/models/picture';
+import { PictureService } from '../../core/services/picture/picture.service';
+import { PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-picture-list',
@@ -18,14 +19,17 @@ export class PictureListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.readPictures();
+    this.fetchCount(1, 10);
   }
 
-  readPictures(): void {
-    this.pictureService.readAll().subscribe(response => {
+  onPageChange(event: PageEvent): void {
+    this.fetchPictures(event.pageIndex, event.pageSize);
+  }
+
+  fetchPictures(pageIndex: number, pageSize: number): void {
+    this.pictureService.fetch(pageIndex, pageSize).subscribe(response => {
         console.log(response);
-        this.pictures = response.pictures;
-        this.paginate = response.paginate;
+        this.pictures = response;
         this.isLoading = false;
       },
       error => {
@@ -33,8 +37,15 @@ export class PictureListComponent implements OnInit {
       });
   }
 
-  onPageChange(event: number): void {
-    this.paginate.page = event;
+  fetchCount(pageIndex: number, pageSize: number): void {
+    this.pictureService.fetchCount(pageIndex, pageSize).subscribe(response => {
+        console.log(response);
+        this.paginate = response;
+        this.isLoading = false;
+      },
+      error => {
+        console.error(error);
+      });
   }
 
 }

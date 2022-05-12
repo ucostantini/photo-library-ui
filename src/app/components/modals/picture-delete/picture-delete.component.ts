@@ -1,20 +1,18 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { BsModalRef } from "ngx-bootstrap/modal";
+import { Component, Inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-picture-delete',
-  templateUrl: './picture-delete.component.html',
-  styleUrls: ['./picture-delete.component.css'],
-  encapsulation: ViewEncapsulation.None
+  templateUrl: './picture-delete.component.html'
 })
-export class PictureDeleteComponent implements OnInit {
+export class PictureDeleteComponent {
 
-  pictureId;
+  constructor(
+    public dialogRef: MatDialogRef<PictureDeleteComponent>,
+    @Inject(MAT_DIALOG_DATA) public pictureId: number
+  ) {}
 
-  constructor(public bsModalRef: BsModalRef) {
+  onCancel() {
+    this.dialogRef.close();
   }
-
-  ngOnInit() {
-  }
-
 }
