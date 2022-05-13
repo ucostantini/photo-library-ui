@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule } from '@angular/material/dialog';
+import { NgxFileDropModule } from "ngx-file-drop";
 
 @NgModule({
   declarations: [
@@ -48,17 +49,18 @@ import { MatDialogModule } from '@angular/material/dialog';
         ReactiveFormsModule,
         CommonModule,
         MatGridListModule,
-        MatCardModule,
-        MatIconModule,
-        MatMenuModule,
-        MatButtonModule,
-        MatPaginatorModule,
-        MatCheckboxModule,
-        MatRadioModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatToolbarModule,
-        MatDialogModule
+      MatCardModule,
+      MatIconModule,
+      MatMenuModule,
+      MatButtonModule,
+      MatPaginatorModule,
+      MatCheckboxModule,
+      MatRadioModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatToolbarModule,
+      MatDialogModule,
+      NgxFileDropModule
     ],
   providers: [PictureService],
   bootstrap: [AppComponent]

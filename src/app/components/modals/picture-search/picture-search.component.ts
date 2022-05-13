@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
+import { Picture } from "../../../core/models/picture";
 
 @Component({
   selector: 'app-picture-search',
@@ -7,22 +9,26 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
   styleUrls: ['./picture-search.component.css']
 })
 export class PictureSearchComponent implements OnInit {
-  options: FormGroup;
-  titleControl = new FormControl();
-  tagsControl = new FormControl();
-  websiteControl = new FormControl();
-  authorControl = new FormControl();
+  form: FormGroup;
 
-  constructor(fb: FormBuilder) {
-    this.options = fb.group({
-      title: this.titleControl,
-      tags: this.tagsControl,
-      website: this.websiteControl,
-      author: this.authorControl
+  constructor(public fb: FormBuilder, public dialogRef: MatDialogRef<PictureSearchComponent>,
+              @Inject(MAT_DIALOG_DATA) public picture: Picture) {
+    this.form = fb.group({
+      title: new FormControl(),
+      tags: new FormControl(),
+      website: new FormControl(),
+      author: new FormControl(),
     });
   }
 
   ngOnInit() {
   }
 
+  onCancel() {
+    this.dialogRef.close();
+  }
+
+  onSubmit() {
+
+  }
 }

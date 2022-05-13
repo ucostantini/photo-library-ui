@@ -19,7 +19,7 @@ export class PictureListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.fetchCount(1, 10);
+    this.fetchCount(1, 4);
   }
 
   onPageChange(event: PageEvent): void {

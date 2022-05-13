@@ -1,31 +1,31 @@
 <h1 mat-dialog-title>Search</h1>
 <div mat-dialog-content>
-  <form [formGroup]="options">
+  <form (ngSubmit)="onSubmit()" [formGroup]="form" enctype="multipart/form-data" method="get" novalidate role="form">
     <mat-form-field appearance="fill">
       <mat-label>Enter a title</mat-label>
-      <input matInput placeholder="Advices for yoga" [formControl]="titleControl.value">
+      <input formControlName="title" matInput placeholder="Advices for yoga">
     </mat-form-field>
 
     <mat-form-field appearance="fill">
       <mat-label>Enter keywords separated by commas</mat-label>
-      <input matInput placeholder="technology,health,science" [formControl]="tagsControl.value">
+      <input formControlName="tags" matInput placeholder="technology,health,science">
     </mat-form-field>
 
     <fieldset class="scheduler-border">
       <legend class="scheduler-border">Credits</legend>
       <mat-form-field appearance="fill">
         <mat-label>Enter a website</mat-label>
-        <input matInput placeholder="Twitter" [formControl]="websiteControl.value">
+        <input formControlName="website" matInput placeholder="Twitter">
       </mat-form-field>
 
       <mat-form-field appearance="fill">
         <mat-label>Enter an author</mat-label>
-        <input matInput placeholder="Joe Schmoe" [formControl]="authorControl.value">
+        <input formControlName="author" matInput placeholder="Joe Schmoe">
       </mat-form-field>
     </fieldset>
   </form>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onCancel()" cdkFocusInitial>Cancel</button>
-  <button mat-button [mat-dialog-close]="data">Submit</button>
+  <button (click)="onCancel()" mat-button>Cancel</button>
+  <button [mat-dialog-close]="picture" mat-button>Submit</button>
 </div>
