@@ -34,12 +34,12 @@ export class PictureCreateComponent implements OnInit {
       file: new FormControl('', Validators.required),
       tags: new FormControl('', Validators.required),
       source: new FormGroup({
-        website: new FormControl(this.picture && this.picture.source.website ? this.picture.source.website : '', [
+        website: new FormControl('', [
           Validators.minLength(3),
           Validators.maxLength(30),
           Validators.pattern('/^(https?:\\/\\/)?(www\\.)?([a-zA-Z0-9]+(-?[a-zA-Z0-9])*\\.)+[\\w]{2,}(\\/\\S*)?$/ig')]
         ),
-        author: new FormControl(this.picture && this.picture.source.userName ? this.picture.source.userName : '', [
+        author: new FormControl('', [
           Validators.minLength(3),
           Validators.maxLength(20)]
         )

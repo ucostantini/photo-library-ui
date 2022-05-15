@@ -44,12 +44,12 @@ export class PictureService {
   fetchCount(pageIndex: number, pageSize: number): Observable<Paginate> {
     const from = (pageIndex - 1) * pageSize + 1;
     const to = from + pageSize - 1;
-    return this.httpClient.get<Paginate>(`${baseURL}sCount?from=${from}&to${to}`);
+    return this.httpClient.get<Paginate>(`${baseURL}sCount?from=${from}&to=${to}`);
   }
 
   fetch(pageIndex: number, pageSize: number): Observable<Picture[]> {
     const from = (pageIndex - 1) * pageSize + 1;
     const to = from + pageSize - 1;
-    return this.httpClient.get<Picture[]>(`${baseURL}s?from=${from}&to${to}`);
+    return this.httpClient.get<Picture[]>(`${baseURL}s?from=${from}&to=${to}`);
   }
 }

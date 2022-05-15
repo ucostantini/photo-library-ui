@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Paginate, Picture } from '../../core/models/picture';
 import { PictureService } from '../../core/services/picture/picture.service';
 import { PageEvent } from '@angular/material/paginator';
+import { Observable } from "rxjs";
 
 @Component({
   selector: 'app-picture-list',
@@ -10,7 +11,7 @@ import { PageEvent } from '@angular/material/paginator';
 })
 export class PictureListComponent implements OnInit {
 
-  pictures: Picture[] = [];
+  pictures: Observable<Picture[]>;
   paginate: Paginate = null;
   isLoading: boolean;
 
@@ -20,6 +21,7 @@ export class PictureListComponent implements OnInit {
   ngOnInit(): void {
     this.isLoading = true;
     this.fetchCount(1, 4);
+    this.pictures = this.pictureService.fetch(1, 4);
   }
 
   onPageChange(event: PageEvent): void {
@@ -27,7 +29,10 @@ export class PictureListComponent implements OnInit {
   }
 
   fetchPictures(pageIndex: number, pageSize: number): void {
-    this.pictureService.fetch(pageIndex, pageSize).subscribe(response => {
+    this.pictures = this.pictureService.fetch(pageIndex, pageSize);
+
+    /*
+    .subscribe(response => {
         console.log(response);
         this.pictures = response;
         this.isLoading = false;
@@ -35,6 +40,7 @@ export class PictureListComponent implements OnInit {
       error => {
         console.error(error);
       });
+     */
   }
 
   fetchCount(pageIndex: number, pageSize: number): void {

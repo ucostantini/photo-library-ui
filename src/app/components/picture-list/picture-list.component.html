@@ -7,18 +7,20 @@
   <div *ngIf="paginate">
     <p>Number of found pictures : {{ paginate.length }}</p>
   </div>
-  <mat-grid-list cols="2" rowHeight="350px">
-    <app-picture-details *ngFor="let picture of pictures"
-                         [picture]="picture">
-    </app-picture-details>
+  <mat-grid-list cols="4">
+    <mat-grid-tile *ngFor="let picture of pictures | async">    <app-picture-details
+                                            [picture]="picture">
+    </app-picture-details></mat-grid-tile>
 
-    <mat-paginator [length]=paginate.length
-                   [pageSize]="10"
-                   [pageSizeOptions]="[5, 10, 25, 100]"
-                   (page)="onPageChange($event)"
-                   aria-label="Select page">
-    </mat-paginator>
+
+
 
   </mat-grid-list>
+  <mat-paginator [length]=paginate.length
+                 [pageSize]="4"
+                 [pageSizeOptions]="[4, 10, 25, 100]"
+                 (page)="onPageChange($event)"
+                 aria-label="Select page">
+  </mat-paginator>
 </div>
 
