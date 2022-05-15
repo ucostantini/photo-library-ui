@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Picture } from '../../core/models/picture';
 import { PictureService } from '../../core/services/picture/picture.service';
 import { PictureDeleteComponent } from '../modals/picture-delete/picture-delete.component';
-import { PictureCreateComponent } from '../modals/picture-create/picture-create.component';
 import { MatDialog } from '@angular/material/dialog';
 
 @Component({

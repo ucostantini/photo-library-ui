@@ -24,12 +24,12 @@ https://stackoverflow.com/questions/53427017/how-to-show-a-form-on-a-dropdown-in
 override mat-menu-content padding
 */
 .menu-form-wrapper .mat-menu-content:not(:empty) {
- padding: 0;
+  padding: 0;
 }
 
 /* layout for the form */
 .menu-form-wrapper .menu-form {
- display: flex;
- flex-direction: column;
- padding: 24px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
 }

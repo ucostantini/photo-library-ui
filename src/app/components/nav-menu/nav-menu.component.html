@@ -1,5 +1,5 @@
 <mat-toolbar>
-  <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
+  <button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu" mat-icon-button>
     <mat-icon>menu</mat-icon>
   </button>
   <mat-menu #menu="matMenu" [hasBackdrop]="false">
@@ -19,7 +19,7 @@
             <mat-radio-button value="desc">Descending</mat-radio-button>
           </mat-radio-group>
         </div>
-        <button mat-button type="submit" class="example-icon" aria-label="Example icon-button with share icon">
+        <button aria-label="Example icon-button with share icon" class="example-icon" mat-button type="submit">
           Submit
         </button>
       </form>
@@ -27,10 +27,10 @@
   </mat-menu>
   <span>Photo Library</span>
   <span class="example-spacer"></span>
-  <button mat-icon-button (click)="onAdd()" class="example-icon" aria-label="Example icon-button with heart icon">
+  <button (click)="onAdd()" aria-label="Example icon-button with heart icon" class="example-icon" mat-icon-button>
     <mat-icon>add</mat-icon>
   </button>
-  <button mat-icon-button (click)="onSearch()" class="example-icon" aria-label="Example icon-button with share icon">
+  <button (click)="onSearch()" aria-label="Example icon-button with share icon" class="example-icon" mat-icon-button>
     <mat-icon>search</mat-icon>
   </button>
 </mat-toolbar>

@@ -10,7 +10,8 @@ export class PictureDeleteComponent {
   constructor(
     public dialogRef: MatDialogRef<PictureDeleteComponent>,
     @Inject(MAT_DIALOG_DATA) public pictureId: number
-  ) {}
+  ) {
+  }
 
   onCancel() {
     this.dialogRef.close();

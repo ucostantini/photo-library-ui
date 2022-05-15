@@ -8,18 +8,18 @@
     <p>Number of found pictures : {{ paginate.length }}</p>
   </div>
   <mat-grid-list cols="4">
-    <mat-grid-tile *ngFor="let picture of pictures | async">    <app-picture-details
-                                            [picture]="picture">
-    </app-picture-details></mat-grid-tile>
-
-
+    <mat-grid-tile *ngFor="let picture of pictures | async">
+      <app-picture-details
+        [picture]="picture">
+      </app-picture-details>
+    </mat-grid-tile>
 
 
   </mat-grid-list>
-  <mat-paginator [length]=paginate.length
-                 [pageSize]="4"
+  <mat-paginator (page)="onPageChange($event)"
+                 [length]=paginate.length
                  [pageSizeOptions]="[4, 10, 25, 100]"
-                 (page)="onPageChange($event)"
+                 [pageSize]="4"
                  aria-label="Select page">
   </mat-paginator>
 </div>

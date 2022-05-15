@@ -136,12 +136,6 @@ export class PictureCreateComponent implements OnInit {
     this.dialogRef.close()
   }
 
-  private prefillTags() {
-    if (this.picture.tags) {
-      //  this.picture.tags.forEach(tag => this.tags.push({identifyBy: tag.tagId, displayBy: tag.name}));
-    }
-  }
-
   dropped(files: NgxFileDropEntry[]) {
     for (const droppedFile of files) {
 
@@ -152,6 +146,12 @@ export class PictureCreateComponent implements OnInit {
           console.log(droppedFile.relativePath, file);
         });
       }
+    }
+  }
+
+  private prefillTags() {
+    if (this.picture.tags) {
+      //  this.picture.tags.forEach(tag => this.tags.push({identifyBy: tag.tagId, displayBy: tag.name}));
     }
   }
 }
