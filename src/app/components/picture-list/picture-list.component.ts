@@ -20,16 +20,21 @@ export class PictureListComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.fetchCount(1, 4);
-    this.pictures = this.pictureService.fetch(1, 4);
+    const defaultPage = <Paginate> {
+      pageIndex: 0,
+      pageSize: 4,
+      length: 6
+    }
+    this.fetchCount(defaultPage);
+    this.pictures = this.pictureService.fetch(defaultPage);
   }
 
   onPageChange(event: PageEvent): void {
-    this.fetchPictures(event.pageIndex, event.pageSize);
+    this.fetchPictures(event as Paginate);
   }
 
-  fetchPictures(pageIndex: number, pageSize: number): void {
-    this.pictures = this.pictureService.fetch(pageIndex, pageSize);
+  fetchPictures(page: Paginate): void {
+    this.pictures = this.pictureService.fetch(page);
 
     /*
     .subscribe(response => {
@@ -43,8 +48,8 @@ export class PictureListComponent implements OnInit {
      */
   }
 
-  fetchCount(pageIndex: number, pageSize: number): void {
-    this.pictureService.fetchCount(pageIndex, pageSize).subscribe(response => {
+  fetchCount(page: Paginate): void {
+    this.pictureService.fetchCount(page).subscribe(response => {
         console.log(response);
         this.paginate = response;
         this.isLoading = false;

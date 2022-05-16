@@ -1,8 +1,8 @@
 {
   "pictures": [
     {
-      "id": 1,
-      "path": "assets/img/1.jpg",
+      "id": 0,
+      "path": "assets/img/0.jpg",
       "tags": [
         "tag1",
         "tag2",
@@ -10,64 +10,8 @@
       ]
     },
     {
-        "id": 2,
-        "path": "assets/img/2.jpg",
-        "tags": [
-          "tag4",
-          "tag5",
-          "tag6"
-        ]
-      },
-      {
-        "id": 3,
-        "path": "assets/img/3.jpg",
-        "tags": [
-          "tag1",
-          "tag5",
-          "tag3"
-        ]
-      },
-      {
-        "id": 4,
-        "path": "assets/img/4.jpg",
-        "tags": [
-          "tag3",
-          "tag2",
-          "tag4"
-        ]
-      },
-      {
-        "id": 5,
-        "path": "assets/img/5.jpg",
-        "tags": [
-          "tag5",
-          "tag1",
-          "tag2"
-        ]
-      },
-    {
-      "id": 6,
-      "path": "assets/img/6.jpg",
-      "tags": [
-        "tag3",
-        "tag2",
-        "tag3"
-      ]
-    }
-  ],
-  "pictures?from=1&to=4": [
-    {
       "id": 1,
       "path": "assets/img/1.jpg",
-      "tags": [
-        "tag1",
-        "tag2",
-        "tag3"
-      ]
-    },
-    {
-      "id": 2,
-      "path": "assets/img/2.jpg",
       "tags": [
         "tag4",
         "tag5",
@@ -75,8 +19,8 @@
       ]
     },
     {
-      "id": 3,
-      "path": "assets/img/3.jpg",
+      "id": 2,
+      "path": "assets/img/2.jpg",
       "tags": [
         "tag1",
         "tag5",
@@ -84,19 +28,17 @@
       ]
     },
     {
-      "id": 4,
-      "path": "assets/img/4.jpg",
+      "id": 3,
+      "path": "assets/img/3.jpg",
       "tags": [
         "tag3",
         "tag2",
         "tag4"
       ]
-    }
-  ],
-  "pictures?from=5&to=6": [
+    },
     {
-      "id": 5,
-      "path": "assets/img/5.jpg",
+      "id": 4,
+      "path": "assets/img/4.jpg",
       "tags": [
         "tag5",
         "tag1",
@@ -104,8 +46,8 @@
       ]
     },
     {
-      "id": 6,
-      "path": "assets/img/6.jpg",
+      "id": 5,
+      "path": "assets/img/5.jpg",
       "tags": [
         "tag3",
         "tag2",
@@ -113,18 +55,13 @@
       ]
     }
   ],
-  "picturesCount": {
-    "pageIndex": 1,
+  "picturesCount0": {
+    "pageIndex": 0,
     "pageSize": 4,
     "length": 6
   },
-  "picturesCount?from=1&to=4": {
+  "picturesCount1": {
     "pageIndex": 1,
-    "pageSize": 4,
-    "length": 6
-  },
-  "picturesCount?from=5&to=2": {
-    "pageIndex": 2,
     "pageSize": 4,
     "length": 6
   }

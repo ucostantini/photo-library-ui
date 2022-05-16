@@ -1,24 +1,17 @@
-<mat-card style="margin:10px;">
+<mat-card class="card">
   <mat-card-header>
     <mat-card-title>
-      <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button" mat-icon-button>
-        <mat-icon>more_vert</mat-icon>
-      </button>
-      <mat-menu #menu="matMenu" xPosition="before">
-        <button mat-menu-item>Expand</button>
-        <button mat-menu-item>Remove</button>
-      </mat-menu>
       <p>CECI EST UN TITRE</p>
     </mat-card-title>
-    <div class="productImage" style="height: 225px;">
-      <div class="img-wrapper">
-        <a class="thumb">
-          <img [attr.src]="picture.path"
-               alt="pic" style="max-width:100%;max-height:100%;height: auto;width:auto;">
-        </a>
-      </div>
-    </div>
+    <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button" mat-icon-button>
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu" xPosition="before">
+      <button mat-menu-item>Expand</button>
+      <button mat-menu-item>Remove</button>
+    </mat-menu>
   </mat-card-header>
+  <img mat-card-image [attr.src]="picture.path" alt="pic">
   <mat-card-content class="dashboard-card-content">
     <div class="content">
       <p class="card-text">Keywords : {{picture.tags.toString()}} </p>

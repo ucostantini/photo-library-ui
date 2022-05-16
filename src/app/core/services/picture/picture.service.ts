@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Paginate, Picture } from "../../models/picture";
+import { DataUtils } from "../../../utils/data-utils";
 
 const baseURL = 'http://localhost:3000/picture';
 
@@ -41,15 +42,11 @@ export class PictureService {
     return this.httpClient.get(`${baseURL}?name=${name}`);
   }
 
-  fetchCount(pageIndex: number, pageSize: number): Observable<Paginate> {
-    const from = (pageIndex - 1) * pageSize + 1;
-    const to = from + pageSize - 1;
-    return this.httpClient.get<Paginate>(`${baseURL}sCount?from=${from}&to=${to}`);
+  fetchCount(page): Observable<Paginate> {
+    return this.httpClient.get<Paginate>(`${baseURL}sCount${page.pageIndex}`);
   }
 
-  fetch(pageIndex: number, pageSize: number): Observable<Picture[]> {
-    const from = (pageIndex - 1) * pageSize + 1;
-    const to = from + pageSize - 1;
-    return this.httpClient.get<Picture[]>(`${baseURL}s?from=${from}&to=${to}`);
+  fetch(page: Paginate): Observable<Picture[]> {
+    return this.httpClient.get<Picture[]>(`${baseURL}s?_page=${page.pageIndex+1}&_limit=${page.pageSize}`);
   }
 }
