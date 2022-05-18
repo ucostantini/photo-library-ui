@@ -2,7 +2,7 @@
   THIS IS LOADING
 </div>
 
-<div *ngIf="!isLoading" class="grid-container">
+<div *ngIf="!isLoading">
   <h1 class="mat-h1">Results</h1>
   <div *ngIf="paginate">
     <p>Number of found pictures : {{ paginate.length }}</p>
@@ -20,7 +20,7 @@
                  [length]=paginate.length
                  [pageSizeOptions]="[4, 10, 25, 100]"
                  [pageSize]="4"
-                 aria-label="Select page">
+                 aria-label="Select page" class="paginator">
   </mat-paginator>
 </div>
 
