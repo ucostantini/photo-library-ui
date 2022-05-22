@@ -14,7 +14,7 @@ export interface Source {
   author?: Author;
 }
 
-export interface Picture {
+export interface Card {
   pictureId: number;
   path: string;
   source: Source;

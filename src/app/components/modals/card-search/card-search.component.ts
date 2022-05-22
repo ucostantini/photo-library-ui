@@ -1,18 +1,18 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { Picture } from "../../../core/models/picture";
+import { Card } from "../../../core/models/card";
 
 @Component({
-  selector: 'app-picture-search',
-  templateUrl: './picture-search.component.html',
-  styleUrls: ['./picture-search.component.css']
+  selector: 'app-card-search',
+  templateUrl: './card-search.component.html',
+  styleUrls: ['./card-search.component.scss']
 })
-export class PictureSearchComponent implements OnInit {
+export class CardSearchComponent implements OnInit {
   form: FormGroup;
 
-  constructor(public fb: FormBuilder, public dialogRef: MatDialogRef<PictureSearchComponent>,
-              @Inject(MAT_DIALOG_DATA) public picture: Picture) {
+  constructor(public fb: FormBuilder, public dialogRef: MatDialogRef<CardSearchComponent>,
+              @Inject(MAT_DIALOG_DATA) public card: Card) {
     this.form = fb.group({
       title: new FormControl(),
       tags: new FormControl(),

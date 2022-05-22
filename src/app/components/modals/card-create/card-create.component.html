@@ -1,10 +1,13 @@
-<h1 mat-dialog-title>Search</h1>
+<h1 mat-dialog-title>Add a new card</h1>
 <div mat-dialog-content>
-  <form (ngSubmit)="onSubmit()" [formGroup]="form" enctype="multipart/form-data" method="get" novalidate role="form">
+  <form (ngSubmit)="onSubmit()" [formGroup]="form" enctype="multipart/form-data" method="post" novalidate role="form">
     <mat-form-field appearance="fill">
       <mat-label>Enter a title</mat-label>
-      <input formControlName="title" matInput placeholder="Advices for yoga">
+      <input formControlName="title" matInput placeholder="Advices for yoga" required>
     </mat-form-field>
+
+    <ngx-file-drop (onFileDrop)="dropped($event)" dropZoneLabel="Drop files here">
+    </ngx-file-drop>
 
     <mat-form-field appearance="fill">
       <mat-label>Enter keywords separated by commas</mat-label>
@@ -27,5 +30,5 @@
 </div>
 <div mat-dialog-actions>
   <button (click)="onCancel()" mat-button>Cancel</button>
-  <button [mat-dialog-close]="picture" mat-button>Submit</button>
+  <button [mat-dialog-close]="card" mat-button type="submit">Submit</button>
 </div>

@@ -1,45 +1,45 @@
 import { Component, OnInit } from '@angular/core';
-import { Paginate, Picture } from '../../core/models/picture';
-import { PictureService } from '../../core/services/picture/picture.service';
+import { Card, Paginate } from '../../core/models/card';
+import { CardService } from '../../core/services/card/card.service';
 import { PageEvent } from '@angular/material/paginator';
 import { Observable } from "rxjs";
 
 @Component({
-  selector: 'app-picture-list',
-  templateUrl: './picture-list.component.html',
-  styleUrls: ['./picture-list.component.css']
+  selector: 'app-card-list',
+  templateUrl: './card-list.component.html',
+  styleUrls: ['./card-list.component.scss']
 })
-export class PictureListComponent implements OnInit {
+export class CardListComponent implements OnInit {
 
-  pictures: Observable<Picture[]>;
+  cards: Observable<Card[]>;
   paginate: Paginate = null;
   isLoading: boolean;
 
-  constructor(private pictureService: PictureService) {
+  constructor(private cardService: CardService) {
   }
 
   ngOnInit(): void {
     this.isLoading = true;
-    const defaultPage = <Paginate> {
+    const defaultPage = <Paginate>{
       pageIndex: 0,
       pageSize: 4,
       length: 6
     }
     this.fetchCount(defaultPage);
-    this.pictures = this.pictureService.fetch(defaultPage);
+    this.cards = this.cardService.fetch(defaultPage);
   }
 
   onPageChange(event: PageEvent): void {
-    this.fetchPictures(event as Paginate);
+    this.fetchCards(event as Paginate);
   }
 
-  fetchPictures(page: Paginate): void {
-    this.pictures = this.pictureService.fetch(page);
+  fetchCards(page: Paginate): void {
+    this.cards = this.cardService.fetch(page);
 
     /*
     .subscribe(response => {
         console.log(response);
-        this.pictures = response;
+        this.cards = response;
         this.isLoading = false;
       },
       error => {
@@ -49,7 +49,7 @@ export class PictureListComponent implements OnInit {
   }
 
   fetchCount(page: Paginate): void {
-    this.pictureService.fetchCount(page).subscribe(response => {
+    this.cardService.fetchCount(page).subscribe(response => {
         console.log(response);
         this.paginate = response;
         this.isLoading = false;

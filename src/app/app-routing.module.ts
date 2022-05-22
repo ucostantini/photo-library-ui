@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { PictureListComponent } from "./components/picture-list/picture-list.component";
+import { CardListComponent } from "./components/card-list/card-list.component";
 
 
 const routes: Routes = [
-  {path: '', component: PictureListComponent, pathMatch: 'full'}
+  {path: '', component: CardListComponent, pathMatch: 'full'}
 ];
 
 @NgModule({

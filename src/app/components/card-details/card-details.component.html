@@ -1,0 +1,29 @@
+<mat-card class="card">
+  <mat-card-header>
+    <mat-card-title>
+      This is a title
+    </mat-card-title>
+    <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button" mat-icon-button
+            style="margin-right: 0; margin-left: auto">
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu" xPosition="before">
+      <button (click)="card.path" mat-menu-item>Download picture</button>
+      <button (click)="onEdit()" data-target="#createModal"
+              data-toggle="modal" mat-menu-item>Edit
+      </button>
+      <button (click)="onDelete()" data-target="#deleteModal"
+              data-toggle="modal" mat-menu-item>Delete
+      </button>
+    </mat-menu>
+  </mat-card-header>
+  <img [attr.src]="card.path" alt="pic" mat-card-image>
+  <mat-card-content class="mat-card-content">
+    <p class="card-text">Tags : {{card.tags.toString()}} </p>
+    <hr/>
+    <p class="card-text">Credits : <a>https://website.org</a> / userName </p>
+    <hr/>
+    <p class="card-text">Size : 1920 x 1080</p>
+    <p class="card-text"><small class="text-muted">Created the YYYY-MM-DD</small></p>
+  </mat-card-content>
+</mat-card>

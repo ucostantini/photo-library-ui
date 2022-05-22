@@ -1,4 +1,4 @@
-import { Paginate } from "../core/models/picture";
+import { Paginate } from "../core/models/card";
 
 export class DataUtils {
 

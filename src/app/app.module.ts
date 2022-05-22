@@ -5,14 +5,14 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
-import { PictureListComponent } from './components/picture-list/picture-list.component';
+import { CardListComponent } from './components/card-list/card-list.component';
 import { AppRoutingModule } from "./app-routing.module";
-import { PictureDetailsComponent } from './components/picture-details/picture-details.component';
-import { PictureSearchComponent } from './components/modals/picture-search/picture-search.component';
-import { PictureCreateComponent } from "./components/modals/picture-create/picture-create.component";
+import { CardDetailsComponent } from './components/card-details/card-details.component';
+import { CardSearchComponent } from './components/modals/card-search/card-search.component';
+import { CardCreateComponent } from "./components/modals/card-create/card-create.component";
 import { CommonModule } from "@angular/common";
-import { PictureDeleteComponent } from './components/modals/picture-delete/picture-delete.component';
-import { PictureService } from "./core/services/picture/picture.service";
+import { CardDeleteComponent } from './components/modals/card-delete/card-delete.component';
+import { CardService } from "./core/services/card/card.service";
 import { CeilPipe } from './core/pipes/ceil.pipe';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatGridListModule } from '@angular/material/grid-list';
@@ -34,11 +34,11 @@ import { MatSidenavModule } from "@angular/material/sidenav";
   declarations: [
     AppComponent,
     NavMenuComponent,
-    PictureCreateComponent,
-    PictureListComponent,
-    PictureDetailsComponent,
-    PictureSearchComponent,
-    PictureDeleteComponent,
+    CardCreateComponent,
+    CardListComponent,
+    CardDetailsComponent,
+    CardSearchComponent,
+    CardDeleteComponent,
     CeilPipe
   ],
   imports: [
@@ -64,7 +64,7 @@ import { MatSidenavModule } from "@angular/material/sidenav";
     NgxFileDropModule,
     MatSidenavModule
   ],
-  providers: [PictureService],
+  providers: [CardService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

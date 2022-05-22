@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { Picture, Tag } from '../../../core/models/picture';
-import { PictureService } from '../../../core/services/picture/picture.service';
+import { Card, Tag } from '../../../core/models/card';
+import { CardService } from '../../../core/services/card/card.service';
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { TagService } from '../../../core/services/tag/tag.service';
@@ -8,11 +8,11 @@ import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
 import { NgxFileDropEntry } from "ngx-file-drop";
 
 @Component({
-  selector: 'app-picture-create',
-  templateUrl: './picture-create.component.html',
-  styleUrls: ['./picture-create.component.css']
+  selector: 'app-card-create',
+  templateUrl: './card-create.component.html',
+  styleUrls: ['./card-create.component.scss']
 })
-export class PictureCreateComponent implements OnInit {
+export class CardCreateComponent implements OnInit {
 
   form: FormGroup;
   isCreate = true;
@@ -23,8 +23,8 @@ export class PictureCreateComponent implements OnInit {
   };
   private tags: Tag[];
 
-  constructor(private pictureService: PictureService, private tagService: TagService, private dialogRef: MatDialogRef<PictureCreateComponent>,
-              @Inject(MAT_DIALOG_DATA) public picture: Picture) {
+  constructor(private cardService: CardService, private tagService: TagService, private dialogRef: MatDialogRef<CardCreateComponent>,
+              @Inject(MAT_DIALOG_DATA) public card: Card) {
   }
 
   ngOnInit(): void {
@@ -46,7 +46,7 @@ export class PictureCreateComponent implements OnInit {
       })
     });
 
-    if (this.picture) {
+    if (this.card) {
       this.prefillTags();
     }
   }
@@ -64,8 +64,8 @@ export class PictureCreateComponent implements OnInit {
     return [Validators.minLength(3), Validators.maxLength(20)];
   }
 
-  createPicture(): void {
-    this.pictureService.create(this.picture).subscribe(response => {
+  createCard(): void {
+    this.cardService.create(this.card).subscribe(response => {
         console.log(response);
         this.submitted = true;
       },
@@ -150,8 +150,8 @@ export class PictureCreateComponent implements OnInit {
   }
 
   private prefillTags() {
-    if (this.picture.tags) {
-      //  this.picture.tags.forEach(tag => this.tags.push({identifyBy: tag.tagId, displayBy: tag.name}));
+    if (this.card.tags) {
+      //  this.card.tags.forEach(tag => this.tags.push({identifyBy: tag.tagId, displayBy: tag.name}));
     }
   }
 }

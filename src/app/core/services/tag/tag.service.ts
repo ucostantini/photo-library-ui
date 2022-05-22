@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { Tag } from "../../models/picture";
+import { Tag } from "../../models/card";
 
 const baseURL = 'http://localhost:8686/api/tags';
 

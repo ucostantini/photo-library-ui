@@ -3,17 +3,14 @@
 </div>
 
 <div *ngIf="!isLoading">
-  <h1 class="mat-h1">Results</h1>
-  <div *ngIf="paginate">
-    <p>Number of found pictures : {{ paginate.length }}</p>
-  </div>
-  <mat-grid-list cols="4">
-    <mat-grid-tile *ngFor="let picture of pictures | async">
-      <app-picture-details
-        [picture]="picture">
-      </app-picture-details>
-    </mat-grid-tile>
 
+  <h1 *ngIf="paginate" style="padding: 16px">{{ paginate.length }} results found</h1>
+  <mat-grid-list cols="4">
+    <mat-grid-tile *ngFor="let card of cards | async">
+      <app-card-details
+        [card]="card">
+      </app-card-details>
+    </mat-grid-tile>
 
   </mat-grid-list>
   <mat-paginator (page)="onPageChange($event)"

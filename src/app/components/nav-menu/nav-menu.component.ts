@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { PictureCreateComponent } from '../modals/picture-create/picture-create.component';
-import { PictureSearchComponent } from '../modals/picture-search/picture-search.component';
+import { CardCreateComponent } from '../modals/card-create/card-create.component';
+import { CardSearchComponent } from '../modals/card-search/card-search.component';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from "@angular/material/dialog";
 
 @Component({
   selector: 'app-nav-menu',
   templateUrl: './nav-menu.component.html',
-  styleUrls: ['./nav-menu.component.css']
+  styleUrls: ['./nav-menu.component.scss']
 })
 export class NavMenuComponent {
   options: FormGroup;
@@ -22,8 +22,8 @@ export class NavMenuComponent {
   }
 
   onAdd() {
-    const dialogRef = this.dialog.open(PictureCreateComponent, {
-      data: {picture: null},
+    const dialogRef = this.dialog.open(CardCreateComponent, {
+      data: {card: null},
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -33,8 +33,8 @@ export class NavMenuComponent {
   }
 
   onSearch() {
-    const dialogRef = this.dialog.open(PictureSearchComponent, {
-      data: {picture: null}
+    const dialogRef = this.dialog.open(CardSearchComponent, {
+      data: {card: null}
     });
 
     dialogRef.afterClosed().subscribe(result => {
