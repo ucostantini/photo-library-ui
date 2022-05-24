@@ -1,9 +1,9 @@
-<mat-toolbar color="primary" style="display: inline-grid; grid-template-columns: auto auto auto;">
+<mat-toolbar class="toolbar" color="primary">
   <button mat-icon-button>
     <mat-icon>home</mat-icon>
   </button>
-  <span style="text-align: center">Photo Library</span>
-  <div style="margin-right: 0; margin-left: auto">
+  <span class="text-center">Photo Library</span>
+  <div class="align-right">
     <button (click)="onAdd()" mat-icon-button>
       <mat-icon>add</mat-icon>
     </button>
@@ -14,23 +14,26 @@
       <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #menu="matMenu" [hasBackdrop]="false">
+      <!-- prevents menu from being closed upon click of a radio button in the form -->
       <div (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
-        <form [formGroup]="options">
+        <form (ngSubmit)="onSubmit()" [formGroup]="options" enctype="multipart/form-data" method="post" novalidate
+              role="form">
           <div>
-            <label>Sort by: </label>
+            <mat-label class="mat-menu-item">Sort by:</mat-label>
             <mat-radio-group [formControl]="sortByControl">
-              <mat-radio-button value="date">Date</mat-radio-button>
-              <mat-radio-button value="title">Title</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value="date">Date</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value="title">Title</mat-radio-button>
             </mat-radio-group>
           </div>
           <div>
-            <label>Order by: </label>
+            <mat-label class="mat-menu-item">Order by:</mat-label>
             <mat-radio-group [formControl]="orderByControl">
-              <mat-radio-button value="asc">Ascending</mat-radio-button>
-              <mat-radio-button value="desc">Descending</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value="asc">Ascending</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value="desc">Descending</mat-radio-button>
             </mat-radio-group>
           </div>
-          <button mat-button type="submit">
+          <button class="mat-menu-item text-center" color="primary" mat-raised-button style="text-align: center"
+                  type="submit">
             Submit
           </button>
         </form>

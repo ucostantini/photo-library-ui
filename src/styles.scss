@@ -8,3 +8,22 @@ body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
+
+.align-right {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.scheduler-border {
+  display: flex;
+  column-gap: 16px
+}
+
+.card-form {
+  display: flex;
+  flex-direction: column;
+}

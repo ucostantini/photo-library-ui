@@ -5,14 +5,13 @@
 <div *ngIf="!isLoading">
 
   <h1 *ngIf="paginate" style="padding: 16px">{{ paginate.length }} results found</h1>
-  <mat-grid-list cols="4">
-    <mat-grid-tile *ngFor="let card of cards | async">
-      <app-card-details
-        [card]="card">
-      </app-card-details>
-    </mat-grid-tile>
 
-  </mat-grid-list>
+  <div class="content">
+    <app-card-details *ngFor="let card of cards | async"
+                      [card]="card">
+    </app-card-details>
+  </div>
+
   <mat-paginator (page)="onPageChange($event)"
                  [length]=paginate.length
                  [pageSizeOptions]="[4, 10, 25, 100]"

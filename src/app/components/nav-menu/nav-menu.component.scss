@@ -33,3 +33,8 @@ override mat-menu-content padding
   flex-direction: column;
   padding: 24px;
 }
+
+.toolbar {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+}

@@ -1,6 +1,7 @@
 <h1 mat-dialog-title>Add a new card</h1>
 <div mat-dialog-content>
-  <form (ngSubmit)="onSubmit()" [formGroup]="form" enctype="multipart/form-data" method="post" novalidate role="form">
+  <form (ngSubmit)="onSubmit()" [formGroup]="form" class="card-form" enctype="multipart/form-data" method="post"
+        novalidate role="form">
     <mat-form-field appearance="fill">
       <mat-label>Enter a title</mat-label>
       <input formControlName="title" matInput placeholder="Advices for yoga" required>
@@ -9,9 +10,9 @@
     <ngx-file-drop (onFileDrop)="dropped($event)" dropZoneLabel="Drop files here">
     </ngx-file-drop>
 
-    <mat-form-field appearance="fill">
-      <mat-label>Enter keywords separated by commas</mat-label>
-      <input formControlName="tags" matInput placeholder="technology,health,science">
+    <mat-form-field appearance="fill" style="padding-top: 16px">
+      <mat-label>Enter tags</mat-label>
+      <input formControlName="tags" matInput placeholder="tech,health,science">
     </mat-form-field>
 
     <fieldset class="scheduler-border">
@@ -23,12 +24,12 @@
 
       <mat-form-field appearance="fill">
         <mat-label>Enter an author</mat-label>
-        <input formControlName="author" matInput placeholder="Joe Schmoe">
+        <input formControlName="author" matInput placeholder="John Smith">
       </mat-form-field>
     </fieldset>
   </form>
 </div>
-<div mat-dialog-actions>
-  <button (click)="onCancel()" mat-button>Cancel</button>
-  <button [mat-dialog-close]="card" mat-button type="submit">Submit</button>
+<div mat-dialog-actions style="justify-content: flex-end">
+  <button (click)="onCancel()" color="accent" mat-raised-button>Cancel</button>
+  <button [mat-dialog-close]="card" color="primary" mat-raised-button>Submit</button>
 </div>

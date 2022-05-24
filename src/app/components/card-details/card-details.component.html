@@ -3,11 +3,11 @@
     <mat-card-title>
       This is a title
     </mat-card-title>
-    <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button" mat-icon-button
+    <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button " mat-icon-button
             style="margin-right: 0; margin-left: auto">
       <mat-icon>more_vert</mat-icon>
     </button>
-    <mat-menu #menu="matMenu" xPosition="before">
+    <mat-menu #menu="matMenu">
       <button (click)="card.path" mat-menu-item>Download picture</button>
       <button (click)="onEdit()" data-target="#createModal"
               data-toggle="modal" mat-menu-item>Edit

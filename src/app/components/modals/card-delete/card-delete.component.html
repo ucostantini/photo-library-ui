@@ -3,7 +3,7 @@
   <p>Do you really want to delete this card ?</p>
   <p>Beware, you can't undo this action.</p>
 </div>
-<div mat-dialog-actions>
-  <button (click)="onCancel()" cdkFocusInitial mat-button>No</button>
-  <button [mat-dialog-close]="cardId" mat-button>Yes</button>
+<div class="align-right" mat-dialog-actions>
+  <button (click)="onCancel()" color="primary" mat-raised-button>No</button>
+  <button [mat-dialog-close]="cardId" color="warn" mat-raised-button>Yes</button>
 </div>

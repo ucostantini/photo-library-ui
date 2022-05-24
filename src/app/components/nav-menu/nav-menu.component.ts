@@ -42,4 +42,8 @@ export class NavMenuComponent {
       console.log(result);
     });
   }
+
+  onSubmit() {
+
+  }
 }
