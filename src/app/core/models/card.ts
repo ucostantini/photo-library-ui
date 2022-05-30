@@ -17,7 +17,7 @@ export interface Source {
 export interface Card {
   cardId?: number;
   title: string;
-  files: File[];
+  files: number[];
   source: Source;
   tags: Tag[];
   timeStamp?: Date;

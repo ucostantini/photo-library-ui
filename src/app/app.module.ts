@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { FilePickerModule } from 'ngx-awesome-uploader';
 
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
@@ -49,6 +50,7 @@ import { MatSidenavModule } from "@angular/material/sidenav";
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
+    FilePickerModule,
     MatGridListModule,
     MatCardModule,
     MatIconModule,

@@ -1,0 +1,10 @@
+:host ::ng-deep ngx-awesome-uploader {
+
+  .content-center-text, .content-top-text {
+    color: inherit;
+  }
+
+  .file-drop-wrapper, #dropZone {
+    background: inherit;
+  }
+}

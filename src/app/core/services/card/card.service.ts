@@ -3,7 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Card, Paginate } from "../../models/card";
 
-const baseURL = 'http://localhost:3000/picture';
+const baseURL = 'http://localhost:3000/cards';
 
 @Injectable({
   providedIn: 'root'
@@ -46,10 +46,10 @@ export class CardService {
   }
 
   fetchCount(page: Paginate): Observable<Paginate> {
-    return this.httpClient.get<Paginate>(`${baseURL}sCount${page.pageIndex}`);
+    return this.httpClient.get<Paginate>(`${baseURL}Count${page.pageIndex}`);
   }
 
   fetch(page: Paginate): Observable<Card[]> {
-    return this.httpClient.get<Card[]>(`${baseURL}s?_page=${page.pageIndex + 1}&_limit=${page.pageSize}`);
+    return this.httpClient.get<Card[]>(`${baseURL}?_page=${page.pageIndex + 1}&_limit=${page.pageSize}`);
   }
 }

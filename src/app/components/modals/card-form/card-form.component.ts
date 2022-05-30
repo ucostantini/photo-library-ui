@@ -2,9 +2,9 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { Card, Tag } from '../../../core/models/card';
 import { CardService } from '../../../core/services/card/card.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { TagService } from '../../../core/services/tag/tag.service';
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { NgxFileDropEntry } from "ngx-file-drop";
+import { FileService } from "../../../core/services/file/file.service";
+import { FilePreviewModel } from "ngx-awesome-uploader";
 
 @Component({
   selector: 'app-card-form',
@@ -16,9 +16,9 @@ export class CardFormComponent implements OnInit {
   form: FormGroup;
   status: string;
   private tags: Tag[] = [];
-  private files: File[] = [];
+  private files: number[] = [];
 
-  constructor(private cardService: CardService, private tagService: TagService, private dialogRef: MatDialogRef<CardFormComponent>,
+  constructor(private cardService: CardService, public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
               @Inject(MAT_DIALOG_DATA) public card: Card) {
   }
 
@@ -31,7 +31,7 @@ export class CardFormComponent implements OnInit {
         Validators.minLength(3),
         Validators.maxLength(30)]
       ),
-      files: new FormControl(this.card ? this.card.files : this.files),
+      files: new FormControl(this.card ? this.card.files : this.files, Validators.minLength(1)),
       tags: new FormControl(this.card ? this.card.tags.join(',') : '', Validators.required),
       source: new FormGroup({
         website: new FormControl(this.card ? this.card.source.website : '', [
@@ -46,17 +46,6 @@ export class CardFormComponent implements OnInit {
         )
       })
     });
-  }
-
-  onFileDropped(files: NgxFileDropEntry[]) {
-    for (const droppedFile of files) {
-      if (droppedFile.fileEntry.isFile) {
-        const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
-        fileEntry.file((file: File) => {
-          this.files.push(file);
-        });
-      }
-    }
   }
 
   onCancel() {
@@ -74,5 +63,15 @@ export class CardFormComponent implements OnInit {
       this.card = (this.form.getRawValue() as Card);
     }
     this.dialogRef.close(this.card);
+  }
+
+  onFileUploaded($event: FilePreviewModel) {
+    console.log(JSON.stringify($event));
+    this.files.push($event.uploadResponse.fileId);
+  }
+
+  onFileRemoved($event: FilePreviewModel) {
+    // TODO optimize this. change data structure from array to object
+    this.files = this.files.filter(el => el !== $event.uploadResponse.fileId);
   }
 }

@@ -1,9 +1,11 @@
 {
-  "pictures": [
+  "cards": [
     {
       "cardId": 0,
       "title": "Title 1",
-      "path": "assets/img/0.jpg",
+      "files": [
+        1
+      ],
       "tags": [
         "tag1",
         "tag2",
@@ -17,7 +19,9 @@
     {
       "cardId": 1,
       "title": "Title 2",
-      "path": "assets/img/1.jpg",
+      "files": [
+        2
+      ],
       "tags": [
         "tag4",
         "tag5",
@@ -31,7 +35,9 @@
     {
       "cardId": 2,
       "title": "Title 3",
-      "path": "assets/img/2.jpg",
+      "files": [
+        3
+      ],
       "tags": [
         "tag1",
         "tag5",
@@ -45,7 +51,9 @@
     {
       "cardId": 3,
       "title": "Title 4",
-      "path": "assets/img/3.jpg",
+      "files": [
+        4
+      ],
       "tags": [
         "tag3",
         "tag2",
@@ -59,7 +67,9 @@
     {
       "cardId": 4,
       "title": "Title 5",
-      "path": "assets/img/4.jpg",
+      "files": [
+        5
+      ],
       "tags": [
         "tag5",
         "tag1",
@@ -73,7 +83,9 @@
     {
       "cardId": 5,
       "title": "Title 6",
-      "path": "assets/img/5.jpg",
+      "files": [
+        6
+      ],
       "tags": [
         "tag3",
         "tag2",
@@ -85,12 +97,12 @@
       }
     }
   ],
-  "picturesCount0": {
+  "cardsCount0": {
     "pageIndex": 0,
     "pageSize": 4,
     "length": 6
   },
-  "picturesCount1": {
+  "cardsCount1": {
     "pageIndex": 1,
     "pageSize": 4,
     "length": 6

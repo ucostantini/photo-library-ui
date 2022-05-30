@@ -7,11 +7,15 @@
       <input formControlName="title" matInput placeholder="Advices for yoga" required>
     </mat-form-field>
 
-    <ngx-file-drop (onFileDrop)="onFileDropped($event)" [showBrowseBtn]="true" accept="image/*" directory="false"
-                   dropZoneLabel="Drop files here" multiple="true">
-    </ngx-file-drop>
+    <ngx-awesome-uploader
+      (removeSuccess)="onFileRemoved($event)"
+      (uploadSuccess)="onFileUploaded($event)"
+      [accept]="'image/*'"
+      [adapter]="this.fileService"
+    >
+    </ngx-awesome-uploader>
 
-    <mat-form-field appearance="fill" style="padding-top: 16px">
+    <mat-form-field appearance="fill" style="padding-top: 36px">
       <mat-label>Enter tags</mat-label>
       <input formControlName="tags" matInput placeholder="tech,health,science">
     </mat-form-field>
