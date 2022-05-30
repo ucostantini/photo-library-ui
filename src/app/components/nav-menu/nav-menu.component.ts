@@ -1,8 +1,10 @@
 import { Component } from '@angular/core';
-import { CardCreateComponent } from '../modals/card-create/card-create.component';
+import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { CardSearchComponent } from '../modals/card-search/card-search.component';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from "@angular/material/dialog";
+import { CardService } from "../../core/services/card/card.service";
+import { Card } from "../../core/models/card";
 
 @Component({
   selector: 'app-nav-menu',
@@ -14,7 +16,7 @@ export class NavMenuComponent {
   sortByControl = new FormControl('date');
   orderByControl = new FormControl('asc');
 
-  constructor(public fb: FormBuilder, public dialog: MatDialog) {
+  constructor(public fb: FormBuilder, public dialog: MatDialog, private cardService: CardService) {
     this.options = fb.group({
       sortBy: this.sortByControl,
       orderBy: this.orderByControl,
@@ -22,28 +24,24 @@ export class NavMenuComponent {
   }
 
   onAdd() {
-    const dialogRef = this.dialog.open(CardCreateComponent, {
-      data: {card: null},
+    const dialogRef = this.dialog.open(CardFormComponent, {
+      data: null,
     });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
-    });
+    // TODO handle service response for add,search,delete (toaster ?)
+    dialogRef.afterClosed().subscribe((card: Card) =>
+      this.cardService.create(card).subscribe(val => console.log(val))
+    );
   }
 
   onSearch() {
-    const dialogRef = this.dialog.open(CardSearchComponent, {
-      data: {card: null}
-    });
+    const dialogRef = this.dialog.open(CardSearchComponent);
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      console.log(result);
+    dialogRef.afterClosed().subscribe((terms: Card) => {
+      this.cardService.search(terms);
     });
   }
 
-  onSubmit() {
-
+  onSortSubmit() {
+    // TODO add support for sort
   }
 }

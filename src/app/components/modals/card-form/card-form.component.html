@@ -1,13 +1,14 @@
-<h1 mat-dialog-title>Add a new card</h1>
+<h1 mat-dialog-title>{{ status }} a card</h1>
 <div mat-dialog-content>
-  <form (ngSubmit)="onSubmit()" [formGroup]="form" class="card-form" enctype="multipart/form-data" method="post"
-        novalidate role="form">
+  <form (ngSubmit)="onSubmit()" [formGroup]="form" class="card-form" enctype="multipart/form-data" id="card"
+        method="post" role="form">
     <mat-form-field appearance="fill">
       <mat-label>Enter a title</mat-label>
       <input formControlName="title" matInput placeholder="Advices for yoga" required>
     </mat-form-field>
 
-    <ngx-file-drop (onFileDrop)="dropped($event)" dropZoneLabel="Drop files here">
+    <ngx-file-drop (onFileDrop)="onFileDropped($event)" [showBrowseBtn]="true" accept="image/*" directory="false"
+                   dropZoneLabel="Drop files here" multiple="true">
     </ngx-file-drop>
 
     <mat-form-field appearance="fill" style="padding-top: 16px">
@@ -15,7 +16,7 @@
       <input formControlName="tags" matInput placeholder="tech,health,science">
     </mat-form-field>
 
-    <fieldset class="scheduler-border">
+    <fieldset class="scheduler-border" formGroupName="source">
       <legend class="scheduler-border">Credits</legend>
       <mat-form-field appearance="fill">
         <mat-label>Enter a website</mat-label>
@@ -31,5 +32,6 @@
 </div>
 <div mat-dialog-actions style="justify-content: flex-end">
   <button (click)="onCancel()" color="accent" mat-raised-button>Cancel</button>
-  <button [mat-dialog-close]="card" color="primary" mat-raised-button>Submit</button>
+  <button [disabled]="!this.form.valid" color="primary" form="card" mat-raised-button
+          type="submit">{{ status }}</button>
 </div>

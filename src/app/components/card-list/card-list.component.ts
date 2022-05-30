@@ -35,20 +35,10 @@ export class CardListComponent implements OnInit {
 
   fetchCards(page: Paginate): void {
     this.cards = this.cardService.fetch(page);
-
-    /*
-    .subscribe(response => {
-        console.log(response);
-        this.cards = response;
-        this.isLoading = false;
-      },
-      error => {
-        console.error(error);
-      });
-     */
   }
 
   fetchCount(page: Paginate): void {
+    // TODO fix subscribe
     this.cardService.fetchCount(page).subscribe(response => {
         console.log(response);
         this.paginate = response;

@@ -1,58 +1,88 @@
 {
   "pictures": [
     {
-      "id": 0,
+      "cardId": 0,
+      "title": "Title 1",
       "path": "assets/img/0.jpg",
       "tags": [
         "tag1",
         "tag2",
         "tag3"
-      ]
+      ],
+      "source": {
+        "website": "Twitter",
+        "userName": "John Smith"
+      }
     },
     {
-      "id": 1,
+      "cardId": 1,
+      "title": "Title 2",
       "path": "assets/img/1.jpg",
       "tags": [
         "tag4",
         "tag5",
         "tag6"
-      ]
+      ],
+      "source": {
+        "website": "Twitter",
+        "userName": "John Smith"
+      }
     },
     {
-      "id": 2,
+      "cardId": 2,
+      "title": "Title 3",
       "path": "assets/img/2.jpg",
       "tags": [
         "tag1",
         "tag5",
         "tag3"
-      ]
+      ],
+      "source": {
+        "website": "Twitter",
+        "userName": "John Smith"
+      }
     },
     {
-      "id": 3,
+      "cardId": 3,
+      "title": "Title 4",
       "path": "assets/img/3.jpg",
       "tags": [
         "tag3",
         "tag2",
         "tag4"
-      ]
+      ],
+      "source": {
+        "website": "Twitter",
+        "userName": "John Smith"
+      }
     },
     {
-      "id": 4,
+      "cardId": 4,
+      "title": "Title 5",
       "path": "assets/img/4.jpg",
       "tags": [
         "tag5",
         "tag1",
         "tag2"
-      ]
+      ],
+      "source": {
+        "website": "Twitter",
+        "userName": "John Smith"
+      }
     },
     {
-      "id": 5,
+      "cardId": 5,
+      "title": "Title 6",
       "path": "assets/img/5.jpg",
       "tags": [
         "tag3",
         "tag2",
         "tag3"
-      ]
+      ],
+      "source": {
+        "website": "Twitter",
+        "userName": "John Smith"
+      }
     }
   ],
   "picturesCount0": {

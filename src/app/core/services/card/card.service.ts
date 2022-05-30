@@ -17,31 +17,35 @@ export class CardService {
     return this.httpClient.get<{ cards: Card[], paginate: Paginate }>(baseURL + 's');
   }
 
-  read(id): Observable<Card> {
+  read(id: number): Observable<Card> {
     return this.httpClient.get<Card>(`${baseURL}/${id}`);
   }
 
-  create(data): Observable<any> {
-    return this.httpClient.post(baseURL, data);
+  create(card: Card): Observable<Object> {
+    // TODO implement file upload, not working as of now
+    // localhost/upload route, with multipart form data, using ngx-awesome-uploader
+    console.log("CREATE " + JSON.stringify(card));
+    return this.httpClient.post(baseURL, card);
   }
 
-  update(id, data): Observable<any> {
-    return this.httpClient.put(`${baseURL}/${id}`, data);
+  update(card: Card): Observable<Card> {
+    console.log("UPDATE " + card);
+    return this.httpClient.put<Card>(`${baseURL}/${card.cardId}`, card);
   }
 
-  delete(id): Observable<any> {
+  delete(id: number): Observable<Object> {
+    console.log("DELETE " + id);
     return this.httpClient.delete(`${baseURL}/${id}`);
   }
 
-  deleteAll(): Observable<any> {
-    return this.httpClient.delete(baseURL);
+  search(terms: Card): Observable<any> {
+    if (null === terms)
+      return this.readAll();
+    else
+      return this.httpClient.get(`${baseURL}?body=${new URLSearchParams(JSON.stringify(terms)).toString()}`);
   }
 
-  searchByName(name): Observable<any> {
-    return this.httpClient.get(`${baseURL}?name=${name}`);
-  }
-
-  fetchCount(page): Observable<Paginate> {
+  fetchCount(page: Paginate): Observable<Paginate> {
     return this.httpClient.get<Paginate>(`${baseURL}sCount${page.pageIndex}`);
   }
 

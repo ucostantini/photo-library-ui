@@ -9,16 +9,17 @@ export interface Tag {
 
 export interface Source {
   sourceId?: number;
-  userName?: string;
-  website?: string;
+  userName: string;
+  website: string;
   author?: Author;
 }
 
 export interface Card {
-  pictureId: number;
-  path: string;
+  cardId?: number;
+  title: string;
+  files: File[];
   source: Source;
-  tags?: Tag[];
+  tags: Tag[];
   timeStamp?: Date;
 }
 

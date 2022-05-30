@@ -7,21 +7,26 @@
             style="margin-right: 0; margin-left: auto">
       <mat-icon>more_vert</mat-icon>
     </button>
+    <!-- TODO fix css for menu-->
     <mat-menu #menu="matMenu">
-      <button (click)="card.path" mat-menu-item>Download picture</button>
+      <button mat-menu-item style="text-align: center">
+        <mat-icon style="color: dodgerblue">download</mat-icon>
+      </button>
       <button (click)="onEdit()" data-target="#createModal"
-              data-toggle="modal" mat-menu-item>Edit
+              data-toggle="modal" mat-menu-item style="text-align: center">
+        <mat-icon style="color: coral">edit</mat-icon>
       </button>
       <button (click)="onDelete()" data-target="#deleteModal"
-              data-toggle="modal" mat-menu-item>Delete
+              data-toggle="modal" mat-menu-item style="text-align: center">
+        <mat-icon style="color: crimson">delete</mat-icon>
       </button>
     </mat-menu>
   </mat-card-header>
-  <img [attr.src]="card.path" alt="pic" mat-card-image>
+  <img alt="pic" mat-card-image>
   <mat-card-content class="mat-card-content">
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>
-    <p class="card-text">Credits : <a>https://website.org</a> / userName </p>
+    <p class="card-text">Credits : {{card.source.website}} / {{card.source.userName}} </p>
     <hr/>
     <p class="card-text">Size : 1920 x 1080</p>
     <p class="card-text"><small class="text-muted">Created the YYYY-MM-DD</small></p>

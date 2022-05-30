@@ -9,7 +9,7 @@ import { CardListComponent } from './components/card-list/card-list.component';
 import { AppRoutingModule } from "./app-routing.module";
 import { CardDetailsComponent } from './components/card-details/card-details.component';
 import { CardSearchComponent } from './components/modals/card-search/card-search.component';
-import { CardCreateComponent } from "./components/modals/card-create/card-create.component";
+import { CardFormComponent } from "./components/modals/card-form/card-form.component";
 import { CommonModule } from "@angular/common";
 import { CardDeleteComponent } from './components/modals/card-delete/card-delete.component';
 import { CardService } from "./core/services/card/card.service";
@@ -34,7 +34,7 @@ import { MatSidenavModule } from "@angular/material/sidenav";
   declarations: [
     AppComponent,
     NavMenuComponent,
-    CardCreateComponent,
+    CardFormComponent,
     CardListComponent,
     CardDetailsComponent,
     CardSearchComponent,

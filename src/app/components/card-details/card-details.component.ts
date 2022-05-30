@@ -3,7 +3,7 @@ import { Card } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
-import { CardCreateComponent } from "../modals/card-create/card-create.component";
+import { CardFormComponent } from "../modals/card-form/card-form.component";
 
 @Component({
   selector: 'app-card-details',
@@ -20,35 +20,23 @@ export class CardDetailsComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  readCard(id: number) {
-    this.cardService.read(id).subscribe(card => {
-        console.log(card);
-        this.card = card;
-      },
-      error => {
-        console.error(error);
-      });
-  }
-
-
   onEdit() {
-    const dialogRef = this.dialog.open(CardCreateComponent, {
+    const dialogRef = this.dialog.open(CardFormComponent, {
       data: this.card,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-    });
+    dialogRef.afterClosed().subscribe(card =>
+      this.cardService.update(card).subscribe(val => console.log(val))
+    );
   }
 
   onDelete() {
     const dialogRef = this.dialog.open(CardDeleteComponent, {
-      data: this.card.pictureId,
+      data: this.card.cardId,
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-      // TODO send request to delete card in DB
-    });
+    dialogRef.afterClosed().subscribe((id: number) =>
+      this.cardService.delete(id).subscribe(val => console.log(val))
+    );
   }
 }

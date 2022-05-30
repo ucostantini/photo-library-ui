@@ -22,6 +22,7 @@
     "@angular/platform-browser": "~13.3.0",
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
+    "exifreader": "^4.5.0",
     "json-server": "^0.17.0",
     "ngx-file-drop": "^13.0.0",
     "rxjs": "~7.5.0",

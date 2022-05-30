@@ -14,9 +14,10 @@
       <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #menu="matMenu" [hasBackdrop]="false">
+      <!-- TODO fix menu not closing when clicking somewhere else -->
       <!-- prevents menu from being closed upon click of a radio button in the form -->
       <div (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
-        <form (ngSubmit)="onSubmit()" [formGroup]="options" enctype="multipart/form-data" method="post" novalidate
+        <form (ngSubmit)="onSortSubmit()" [formGroup]="options" enctype="multipart/form-data" method="post" novalidate
               role="form">
           <div>
             <mat-label class="mat-menu-item">Sort by:</mat-label>
