@@ -28,3 +28,8 @@ export interface Paginate {
   pageSize: number;
   length: number;
 }
+
+export interface Sorting {
+  sort: "cardId" | "title";
+  order: "asc" | "desc";
+}

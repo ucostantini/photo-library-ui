@@ -66,7 +66,6 @@ export class CardFormComponent implements OnInit {
   }
 
   onFileUploaded($event: FilePreviewModel) {
-    console.log(JSON.stringify($event));
     this.files.push($event.uploadResponse.fileId);
   }
 

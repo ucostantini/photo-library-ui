@@ -17,23 +17,23 @@
       <!-- TODO fix menu not closing when clicking somewhere else -->
       <!-- prevents menu from being closed upon click of a radio button in the form -->
       <div (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
-        <form (ngSubmit)="onSortSubmit()" [formGroup]="options" enctype="multipart/form-data" method="post" novalidate
-              role="form">
+        <form (ngSubmit)="onSortSubmit()" [formGroup]="form" id="sort" role="form">
           <div>
             <mat-label class="mat-menu-item">Sort by:</mat-label>
-            <mat-radio-group [formControl]="sortByControl">
-              <mat-radio-button class="mat-menu-item" value="date">Date</mat-radio-button>
+            <mat-radio-group formControlName="sort">
+              <mat-radio-button class="mat-menu-item" value="cardId">Date</mat-radio-button>
               <mat-radio-button class="mat-menu-item" value="title">Title</mat-radio-button>
             </mat-radio-group>
           </div>
           <div>
             <mat-label class="mat-menu-item">Order by:</mat-label>
-            <mat-radio-group [formControl]="orderByControl">
+            <mat-radio-group formControlName="order">
               <mat-radio-button class="mat-menu-item" value="asc">Ascending</mat-radio-button>
               <mat-radio-button class="mat-menu-item" value="desc">Descending</mat-radio-button>
             </mat-radio-group>
           </div>
-          <button class="mat-menu-item text-center" color="primary" mat-raised-button style="text-align: center"
+          <button class="mat-menu-item text-center" color="primary" form="sort" mat-raised-button
+                  style="text-align: center"
                   type="submit">
             Submit
           </button>

@@ -28,7 +28,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { NgxFileDropModule } from "ngx-file-drop";
 import { MatSidenavModule } from "@angular/material/sidenav";
 
 @NgModule({
@@ -63,7 +62,6 @@ import { MatSidenavModule } from "@angular/material/sidenav";
     MatInputModule,
     MatToolbarModule,
     MatDialogModule,
-    NgxFileDropModule,
     MatSidenavModule
   ],
   providers: [CardService],

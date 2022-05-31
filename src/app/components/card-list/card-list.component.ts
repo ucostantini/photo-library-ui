@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Card, Paginate } from '../../core/models/card';
+import { Card, Paginate, Sorting } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { PageEvent } from '@angular/material/paginator';
 import { Observable } from "rxjs";
@@ -11,6 +11,7 @@ import { Observable } from "rxjs";
 })
 export class CardListComponent implements OnInit {
 
+  private sorting: Sorting = {sort: "cardId", order: "asc"};
   cards: Observable<Card[]>;
   paginate: Paginate = null;
   isLoading: boolean;
@@ -19,6 +20,8 @@ export class CardListComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setSorting();
+    // TODO change ng on init card list first call
     this.isLoading = true;
     const defaultPage = <Paginate>{
       pageIndex: 0,
@@ -26,27 +29,36 @@ export class CardListComponent implements OnInit {
       length: 6
     }
     this.fetchCount(defaultPage);
-    this.cards = this.cardService.fetch(defaultPage);
+    this.fetchCards(defaultPage);
   }
 
   onPageChange(event: PageEvent): void {
-    this.fetchCards(event as Paginate);
+    this.paginate = event as Paginate;
+    this.fetchCards(this.paginate);
   }
 
   fetchCards(page: Paginate): void {
-    this.cards = this.cardService.fetch(page);
+    this.paginate = page;
+    this.cards = this.cardService.fetch(this.paginate, this.sorting);
   }
 
   fetchCount(page: Paginate): void {
+    this.paginate = page;
     // TODO fix subscribe
-    this.cardService.fetchCount(page).subscribe(response => {
-        console.log(response);
+    this.cardService.fetchCount(this.paginate).subscribe(response => {
         this.paginate = response;
         this.isLoading = false;
       },
       error => {
         console.error(error);
       });
+  }
+
+  private setSorting(): void {
+    this.cardService.getSortingEmitter().subscribe((val: Sorting) => {
+      this.sorting = val;
+      this.cards = this.cardService.fetch(this.paginate, this.sorting);
+    });
   }
 
 }

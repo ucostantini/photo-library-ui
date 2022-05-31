@@ -1,7 +1,7 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
-import { Card, Paginate } from "../../models/card";
+import { Card, Paginate, Sorting } from "../../models/card";
 
 const baseURL = 'http://localhost:3000/cards';
 
@@ -9,6 +9,8 @@ const baseURL = 'http://localhost:3000/cards';
   providedIn: 'root'
 })
 export class CardService {
+
+  private sorting = new EventEmitter<Sorting>();
 
   constructor(private httpClient: HttpClient) {
   }
@@ -22,19 +24,14 @@ export class CardService {
   }
 
   create(card: Card): Observable<Object> {
-    // TODO implement file upload, not working as of now
-    // localhost/upload route, with multipart form data, using ngx-awesome-uploader
-    console.log("CREATE " + JSON.stringify(card));
     return this.httpClient.post(baseURL, card);
   }
 
   update(card: Card): Observable<Card> {
-    console.log("UPDATE " + card);
     return this.httpClient.put<Card>(`${baseURL}/${card.cardId}`, card);
   }
 
   delete(id: number): Observable<Object> {
-    console.log("DELETE " + id);
     return this.httpClient.delete(`${baseURL}/${id}`);
   }
 
@@ -49,7 +46,12 @@ export class CardService {
     return this.httpClient.get<Paginate>(`${baseURL}Count${page.pageIndex}`);
   }
 
-  fetch(page: Paginate): Observable<Card[]> {
-    return this.httpClient.get<Card[]>(`${baseURL}?_page=${page.pageIndex + 1}&_limit=${page.pageSize}`);
+  fetch(page: Paginate, sort?: Sorting): Observable<Card[]> {
+    const sortUrl = (sort ? `&_sort=${sort.sort}&_order=${sort.order}` : '');
+    return this.httpClient.get<Card[]>(`${baseURL}?_page=${page.pageIndex + 1}&_limit=${page.pageSize}${sortUrl}`);
+  }
+
+  getSortingEmitter(): EventEmitter<Sorting> {
+    return this.sorting;
   }
 }
