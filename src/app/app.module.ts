@@ -7,15 +7,13 @@ import { FilePickerModule } from 'ngx-awesome-uploader';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { CardListComponent } from './components/card-list/card-list.component';
-import { AppRoutingModule } from "./app-routing.module";
+import { AppRoutingModule } from './app-routing.module';
 import { CardDetailsComponent } from './components/card-details/card-details.component';
-import { CardSearchComponent } from './components/modals/card-search/card-search.component';
-import { CardFormComponent } from "./components/modals/card-form/card-form.component";
-import { CommonModule } from "@angular/common";
+import { CardFormComponent } from './components/modals/card-form/card-form.component';
+import { CommonModule } from '@angular/common';
 import { CardDeleteComponent } from './components/modals/card-delete/card-delete.component';
-import { CardService } from "./core/services/card/card.service";
-import { CeilPipe } from './core/pipes/ceil.pipe';
-import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { CardService } from './core/services/card/card.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -28,8 +26,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatSidenavModule } from "@angular/material/sidenav";
-import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -38,9 +36,7 @@ import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
     CardFormComponent,
     CardListComponent,
     CardDetailsComponent,
-    CardSearchComponent,
-    CardDeleteComponent,
-    CeilPipe
+    CardDeleteComponent
   ],
   imports: [
     BrowserAnimationsModule,

@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
-import { CardSearchComponent } from '../modals/card-search/card-search.component';
 import { FormControl, FormGroup } from '@angular/forms';
-import { MatDialog } from "@angular/material/dialog";
-import { CardService } from "../../core/services/card/card.service";
-import { Card, Sorting } from "../../core/models/card";
+import { MatDialog } from '@angular/material/dialog';
+import { CardService } from '../../core/services/card/card.service';
+import { Card, Paginate, Sorting } from '../../core/models/card';
+import { mergeMap } from 'rxjs';
 
 @Component({
   selector: 'app-nav-menu',
@@ -23,7 +23,7 @@ export class NavMenuComponent {
 
   onAdd() {
     const dialogRef = this.dialog.open(CardFormComponent, {
-      data: null,
+      data: {card: null, isSearch: false},
     });
     // TODO handle service response for add,search,delete (toaster ?)
     dialogRef.afterClosed().subscribe((card: Card) =>
@@ -32,10 +32,15 @@ export class NavMenuComponent {
   }
 
   onSearch() {
-    const dialogRef = this.dialog.open(CardSearchComponent);
+    const dialogRef = this.dialog.open(CardFormComponent, {
+      data: {card: null, isSearch: true},
+    });
 
-    dialogRef.afterClosed().subscribe((terms: Card) => {
-      this.cardService.search(terms);
+    dialogRef.afterClosed().subscribe((card: Card) => {
+      this.cardService.fetchCount(0, card).pipe(
+        mergeMap((count: Paginate) => this.cardService.fetch(count, (this.form.getRawValue() as Sorting), card))
+      )
+        .subscribe(val => console.log(val));
     });
   }
 

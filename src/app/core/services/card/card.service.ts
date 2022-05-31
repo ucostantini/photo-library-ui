@@ -1,7 +1,7 @@
 import { EventEmitter, Injectable } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
-import { Observable } from "rxjs";
-import { Card, Paginate, Sorting } from "../../models/card";
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Card, Paginate, Sorting } from '../../models/card';
 
 const baseURL = 'http://localhost:3000/cards';
 
@@ -13,10 +13,6 @@ export class CardService {
   private sorting = new EventEmitter<Sorting>();
 
   constructor(private httpClient: HttpClient) {
-  }
-
-  readAll(): Observable<{ cards: Card[], paginate: Paginate }> {
-    return this.httpClient.get<{ cards: Card[], paginate: Paginate }>(baseURL + 's');
   }
 
   read(id: number): Observable<Card> {
@@ -35,20 +31,14 @@ export class CardService {
     return this.httpClient.delete(`${baseURL}/${id}`);
   }
 
-  search(terms: Card): Observable<any> {
-    if (null === terms)
-      return this.readAll();
-    else
-      return this.httpClient.get(`${baseURL}?body=${new URLSearchParams(JSON.stringify(terms)).toString()}`);
+  fetchCount(noPage: number, search?: Card): Observable<Paginate> {
+    const searchUrl = (search ? `&search=${new URLSearchParams(JSON.stringify(search)).toString()}` : '');
+    return this.httpClient.get<Paginate>(`${baseURL}Count${noPage}${searchUrl}`);
   }
 
-  fetchCount(page: Paginate): Observable<Paginate> {
-    return this.httpClient.get<Paginate>(`${baseURL}Count${page.pageIndex}`);
-  }
-
-  fetch(page: Paginate, sort?: Sorting): Observable<Card[]> {
-    const sortUrl = (sort ? `&_sort=${sort.sort}&_order=${sort.order}` : '');
-    return this.httpClient.get<Card[]>(`${baseURL}?_page=${page.pageIndex + 1}&_limit=${page.pageSize}${sortUrl}`);
+  fetch(page: Paginate, sort: Sorting, search?: Card): Observable<Card[]> {
+    const searchUrl = (search ? `&search=${new URLSearchParams(JSON.stringify(search)).toString()}` : '');
+    return this.httpClient.get<Card[]>(`${searchUrl}${baseURL}?_page=${page.pageIndex + 1}&_limit=${page.pageSize}&_sort=${sort.sort}&_order=${sort.order}`);
   }
 
   getSortingEmitter(): EventEmitter<Sorting> {

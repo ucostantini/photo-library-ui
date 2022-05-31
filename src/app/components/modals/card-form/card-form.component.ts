@@ -2,9 +2,9 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { Card, Tag } from '../../../core/models/card';
 import { CardService } from '../../../core/services/card/card.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { FileService } from "../../../core/services/file/file.service";
-import { FilePreviewModel } from "ngx-awesome-uploader";
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { FileService } from '../../../core/services/file/file.service';
+import { FilePreviewModel } from 'ngx-awesome-uploader';
 
 @Component({
   selector: 'app-card-form',
@@ -19,50 +19,55 @@ export class CardFormComponent implements OnInit {
   private files: number[] = [];
 
   constructor(private cardService: CardService, public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
-              @Inject(MAT_DIALOG_DATA) public card: Card) {
+              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }) {
   }
 
   ngOnInit(): void {
-    this.status = (this.card ? 'Edit' : 'Create');
+    this.status = this.data.isSearch ? 'Search' : (this.data.card ? 'Edit' : 'Create');
 
     this.form = new FormGroup({
-      title: new FormControl(this.card ? this.card.title : '', [
+      title: new FormControl(this.data.card ? this.data.card.title : '', this.data.isSearch ? [
         Validators.required,
         Validators.minLength(3),
-        Validators.maxLength(30)]
+        Validators.maxLength(30)] : []
       ),
-      files: new FormControl(this.card ? this.card.files : this.files, Validators.minLength(1)),
-      tags: new FormControl(this.card ? this.card.tags.join(',') : '', Validators.required),
+      files: new FormControl(this.data.card ? this.data.card.files : this.files, this.data.isSearch ? Validators.minLength(1) : []),
+      tags: new FormControl(this.data.card ? this.data.card.tags.join(',') : '', this.data.isSearch ? Validators.required : []),
       source: new FormGroup({
-        website: new FormControl(this.card ? this.card.source.website : '', [
+        website: new FormControl(this.data.card ? this.data.card.source.website : '', this.data.isSearch ? [
           Validators.required,
           Validators.minLength(3),
-          Validators.maxLength(30)]
+          Validators.maxLength(30)] : []
         ),
-        author: new FormControl(this.card ? this.card.source.userName : '', [
+        author: new FormControl(this.data.card ? this.data.card.source.userName : '', this.data.isSearch ? [
           Validators.required,
           Validators.minLength(3),
-          Validators.maxLength(20)]
+          Validators.maxLength(20)] : []
         )
       })
     });
   }
 
   onCancel() {
-    this.dialogRef.close()
+    this.dialogRef.close();
   }
 
   onSubmit() {
-    this.form.get('tags').setValue((this.form.get('tags').value as string).toLowerCase().split(','));
-
-    if (this.card) {
-      const cardId = this.card.cardId;
-      this.card = (this.form.getRawValue() as Card);
-      this.card.cardId = cardId;
+    if (this.data.isSearch && this.form.getRawValue() == {}) {
+      this.data.card = null;
     } else {
-      this.card = (this.form.getRawValue() as Card);
+      this.form.get('tags').setValue((this.form.get('tags').value as string).toLowerCase().split(','));
+
+      if (this.data.card) {
+        const cardId = this.data.card.cardId;
+        this.data.card = (this.form.getRawValue() as Card);
+        this.data.card.cardId = cardId;
+      } else {
+        this.data.card = (this.form.getRawValue() as Card);
+      }
     }
-    this.dialogRef.close(this.card);
+
+    this.dialogRef.close(this.data.card);
   }
 
   onFileUploaded($event: FilePreviewModel) {

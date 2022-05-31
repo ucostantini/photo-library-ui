@@ -3,7 +3,7 @@ import { Card } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
-import { CardFormComponent } from "../modals/card-form/card-form.component";
+import { CardFormComponent } from '../modals/card-form/card-form.component';
 
 @Component({
   selector: 'app-card-details',
@@ -22,7 +22,7 @@ export class CardDetailsComponent implements OnInit {
 
   onEdit() {
     const dialogRef = this.dialog.open(CardFormComponent, {
-      data: this.card,
+      data: {card: this.card, isSearch: false},
     });
 
     dialogRef.afterClosed().subscribe(card =>
