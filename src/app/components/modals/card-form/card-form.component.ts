@@ -70,7 +70,6 @@ export class CardFormComponent implements OnInit {
   }
 
   onFileRemoved($event: FilePreviewModel) {
-    // TODO optimize this. change data structure from array to object
     this.files = this.files.filter(el => el !== $event.uploadResponse.fileId);
   }
 }

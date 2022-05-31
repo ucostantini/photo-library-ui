@@ -29,6 +29,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSidenavModule } from "@angular/material/sidenav";
+import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -62,7 +63,8 @@ import { MatSidenavModule } from "@angular/material/sidenav";
     MatInputModule,
     MatToolbarModule,
     MatDialogModule,
-    MatSidenavModule
+    MatSidenavModule,
+    MatProgressSpinnerModule
   ],
   providers: [CardService],
   bootstrap: [AppComponent]

@@ -13,7 +13,11 @@ export class CardListComponent implements OnInit {
 
   private sorting: Sorting = {sort: "cardId", order: "asc"};
   cards: Observable<Card[]>;
-  paginate: Paginate = null;
+  paginate: Paginate = {
+    pageIndex: 0,
+    pageSize: 10,
+    length: 10000
+  };
   isLoading: boolean;
 
   constructor(private cardService: CardService) {
@@ -21,15 +25,9 @@ export class CardListComponent implements OnInit {
 
   ngOnInit(): void {
     this.setSorting();
-    // TODO change ng on init card list first call
     this.isLoading = true;
-    const defaultPage = <Paginate>{
-      pageIndex: 0,
-      pageSize: 4,
-      length: 6
-    }
-    this.fetchCount(defaultPage);
-    this.fetchCards(defaultPage);
+    this.fetchCount(this.paginate);
+    this.fetchCards(this.paginate);
   }
 
   onPageChange(event: PageEvent): void {

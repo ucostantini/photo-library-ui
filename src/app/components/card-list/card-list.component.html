@@ -1,5 +1,5 @@
 <div *ngIf="isLoading">
-  THIS IS LOADING <!-- TODO change loading screen (spinning logo ?)-->
+  Loading...
 </div>
 
 <div *ngIf="!isLoading">
@@ -14,8 +14,8 @@
 
   <mat-paginator (page)="onPageChange($event)"
                  [length]=paginate.length
-                 [pageSizeOptions]="[4, 10, 25, 100]"
-                 [pageSize]="4"
+                 [pageSizeOptions]="[10, 25, 50, 100]"
+                 [pageSize]="this.paginate.pageSize"
                  aria-label="Select page" class="paginator">
   </mat-paginator>
 </div>
