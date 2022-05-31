@@ -16,12 +16,15 @@ export class NavMenuComponent {
 
   constructor(public dialog: MatDialog, private cardService: CardService) {
     this.form = new FormGroup({
-      sort: new FormControl('cardId'),
+      sort: new FormControl('cardId'), // TODO remove magic string
       order: new FormControl('asc'),
     });
   }
 
-  onAdd() {
+  // TODO try to refactor onAdd, onSearch, onEdit... all point to same component and do the exact same thing..
+  // Maybe move calls into one parent component ?
+
+  onAdd(): void {
     const dialogRef = this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: false},
     });
@@ -31,7 +34,7 @@ export class NavMenuComponent {
     );
   }
 
-  onSearch() {
+  onSearch(): void {
     const dialogRef = this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: true},
     });
@@ -44,7 +47,7 @@ export class NavMenuComponent {
     });
   }
 
-  onSortSubmit() {
+  onSortSubmit(): void {
     this.cardService.getSortingEmitter().emit(this.form.getRawValue() as Sorting);
   }
 }

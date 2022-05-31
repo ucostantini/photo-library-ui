@@ -30,6 +30,6 @@ export interface Paginate {
 }
 
 export interface Sorting {
-  sort: "cardId" | "title";
-  order: "asc" | "desc";
+  sort: 'cardId' | 'title'; // TODO find better way ?
+  order: 'asc' | 'desc';
 }

@@ -13,7 +13,7 @@ export class CardDeleteComponent {
   ) {
   }
 
-  onCancel() {
+  onCancel(): void {
     this.dialogRef.close();
   }
 }

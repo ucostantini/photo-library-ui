@@ -20,23 +20,23 @@ export class CardDetailsComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  onEdit() {
+  onEdit(): void {
     const dialogRef = this.dialog.open(CardFormComponent, {
       data: {card: this.card, isSearch: false},
     });
 
-    dialogRef.afterClosed().subscribe(card =>
+    dialogRef.afterClosed().subscribe((card: Card) =>
       this.cardService.update(card).subscribe(val => console.log(val))
     );
   }
 
-  onDelete() {
+  onDelete(): void {
     const dialogRef = this.dialog.open(CardDeleteComponent, {
       data: this.card.cardId,
     });
 
-    dialogRef.afterClosed().subscribe((id: number) =>
-      this.cardService.delete(id).subscribe(val => console.log(val))
+    dialogRef.afterClosed().subscribe((cardId: number) =>
+      this.cardService.delete(cardId).subscribe(val => console.log(val))
     );
   }
 }

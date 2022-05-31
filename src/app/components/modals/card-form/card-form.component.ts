@@ -48,11 +48,12 @@ export class CardFormComponent implements OnInit {
     });
   }
 
-  onCancel() {
+  onCancel(): void {
     this.dialogRef.close();
   }
 
-  onSubmit() {
+  onSubmit(): void {
+    // TODO refactor this method
     if (this.data.isSearch && this.form.getRawValue() == {}) {
       this.data.card = null;
     } else {
@@ -70,11 +71,11 @@ export class CardFormComponent implements OnInit {
     this.dialogRef.close(this.data.card);
   }
 
-  onFileUploaded($event: FilePreviewModel) {
+  onFileUploaded($event: FilePreviewModel): void {
     this.files.push($event.uploadResponse.fileId);
   }
 
-  onFileRemoved($event: FilePreviewModel) {
-    this.files = this.files.filter(el => el !== $event.uploadResponse.fileId);
+  onFileRemoved($event: FilePreviewModel): void {
+    this.files = this.files.filter((fileId: number) => fileId !== $event.uploadResponse.fileId);
   }
 }

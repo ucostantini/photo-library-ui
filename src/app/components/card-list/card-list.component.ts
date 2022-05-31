@@ -16,7 +16,7 @@ export class CardListComponent implements OnInit {
   paginate: Paginate = {
     pageIndex: 0,
     pageSize: 10,
-    length: 10000
+    length: 10000 // TODO fix first call to fetch length, see todo below
   };
   isLoading: boolean;
 
@@ -43,7 +43,7 @@ export class CardListComponent implements OnInit {
   }
 
   fetchCount(noPage: number): void {
-    this.cardService.fetchCount(noPage).subscribe(response => {
+    this.cardService.fetchCount(noPage).subscribe((response: Paginate) => {
       this.paginate = response;
       this.isLoading = false;
     });
