@@ -22,14 +22,14 @@
       </button>
     </mat-menu>
   </mat-card-header>
-  <!-- TODO add carousel-->
+  <!-- TODO add carousel and display images-->
+  <carousel [images]="this.images"></carousel>
   <img alt="pic" mat-card-image>
   <mat-card-content class="mat-card-content">
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>
     <p class="card-text">Credits : {{card.source.website}} / {{card.source.userName}} </p>
     <hr/>
-    <p class="card-text">Size : 1920 x 1080</p>
-    <p class="card-text"><small class="text-muted">Created the YYYY-MM-DD</small></p>
+    <p class="card-text"><small class="text-muted">Created the {{card.timeStamp.toLocaleDateString()}}</small></p>
   </mat-card-content>
 </mat-card>

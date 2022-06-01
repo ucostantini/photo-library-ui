@@ -1,4 +1,4 @@
-import { EventEmitter, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Card, Paginate, Sorting } from '../../models/card';
@@ -9,8 +9,6 @@ const baseURL = 'http://localhost:3000/cards';
   providedIn: 'root'
 })
 export class CardService {
-
-  private sorting = new EventEmitter<Sorting>();
 
   constructor(private httpClient: HttpClient) {
   }
@@ -39,9 +37,5 @@ export class CardService {
   fetch(page: Paginate, sort: Sorting, search?: Card): Observable<Card[]> {
     const searchUrl = (search ? `&search=${new URLSearchParams(JSON.stringify(search)).toString()}` : '');
     return this.httpClient.get<Card[]>(`${searchUrl}${baseURL}?_page=${page.pageIndex + 1}&_limit=${page.pageSize}&_sort=${sort.sort}&_order=${sort.order}`);
-  }
-
-  getSortingEmitter(): EventEmitter<Sorting> {
-    return this.sorting;
   }
 }

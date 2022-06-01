@@ -28,6 +28,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { IvyCarouselModule } from "angular-responsive-carousel";
 
 @NgModule({
   declarations: [
@@ -60,7 +61,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatToolbarModule,
     MatDialogModule,
     MatSidenavModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    IvyCarouselModule
   ],
   providers: [CardService],
   bootstrap: [AppComponent]

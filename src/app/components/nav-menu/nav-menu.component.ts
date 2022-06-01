@@ -3,8 +3,8 @@ import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { CardService } from '../../core/services/card/card.service';
-import { Card, Paginate, Sorting } from '../../core/models/card';
-import { mergeMap } from 'rxjs';
+import { Card, Sorting } from '../../core/models/card';
+import { NotificationService } from "../../core/services/notification/notification.service";
 
 @Component({
   selector: 'app-nav-menu',
@@ -13,41 +13,29 @@ import { mergeMap } from 'rxjs';
 })
 export class NavMenuComponent {
   form: FormGroup;
+  card: Card;
+  sorting: Sorting;
 
-  constructor(public dialog: MatDialog, private cardService: CardService) {
+  constructor(public dialog: MatDialog, private cardService: CardService, private notifService: NotificationService) {
     this.form = new FormGroup({
-      sort: new FormControl('cardId'), // TODO remove magic string
+      sort: new FormControl('cardId'),
       order: new FormControl('asc'),
     });
   }
 
-  // TODO try to refactor onAdd, onSearch, onEdit... all point to same component and do the exact same thing..
-  // Maybe move calls into one parent component ?
-
   onAdd(): void {
-    const dialogRef = this.dialog.open(CardFormComponent, {
+    this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: false},
-    });
-    // TODO handle service response for add,search,delete (toaster ?)
-    dialogRef.afterClosed().subscribe((card: Card) =>
-      this.cardService.create(card).subscribe(val => console.log(val))
-    );
+    }).afterClosed().subscribe(() => this.notifService.notifySuccess("created"));
   }
 
   onSearch(): void {
-    const dialogRef = this.dialog.open(CardFormComponent, {
+    this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: true},
-    });
-
-    dialogRef.afterClosed().subscribe((card: Card) => {
-      this.cardService.fetchCount(0, card).pipe(
-        mergeMap((count: Paginate) => this.cardService.fetch(count, (this.form.getRawValue() as Sorting), card))
-      )
-        .subscribe(val => console.log(val));
-    });
+    }).afterClosed().subscribe((card: Card) => this.card = card);
   }
 
   onSortSubmit(): void {
-    this.cardService.getSortingEmitter().emit(this.form.getRawValue() as Sorting);
+    this.sorting = (this.form.getRawValue() as Sorting);
   }
 }

@@ -4,6 +4,8 @@ import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
+import { catchError, mergeMap, of } from "rxjs";
+import { NotificationService } from "../../core/services/notification/notification.service";
 
 @Component({
   selector: 'app-card-details',
@@ -14,29 +16,39 @@ export class CardDetailsComponent implements OnInit {
 
   @Input() card: Card;
 
-  constructor(private cardService: CardService, public dialog: MatDialog) {
+  constructor(private cardService: CardService, public dialog: MatDialog, private notifService: NotificationService) {
   }
 
   ngOnInit(): void {
   }
 
   onEdit(): void {
-    const dialogRef = this.dialog.open(CardFormComponent, {
+    this.dialog.open(CardFormComponent, {
       data: {card: this.card, isSearch: false},
-    });
-
-    dialogRef.afterClosed().subscribe((card: Card) =>
-      this.cardService.update(card).subscribe(val => console.log(val))
-    );
+    })
+      .afterClosed().pipe(
+      mergeMap((card: Card) => this.cardService.update(card)),
+      catchError((error: string) => {
+        console.error(error);
+        this.notifService.notifyError(error);
+        return of(new Error(error));
+      })
+    )
+      .subscribe(() => this.notifService.notifySuccess("updated"));
   }
 
   onDelete(): void {
-    const dialogRef = this.dialog.open(CardDeleteComponent, {
+    this.dialog.open(CardDeleteComponent, {
       data: this.card.cardId,
-    });
-
-    dialogRef.afterClosed().subscribe((cardId: number) =>
-      this.cardService.delete(cardId).subscribe(val => console.log(val))
-    );
+    })
+      .afterClosed().pipe(
+      mergeMap((cardId: number) => this.cardService.delete(cardId)),
+      catchError((error: string) => {
+        console.error(error);
+        this.notifService.notifyError(error);
+        return of(new Error(error));
+      })
+    )
+      .subscribe(() => this.notifService.notifySuccess("deleted"));
   }
 }

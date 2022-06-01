@@ -1,59 +1,49 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { Card, Paginate, Sorting } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { PageEvent } from '@angular/material/paginator';
-import { Observable } from 'rxjs';
+import { mergeMap, Observable, tap } from 'rxjs';
 
 @Component({
   selector: 'app-card-list',
   templateUrl: './card-list.component.html',
   styleUrls: ['./card-list.component.scss']
 })
-export class CardListComponent implements OnInit {
+export class CardListComponent implements OnInit, OnChanges {
 
-  private sorting: Sorting = {sort: "cardId", order: "asc"};
+  paginate: Paginate = null;
+  @Input() private card;
+
   cards: Observable<Card[]>;
-  paginate: Paginate = {
-    pageIndex: 0,
-    pageSize: 10,
-    length: 10000 // TODO fix first call to fetch length, see todo below
-  };
+  @Input() private sorting: Sorting = {sort: "cardId", order: "asc"};
   isLoading: boolean;
 
   constructor(private cardService: CardService) {
   }
 
-  ngOnInit(): void {
-    this.setSorting();
+  ngOnChanges(changes: SimpleChanges): void {
     this.isLoading = true;
-    this.fetchCount(this.paginate.pageIndex);
-    this.fetchCards(this.paginate);
+    this.fetchCards(this.paginate.pageIndex);
+    this.cards = this.cardService.fetch(this.paginate, this.sorting, this.card);
+  }
+
+  ngOnInit(): void {
+    this.isLoading = true;
+    this.fetchCards(0);
+    this.cards = this.cardService.fetch(this.paginate, this.sorting);
   }
 
   onPageChange(event: PageEvent): void {
     this.paginate = event as Paginate;
-    this.fetchCards(this.paginate);
-  }
-
-  // TODO refont the whole logic for pagination, count, fetching
-
-  fetchCards(page: Paginate): void {
-    this.paginate = page;
     this.cards = this.cardService.fetch(this.paginate, this.sorting);
   }
 
-  fetchCount(noPage: number): void {
-    this.cardService.fetchCount(noPage).subscribe((response: Paginate) => {
-      this.paginate = response;
-      this.isLoading = false;
-    });
+  private fetchCards(noPage: number): void {
+    this.cardService.fetchCount(noPage).pipe(
+      tap((pagination: Paginate) => {
+        this.paginate = pagination;
+        this.isLoading = false
+      }),
+      mergeMap((pagination: Paginate) => this.cards = this.cardService.fetch(pagination, this.sorting, this.card)));
   }
-
-  private setSorting(): void {
-    this.cardService.getSortingEmitter().subscribe((val: Sorting) => {
-      this.sorting = val;
-      this.cards = this.cardService.fetch(this.paginate, this.sorting);
-    });
-  }
-
 }
