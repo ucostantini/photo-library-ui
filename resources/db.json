@@ -4,7 +4,9 @@
       "cardId": 0,
       "title": "Title 1",
       "files": [
-        1
+        1,
+        2,
+        3
       ],
       "tags": [
         "tag1",
@@ -14,13 +16,17 @@
       "source": {
         "website": "Twitter",
         "userName": "John Smith"
-      }
+      },
+      "timeStamp": "2022-06-01T14:25:08.716Z"
     },
     {
       "cardId": 1,
       "title": "Title 2",
       "files": [
-        2
+        4,
+        5,
+        6,
+        7
       ],
       "tags": [
         "tag4",
@@ -30,13 +36,14 @@
       "source": {
         "website": "Twitter",
         "userName": "John Smith"
-      }
+      },
+      "timeStamp": "2022-05-12T23:45:39Z"
     },
     {
       "cardId": 2,
       "title": "Title 3",
       "files": [
-        3
+        8
       ],
       "tags": [
         "tag1",
@@ -46,13 +53,15 @@
       "source": {
         "website": "Twitter",
         "userName": "John Smith"
-      }
+      },
+      "timeStamp": "2022-03-05T22:16:40Z"
     },
     {
       "cardId": 3,
       "title": "Title 4",
       "files": [
-        4
+        9,
+        10
       ],
       "tags": [
         "tag3",
@@ -62,13 +71,19 @@
       "source": {
         "website": "Twitter",
         "userName": "John Smith"
-      }
+      },
+      "timeStamp": "2022-01-20T00:43:57Z"
     },
     {
       "cardId": 4,
       "title": "Title 5",
       "files": [
-        5
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
       ],
       "tags": [
         "tag5",
@@ -78,13 +93,14 @@
       "source": {
         "website": "Twitter",
         "userName": "John Smith"
-      }
+      },
+      "timeStamp": "2022-02-28T07:22:50Z"
     },
     {
       "cardId": 5,
       "title": "Title 6",
       "files": [
-        6
+        17
       ],
       "tags": [
         "tag3",
@@ -94,7 +110,8 @@
       "source": {
         "website": "Twitter",
         "userName": "John Smith"
-      }
+      },
+      "timeStamp": "2022-02-21T16:37:27Z"
     }
   ],
   "cardsCount0": {

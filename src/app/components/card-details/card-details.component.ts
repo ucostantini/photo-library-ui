@@ -4,8 +4,10 @@ import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
-import { catchError, mergeMap, of } from "rxjs";
-import { NotificationService } from "../../core/services/notification/notification.service";
+import { catchError, mergeMap, of } from 'rxjs';
+import { NotificationService } from '../../core/services/notification/notification.service';
+import { Image } from 'angular-responsive-carousel';
+import { ImageService } from '../../core/services/image/image.service';
 
 @Component({
   selector: 'app-card-details',
@@ -15,11 +17,13 @@ import { NotificationService } from "../../core/services/notification/notificati
 export class CardDetailsComponent implements OnInit {
 
   @Input() card: Card;
+  images: Image[] = [];
 
-  constructor(private cardService: CardService, public dialog: MatDialog, private notifService: NotificationService) {
+  constructor(private cardService: CardService, public dialog: MatDialog, private notifService: NotificationService, private imageService: ImageService) {
   }
 
   ngOnInit(): void {
+    this.card.files.forEach(fileId => this.images.push({path: this.imageService.getThumbnailPath(fileId)}));
   }
 
   onEdit(): void {
@@ -28,6 +32,7 @@ export class CardDetailsComponent implements OnInit {
     })
       .afterClosed().pipe(
       mergeMap((card: Card) => this.cardService.update(card)),
+      // TODO refactor error handling
       catchError((error: string) => {
         console.error(error);
         this.notifService.notifyError(error);

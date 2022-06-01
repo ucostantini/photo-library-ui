@@ -53,22 +53,14 @@ export class CardFormComponent implements OnInit {
   }
 
   onSubmit(): void {
-    // TODO refactor this method
-    if (this.data.isSearch && this.form.getRawValue() == {}) {
-      this.data.card = null;
-    } else {
+    let card: Card = null;
+    if (!(this.data.isSearch && this.form.getRawValue() == {})) {
       this.form.get('tags').setValue((this.form.get('tags').value as string).toLowerCase().split(','));
-
-      if (this.data.card) {
-        const cardId = this.data.card.cardId;
-        this.data.card = (this.form.getRawValue() as Card);
-        this.data.card.cardId = cardId;
-      } else {
-        this.data.card = (this.form.getRawValue() as Card);
-      }
+      const formData = (this.form.getRawValue() as Card);
+      card = this.data.card ? {...formData, cardId: this.data.card.cardId} : formData;
     }
 
-    this.dialogRef.close(this.data.card);
+    this.dialogRef.close(card);
   }
 
   onFileUploaded($event: FilePreviewModel): void {

@@ -22,14 +22,12 @@
       </button>
     </mat-menu>
   </mat-card-header>
-  <!-- TODO add carousel and display images-->
-  <carousel [images]="this.images"></carousel>
-  <img alt="pic" mat-card-image>
-  <mat-card-content class="mat-card-content">
+  <carousel [cellsToShow]="1" [images]="this.images" [overflowCellsLimit]="1"></carousel>
+  <mat-card-content class="mat-card-content" style="padding-top: 14px">
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>
     <p class="card-text">Credits : {{card.source.website}} / {{card.source.userName}} </p>
     <hr/>
-    <p class="card-text"><small class="text-muted">Created the {{card.timeStamp.toLocaleDateString()}}</small></p>
+    <p class="card-text"><small class="text-muted">Created the {{card.timeStamp | date: 'short'}}</small></p>
   </mat-card-content>
 </mat-card>
