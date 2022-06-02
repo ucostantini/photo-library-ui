@@ -29,7 +29,8 @@ export class NavMenuComponent {
     }).afterClosed()
       .subscribe({
         next: () => this.notifService.notifySuccess('created'),
-        error: (error) => this.notifService.notifyError(error)
+        // TODO fix error formatting
+        error: (error) => this.notifService.notifyError(JSON.stringify(error))
       });
   }
 
@@ -39,7 +40,7 @@ export class NavMenuComponent {
     }).afterClosed()
       .subscribe({
         next: (card: Card) => this.card = card,
-        error: error => this.notifService.notifyError(error)
+        error: error => this.notifService.notifyError(JSON.stringify(error))
       });
   }
 

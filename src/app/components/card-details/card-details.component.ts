@@ -33,7 +33,7 @@ export class CardDetailsComponent implements OnInit {
       mergeMap((card: Card) => this.cardService.update(card))
     ).subscribe({
       next: () => this.notifService.notifySuccess('updated'),
-      error: (error) => this.notifService.notifyError(error)
+      error: (error) => this.notifService.notifyError(JSON.stringify(error))
     });
   }
 
@@ -44,7 +44,7 @@ export class CardDetailsComponent implements OnInit {
       mergeMap((cardId: number) => this.cardService.delete(cardId))
     ).subscribe({
       next: () => this.notifService.notifySuccess('deleted'),
-      error: (error) => this.notifService.notifyError(error)
+      error: (error) => this.notifService.notifyError(JSON.stringify(error))
     });
   }
 }

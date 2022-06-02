@@ -15,10 +15,10 @@ export class NotificationService {
   }
 
   notifySuccess(status: string): void {
-    this.toaster.open("Card was successfully " + status, undefined, this.config);
+    this.toaster.open('Card was successfully ' + status, 'Dismiss', this.config);
   }
 
   notifyError(error: string): void {
-    this.toaster.open(error);
+    this.toaster.open(error, 'Dismiss', this.config);
   }
 }

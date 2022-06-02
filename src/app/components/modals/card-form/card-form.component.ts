@@ -23,23 +23,25 @@ export class CardFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.status = this.data.isSearch ? 'Search' : (this.data.card ? 'Edit' : 'Create');
+    const inCard = this.data.card;
+    const isSearch = this.data.isSearch;
+    this.status = isSearch ? 'Search' : (inCard ? 'Edit' : 'Create');
 
     this.form = new FormGroup({
-      title: new FormControl(this.data.card ? this.data.card.title : '', this.data.isSearch ? [
+      title: new FormControl(inCard ? inCard.title : '', !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(30)] : []
       ),
-      files: new FormControl(this.data.card ? this.data.card.files : this.files, this.data.isSearch ? Validators.minLength(1) : []),
-      tags: new FormControl(this.data.card ? this.data.card.tags.join(',') : '', this.data.isSearch ? Validators.required : []),
+      files: new FormControl(inCard ? inCard.files : this.files, !isSearch ? Validators.minLength(1) : []),
+      tags: new FormControl(inCard ? inCard.tags.join(',') : '', !isSearch ? Validators.required : []),
       source: new FormGroup({
-        website: new FormControl(this.data.card ? this.data.card.source.website : '', this.data.isSearch ? [
+        website: new FormControl(inCard ? inCard.source.website : '', !isSearch ? [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(30)] : []
         ),
-        author: new FormControl(this.data.card ? this.data.card.source.userName : '', this.data.isSearch ? [
+        author: new FormControl(inCard ? inCard.source.userName : '', !isSearch ? [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(20)] : []

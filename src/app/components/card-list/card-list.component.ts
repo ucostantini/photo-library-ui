@@ -25,6 +25,7 @@ export class CardListComponent implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    // TODO OnInit sends 2 requests to fetch count and 4 reqs to fetch images on each reloaad, investigate & fix !
     this.isLoading = true;
     this.fetchCards(this.paginate ? this.paginate.pageIndex : 0);
   }
