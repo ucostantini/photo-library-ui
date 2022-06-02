@@ -10,19 +10,17 @@ import { mergeMap, Observable, tap } from 'rxjs';
   styleUrls: ['./card-list.component.scss']
 })
 export class CardListComponent implements OnInit, OnChanges {
-// TODO move pagination to nav-menu ?
-  paginate: Paginate = null;
-  @Input() private card;
 
   cards: Observable<Card[]>;
+  @Input() private cardFormData: Card;
   @Input() private sorting: Sorting;
+  paginate: Paginate = null;
   isLoading: boolean;
 
   constructor(private cardService: CardService) {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('oui');
     this.ngOnInit();
   }
 
@@ -33,15 +31,17 @@ export class CardListComponent implements OnInit, OnChanges {
 
   onPageChange(event: PageEvent): void {
     this.paginate = event as Paginate;
-    this.cards = this.cardService.fetch(this.paginate, this.sorting, this.card);
+    this.cards = this.cardService.fetch(this.paginate, this.sorting, this.cardFormData);
   }
 
   private fetchCards(noPage: number): void {
-    this.cardService.fetchCount(noPage).pipe(
-      tap((pagination: Paginate) => {
-        this.paginate = pagination;
-        this.isLoading = false;
-      }),
-      mergeMap((pagination: Paginate) => this.cards = this.cardService.fetch(pagination, this.sorting, this.card))).subscribe();
+    this.cardService.fetchCount(noPage)
+      .pipe(
+        tap((pagination: Paginate) => {
+          this.paginate = pagination;
+          this.isLoading = false;
+        }),
+        mergeMap((pagination: Paginate) => this.cards = this.cardService.fetch(pagination, this.sorting, this.cardFormData))
+      ).subscribe();
   }
 }

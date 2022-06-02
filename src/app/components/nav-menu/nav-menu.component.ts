@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { CardService } from '../../core/services/card/card.service';
 import { Card, Sorting } from '../../core/models/card';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { catchError, of } from 'rxjs';
 
 @Component({
   selector: 'app-nav-menu',
@@ -27,25 +26,21 @@ export class NavMenuComponent {
   onAdd(): void {
     this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: false},
-    }).afterClosed().pipe(
-      catchError((error: string) => {
-        console.error(error);
-        this.notifService.notifyError(error);
-        return of(new Error(error));
-      })
-    ).subscribe(() => this.notifService.notifySuccess('created'));
+    }).afterClosed()
+      .subscribe({
+        next: () => this.notifService.notifySuccess('created'),
+        error: (error) => this.notifService.notifyError(error)
+      });
   }
 
   onSearch(): void {
     this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: true},
-    }).afterClosed().pipe(
-      catchError((error: string) => {
-        console.error(error);
-        this.notifService.notifyError(error);
-        return of(new Error(error));
-      })
-    ).subscribe((card: Card) => this.card = card);
+    }).afterClosed()
+      .subscribe({
+        next: (card: Card) => this.card = card,
+        error: error => this.notifService.notifyError(error)
+      });
   }
 
   onSortSubmit(): void {

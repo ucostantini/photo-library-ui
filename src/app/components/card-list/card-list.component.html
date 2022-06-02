@@ -1,9 +1,7 @@
 <div *ngIf="isLoading">
   Loading...
 </div>
-
 <div *ngIf="!isLoading">
-
   <h1 *ngIf="paginate" style="padding: 16px">{{ paginate.length }} results found</h1>
 
   <div class="content">
@@ -11,7 +9,6 @@
                       [card]="card">
     </app-card-details>
   </div>
-
   <mat-paginator (page)="onPageChange($event)"
                  [length]=paginate.length
                  [pageSizeOptions]="[10, 25, 50, 100]"
@@ -19,4 +16,3 @@
                  aria-label="Select page" class="paginator">
   </mat-paginator>
 </div>
-
