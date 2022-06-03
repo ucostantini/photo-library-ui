@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { Card, Tag } from '../../../core/models/card';
+import { Card } from '../../../core/models/card';
 import { CardService } from '../../../core/services/card/card.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
@@ -15,7 +15,6 @@ export class CardFormComponent implements OnInit {
 
   form: FormGroup;
   status: string;
-  private tags: Tag[] = [];
   private files: number[] = [];
 
   constructor(private cardService: CardService, public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
@@ -34,14 +33,14 @@ export class CardFormComponent implements OnInit {
         Validators.maxLength(30)] : []
       ),
       files: new FormControl(inCard ? inCard.files : this.files, !isSearch ? Validators.minLength(1) : []),
-      tags: new FormControl(inCard ? inCard.tags.join(',') : '', !isSearch ? Validators.required : []),
+      tags: new FormControl(inCard ? inCard.tags : '', !isSearch ? Validators.required : []),
       source: new FormGroup({
         website: new FormControl(inCard ? inCard.source.website : '', !isSearch ? [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(30)] : []
         ),
-        author: new FormControl(inCard ? inCard.source.userName : '', !isSearch ? [
+        username: new FormControl(inCard ? inCard.source.username : '', !isSearch ? [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(20)] : []
@@ -57,7 +56,6 @@ export class CardFormComponent implements OnInit {
   onSubmit(): void {
     let card: Card = null;
     if (!(this.data.isSearch && this.form.getRawValue() == {})) {
-      this.form.get('tags').setValue((this.form.get('tags').value as string).toLowerCase().split(','));
       const formData = (this.form.getRawValue() as Card);
       card = this.data.card ? {...formData, cardId: this.data.card.cardId} : formData;
     }

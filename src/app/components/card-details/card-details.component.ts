@@ -19,7 +19,10 @@ export class CardDetailsComponent implements OnInit {
   @Input() card: Card;
   images: Image[] = [];
 
-  constructor(private cardService: CardService, public dialog: MatDialog, private notifService: NotificationService, private imageService: ImageService) {
+  constructor(public dialog: MatDialog,
+              private cardService: CardService,
+              private notifService: NotificationService,
+              private imageService: ImageService) {
   }
 
   ngOnInit(): void {

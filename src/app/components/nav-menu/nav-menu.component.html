@@ -1,5 +1,5 @@
 <mat-toolbar class="toolbar" color="primary">
-  <button mat-icon-button>
+  <button (click)="onReset()" mat-icon-button>
     <mat-icon>home</mat-icon>
   </button>
   <span class="text-center">Photo Library</span>
@@ -42,4 +42,4 @@
     </mat-menu>
   </div>
 </mat-toolbar>
-<app-card-list [cardFormData]="this.card" [sorting]="this.sorting"></app-card-list>
+<app-card-list [cardFormData]="this.card" [pagination]="this.pagination" [sorting]="this.sorting"></app-card-list>

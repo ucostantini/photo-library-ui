@@ -15,7 +15,7 @@
       ],
       "source": {
         "website": "Twitter",
-        "userName": "John Smith"
+        "username": "Jan Jansen"
       },
       "timeStamp": "2022-06-01T14:25:08.716Z"
     },
@@ -34,8 +34,8 @@
         "tag6"
       ],
       "source": {
-        "website": "Twitter",
-        "userName": "John Smith"
+        "website": "Youtube",
+        "username": "Erika Mustermann"
       },
       "timeStamp": "2022-05-12T23:45:39Z"
     },
@@ -47,12 +47,12 @@
       ],
       "tags": [
         "tag1",
-        "tag5",
+        "tag2",
         "tag3"
       ],
       "source": {
         "website": "Twitter",
-        "userName": "John Smith"
+        "username": "John Smith"
       },
       "timeStamp": "2022-03-05T22:16:40Z"
     },
@@ -64,13 +64,13 @@
         10
       ],
       "tags": [
-        "tag3",
-        "tag2",
-        "tag4"
+        "tag4",
+        "tag5",
+        "tag6"
       ],
       "source": {
         "website": "Twitter",
-        "userName": "John Smith"
+        "username": "John Smith"
       },
       "timeStamp": "2022-01-20T00:43:57Z"
     },
@@ -91,8 +91,8 @@
         "tag2"
       ],
       "source": {
-        "website": "Twitter",
-        "userName": "John Smith"
+        "website": "Facebook",
+        "username": "John Smith"
       },
       "timeStamp": "2022-02-28T07:22:50Z"
     },
@@ -103,25 +103,15 @@
         17
       ],
       "tags": [
-        "tag3",
+        "tag1",
         "tag2",
         "tag3"
       ],
       "source": {
-        "website": "Twitter",
-        "userName": "John Smith"
+        "website": "Youtube",
+        "username": "Jan Jansen"
       },
       "timeStamp": "2022-02-21T16:37:27Z"
     }
-  ],
-  "cardsCount0": {
-    "pageIndex": 0,
-    "pageSize": 4,
-    "length": 6
-  },
-  "cardsCount1": {
-    "pageIndex": 1,
-    "pageSize": 4,
-    "length": 6
-  }
+  ]
 }

@@ -9,7 +9,7 @@ export interface Tag {
 
 export interface Source {
   sourceId?: number;
-  userName: string;
+  username: string;
   website: string;
   author?: Author;
 }
@@ -18,15 +18,15 @@ export interface Card {
   cardId?: number;
   title: string;
   files: number[];
+  tags: string;
   source: Source;
-  tags: Tag[];
   timeStamp?: Date;
 }
 
-export interface Paginate {
+export interface Pagination {
   pageIndex: number;
   pageSize: number;
-  length: number;
+  length?: number;
 }
 
 export interface Sorting {

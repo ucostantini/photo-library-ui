@@ -2,7 +2,7 @@
   Loading...
 </div>
 <div *ngIf="!isLoading">
-  <h1 *ngIf="paginate" style="padding: 16px">{{ paginate.length }} results found</h1>
+  <h1 *ngIf="pagination.length" style="padding: 16px">{{ pagination.length }} results found</h1>
 
   <div class="content">
     <app-card-details *ngFor="let card of cards | async"
@@ -10,9 +10,9 @@
     </app-card-details>
   </div>
   <mat-paginator (page)="onPageChange($event)"
-                 [length]=paginate.length
+                 [length]=pagination.length
                  [pageSizeOptions]="[10, 25, 50, 100]"
-                 [pageSize]="this.paginate.pageSize"
+                 [pageSize]="this.pagination.pageSize"
                  aria-label="Select page" class="paginator">
   </mat-paginator>
 </div>
