@@ -2,3 +2,13 @@
   max-width: 400px;
   margin: 16px;
 }
+
+::ng-deep {
+  .mat-menu-item {
+    text-align: center;
+
+    .mat-icon {
+      margin-right: 0;
+    }
+  }
+}

@@ -17,7 +17,8 @@
         "website": "Twitter",
         "username": "Jan Jansen"
       },
-      "timeStamp": "2022-06-01T14:25:08.716Z"
+      "created": "2022-06-01T14:25:08.716Z",
+      "modified": "2022-06-01T14:25:08.716Z"
     },
     {
       "cardId": 1,
@@ -37,7 +38,8 @@
         "website": "Youtube",
         "username": "Erika Mustermann"
       },
-      "timeStamp": "2022-05-12T23:45:39Z"
+      "created": "2022-05-12T23:45:39Z",
+      "modified": "2022-08-12T14:15:12Z"
     },
     {
       "cardId": 2,
@@ -54,7 +56,8 @@
         "website": "Twitter",
         "username": "John Smith"
       },
-      "timeStamp": "2022-03-05T22:16:40Z"
+      "created": "2022-03-05T22:16:40Z",
+      "modified": "2022-03-05T22:16:40Z"
     },
     {
       "cardId": 3,
@@ -72,7 +75,8 @@
         "website": "Twitter",
         "username": "John Smith"
       },
-      "timeStamp": "2022-01-20T00:43:57Z"
+      "created": "2022-01-20T00:43:57Z",
+      "modified": "2022-03-15T08:27:12Z"
     },
     {
       "cardId": 4,
@@ -94,7 +98,8 @@
         "website": "Facebook",
         "username": "John Smith"
       },
-      "timeStamp": "2022-02-28T07:22:50Z"
+      "created": "2022-02-28T07:22:50Z",
+      "modified": "2022-06-05T16:47:28Z"
     },
     {
       "cardId": 5,
@@ -111,7 +116,8 @@
         "website": "Youtube",
         "username": "Jan Jansen"
       },
-      "timeStamp": "2022-02-21T16:37:27Z"
+      "created": "2022-02-21T16:37:27Z",
+      "modified": "2022-04-28T05:06:58Z"
     }
   ]
 }

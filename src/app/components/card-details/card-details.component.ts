@@ -4,7 +4,6 @@ import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
-import { mergeMap } from 'rxjs';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { Image } from 'angular-responsive-carousel';
 import { ImageService } from '../../core/services/image/image.service';
@@ -32,22 +31,26 @@ export class CardDetailsComponent implements OnInit {
   onEdit(): void {
     this.dialog.open(CardFormComponent, {
       data: {card: this.card, isSearch: false},
-    }).afterClosed().pipe(
-      mergeMap((card: Card) => this.cardService.update(card))
-    ).subscribe({
-      next: () => this.notifService.notifySuccess('updated'),
-      error: (error) => this.notifService.notifyError(JSON.stringify(error))
+    }).afterClosed().subscribe((card: Card) => {
+      if (card) {
+        this.cardService.update(card).subscribe({
+          next: () => this.notifService.notifySuccess('updated'),
+          error: (error) => this.notifService.notifyError(JSON.stringify(error))
+        });
+      }
     });
   }
 
   onDelete(): void {
     this.dialog.open(CardDeleteComponent, {
       data: this.card.cardId,
-    }).afterClosed().pipe(
-      mergeMap((cardId: number) => this.cardService.delete(cardId))
-    ).subscribe({
-      next: () => this.notifService.notifySuccess('deleted'),
-      error: (error) => this.notifService.notifyError(JSON.stringify(error))
+    }).afterClosed().subscribe((cardId: number) => {
+      if (cardId) {
+        this.cardService.delete(cardId).subscribe({
+          next: () => this.notifService.notifySuccess('deleted'),
+          error: (error) => this.notifService.notifyError(JSON.stringify(error))
+        });
+      }
     });
   }
 }

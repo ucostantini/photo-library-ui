@@ -39,9 +39,9 @@ export class NavMenuComponent implements OnInit {
       data: {card: null, isSearch: false},
     }).afterClosed()
       .subscribe({
-        next: () => this.notifService.notifySuccess('created'),
-        // TODO fix error formatting
-        // TODO error is displayed on cancelling form, "successfully created" is displayed on Submit
+        next: (card: Card) => {
+          if (card) this.card = card
+        },
         error: (error) => this.notifService.notifyError(JSON.stringify(error))
       });
   }
@@ -51,7 +51,9 @@ export class NavMenuComponent implements OnInit {
       data: {card: this.card, isSearch: true},
     }).afterClosed()
       .subscribe({
-        next: (card: Card) => this.card = card,
+        next: (card: Card) => {
+          if (card) this.card = card
+        },
         error: error => this.notifService.notifyError(JSON.stringify(error))
       });
   }

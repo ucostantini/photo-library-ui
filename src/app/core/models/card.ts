@@ -20,7 +20,8 @@ export interface Card {
   files: number[];
   tags: string;
   source: Source;
-  timeStamp?: Date;
+  created?: Date;
+  modified?: Date;
 }
 
 export interface Pagination {

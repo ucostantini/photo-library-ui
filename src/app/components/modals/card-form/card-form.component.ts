@@ -1,6 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { Card } from '../../../core/models/card';
-import { CardService } from '../../../core/services/card/card.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FileService } from '../../../core/services/file/file.service';
@@ -17,7 +16,7 @@ export class CardFormComponent implements OnInit {
   status: string;
   private files: number[] = [];
 
-  constructor(private cardService: CardService, public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
+  constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }) {
   }
 
@@ -50,17 +49,15 @@ export class CardFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(null);
   }
 
   onSubmit(): void {
-    let card: Card = null;
-    if (!(this.data.isSearch && this.form.getRawValue() == {})) {
+    if (this.form.valid) {
       const formData = (this.form.getRawValue() as Card);
-      card = this.data.card ? {...formData, cardId: this.data.card.cardId} : formData;
+      let card = this.data.card ? {...formData, cardId: this.data.card.cardId} : formData;
+      this.dialogRef.close(card);
     }
-
-    this.dialogRef.close(card);
   }
 
   onFileUploaded($event: FilePreviewModel): void {

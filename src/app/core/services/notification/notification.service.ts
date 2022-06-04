@@ -19,6 +19,6 @@ export class NotificationService {
   }
 
   notifyError(error: string): void {
-    this.toaster.open(error, 'Dismiss', this.config);
+    this.toaster.open('Error : ' + error, 'Dismiss', this.config);
   }
 }

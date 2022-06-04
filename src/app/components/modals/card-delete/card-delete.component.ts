@@ -14,6 +14,6 @@ export class CardDeleteComponent {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.dialogRef.close(null);
   }
 }

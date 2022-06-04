@@ -7,27 +7,25 @@
             style="margin-right: 0; margin-left: auto">
       <mat-icon>more_vert</mat-icon>
     </button>
-    <!-- TODO fix css for menu-->
     <mat-menu #menu="matMenu">
-      <button mat-menu-item style="text-align: center">
-        <mat-icon style="color: dodgerblue">download</mat-icon>
+      <button mat-menu-item>
+        <mat-icon>download</mat-icon>
       </button>
-      <button (click)="onEdit()" data-target="#createModal"
-              data-toggle="modal" mat-menu-item style="text-align: center">
-        <mat-icon style="color: coral">edit</mat-icon>
+      <button (click)="onEdit()" data-target="#createModal" data-toggle="modal" mat-menu-item>
+        <mat-icon>edit</mat-icon>
       </button>
-      <button (click)="onDelete()" data-target="#deleteModal"
-              data-toggle="modal" mat-menu-item style="text-align: center">
-        <mat-icon style="color: crimson">delete</mat-icon>
+      <button (click)="onDelete()" data-target="#deleteModal" data-toggle="modal" mat-menu-item>
+        <mat-icon>delete</mat-icon>
       </button>
     </mat-menu>
   </mat-card-header>
-  <carousel [cellsToShow]="1" [images]="this.images" [overflowCellsLimit]="1"></carousel>
+  <carousel [cellsToShow]="1" [images]="this.images"></carousel>
   <mat-card-content class="mat-card-content" style="padding-top: 14px">
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>
     <p class="card-text">Credits : {{card.source.website}} / {{card.source.username}} </p>
     <hr/>
-    <p class="card-text"><small class="text-muted">Created the {{card.timeStamp | date: 'short'}}</small></p>
+    <p class="card-text"><small class="text-muted">Created the {{card.created | date: 'short'}}</small></p>
+    <p class="card-text"><small class="text-muted">Last modified the {{card.modified | date: 'short'}}</small></p>
   </mat-card-content>
 </mat-card>
