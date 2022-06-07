@@ -11,11 +11,11 @@ import { Observable } from 'rxjs';
 })
 export class CardListComponent implements OnInit, OnChanges {
 
-  @Input() private cardFormData: Card;
-  @Input() private sorting: Sorting;
   @Input() pagination: Pagination;
   cards: Observable<Card[]>;
   isLoading: boolean;
+  @Input() private cardFormData: Card;
+  @Input() private sorting: Sorting;
 
   constructor(private cardService: CardService) {
   }

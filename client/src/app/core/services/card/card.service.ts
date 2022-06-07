@@ -14,10 +14,6 @@ export class CardService {
   constructor(private httpClient: HttpClient) {
   }
 
-  read(id: number): Observable<Card> {
-    return this.httpClient.get<Card>(`${baseURL}/${id}`);
-  }
-
   create(card: Card): Observable<Object> {
     return this.httpClient.post(baseURL, card);
   }

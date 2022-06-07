@@ -38,11 +38,13 @@ export class NavMenuComponent implements OnInit {
     this.dialog.open(CardFormComponent, {
       data: {card: null, isSearch: false},
     }).afterClosed()
-      .subscribe({
-        next: (card: Card) => {
-          if (card) this.card = card
-        },
-        error: (error) => this.notifService.notifyError(JSON.stringify(error))
+      .subscribe((card: Card) => {
+        if (card) {
+          this.cardService.create(card).subscribe({
+            next: () => this.notifService.notifySuccess('created'),
+            error: (error) => this.notifService.notifyError(JSON.stringify(error))
+          });
+        }
       });
   }
 
