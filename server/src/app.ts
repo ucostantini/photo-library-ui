@@ -2,8 +2,10 @@ import express from 'express';
 import ExpressSession from 'express-session';
 import logger from 'morgan';
 import flash from 'express-flash-plus';
-
 import { cardRoutes } from './routes/cardRouter';
+import { Database } from 'sqlite3';
+
+const db: Database = new Database(':memory:');
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -50,3 +52,7 @@ class App {
 }
 
 export default new App().app;
+
+export function getDB(): Database {
+  return this.db;
+}
