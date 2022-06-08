@@ -13,11 +13,17 @@ export class Card {
     constructor() {
     }
 
-    public async create(card: Card, db: Database): Promise<RunResult> {
+    public create(db: Database): Promise<number> {
         return new Promise((resolve, reject) => {
             db.prepare('INSERT INTO cards VALUES(?,?,?,?)')
-                .run(card.title.trim(), card.source.website.trim(), card.source.username.trim())
-                .finalize().run('SELECT last_insert_rowid()');
+                .run(this.title, this.source.website, this.source.username)
+                .finalize().run('SELECT last_insert_rowid()', (res: RunResult, err: Error) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(res.lastID)
+                }
+            });
         });
     }
 }
