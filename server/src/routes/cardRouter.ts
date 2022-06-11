@@ -1,15 +1,26 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import { CardController } from '../core/cardController';
+import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
-import { Card } from "../types/card";
+import { CardModel } from "../core/models/cardModel";
+import { FileController } from "../core/controllers/fileController";
 
 export class CardRouter {
   private readonly _router: Router;
   private readonly _cardController: CardController;
+  private readonly schema;
 
   constructor() {
     this._cardController = new CardController();
     this._router = Router();
+    this.schema = yup.object().shape({
+      title: yup.string().required().max(60),
+      files: yup.array().of(yup.number().min(1)).required(),
+      tags: yup.string().required(),
+      source: yup.object().shape({
+        website: yup.string().required().max(30),
+        username: yup.string().required().max(30)
+      })
+    });
     this.init();
   }
 
@@ -26,7 +37,7 @@ export class CardRouter {
     res.status(error.code).json({error: error.toString()});
   }
 
-  public list(req: Request, res: Response, next: NextFunction) {
+  public search(req: Request, res: Response, next: NextFunction) {
     try {
       console.log(req.body);
       console.log(req.params);
@@ -45,23 +56,11 @@ export class CardRouter {
   public create(req: Request, res: Response, next: NextFunction) {
     try {
       console.log(req.body);
-      let schema = yup.object().shape({
-        title: yup.string().required(),
-        files: yup.array().of(yup.number().min(1)).required(),
-        source: yup.object().shape({
-          website: yup.string().required(),
-          username: yup.string().required()
-        })
-      });
-      schema
+      this.schema
           .isValid(req.body)
-          .then(() => {
-            this._cardController.create(req.body as Card);
-          }).catch(
-
-      );
-
-
+          .then(() => this._cardController.create(req.body as CardModel));
+// TODO DEBUG is the response sent before being able to catch any error ?
+      // TODO DEBUG handle errors properly + response properly
       res.status(201)
           .send({
             message: 'Card successfully created',
@@ -75,7 +74,9 @@ export class CardRouter {
   public update(req: Request, res: Response, next: NextFunction) {
     try {
       console.log(req.body);
-
+      this.schema
+          .isValid(req.body)
+          .then(() => this._cardController.update(req.body as CardModel));
 
       res.status(201)
           .send({
@@ -90,7 +91,8 @@ export class CardRouter {
   public delete(req: Request, res: Response, next: NextFunction) {
     try {
       console.log(req.body);
-
+      this._cardController.delete(req.body as CardModel);
+      new FileController().delete((req.body as CardModel).cardId).then();
 
       res.status(201)
           .send({
@@ -107,7 +109,7 @@ export class CardRouter {
    * endpoints.
    */
   init() {
-    this._router.get('/', this.list);
+    this._router.get('/', this.search);
     this._router.post('/', this.create);
     this._router.put('/:cardId', this.update);
     this._router.delete('/:cardId', this.delete);

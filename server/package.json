@@ -30,8 +30,10 @@
         "@types/express": "^4.17.13",
         "@types/express-session": "^1.17.4",
         "@types/jest": "^27.5.0",
+        "@types/minio": "^7.0.13",
         "@types/morgan": "^1.9.3",
         "@types/node": "^17.0.31",
+        "@types/sqlite3": "^3.1.8",
         "@types/supertest": "^2.0.12",
         "chai": "^4.3.6",
         "chai-http": "^4.3.0",
@@ -48,13 +50,16 @@
         "typescript": "^4.6.4"
     },
     "dependencies": {
-        "@types/sqlite3": "^3.1.8",
+        "@types/image-thumbnail": "^1.0.1",
         "cors": "^2.8.5",
         "debug": "^4.3.4",
+        "dotenv": "^16.0.1",
         "express": "^4.18.1",
         "express-flash-plus": "^0.0.7",
         "express-session": "^1.17.2",
+        "image-thumbnail": "^1.0.15",
         "md5": "^2.3.0",
+        "minio": "^7.0.28",
         "morgan": "^1.10.0",
         "sqlite3": "^5.0.8",
         "yup": "^0.32.11"

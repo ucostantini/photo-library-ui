@@ -3,6 +3,7 @@ import ExpressSession from 'express-session';
 import logger from 'morgan';
 import flash from 'express-flash-plus';
 import { cardRoutes } from './routes/cardRouter';
+import { fileRoutes } from './routes/fileRouter';
 import { Database } from 'sqlite3';
 
 const db: Database = new Database(':memory:');
@@ -46,8 +47,8 @@ class App {
     });
 
     this.app.use('/', router);
-
     this.app.use('/cards', cardRoutes.router);
+    this.app.use('/files', fileRoutes.router);
   }
 }
 
