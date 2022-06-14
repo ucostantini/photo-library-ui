@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
-import { CardModel } from "../core/models/cardModel";
 import { FileController } from "../core/controllers/fileController";
+import { Card } from "../types/card";
 
 export class CardRouter {
   private readonly _router: Router;
@@ -34,31 +34,27 @@ export class CardRouter {
 
   private static errorHandler(error: any, req: Request, res: Response<any, Record<string, any>>) {
     req.flash('error', error.message);
+    console.log(error);
     res.status(error.code).json({error: error.toString()});
   }
 
-  public search(req: Request, res: Response, next: NextFunction) {
+  public search(req: Request, res: Response) {
     try {
-      console.log(req.body);
-      console.log(req.params);
-      console.log(req);
-
-      res.status(200)
-          .send({
-            message: 'list',
-            status: res.status
-          });
+      this._cardController.get(req.body as Card, req.query as any).then((cards: Card[]) =>
+          res.status(200)
+              .send(cards)
+      );
     } catch (error) {
       CardRouter.errorHandler(error, req, res);
     }
   }
 
-  public create(req: Request, res: Response, next: NextFunction) {
+  public create(req: Request, res: Response) {
     try {
       console.log(req.body);
       this.schema
           .isValid(req.body)
-          .then(() => this._cardController.create(req.body as CardModel));
+          .then(() => this._cardController.create(req.body as Card));
 // TODO DEBUG is the response sent before being able to catch any error ?
       // TODO DEBUG handle errors properly + response properly
       res.status(201)
@@ -71,12 +67,12 @@ export class CardRouter {
     }
   }
 
-  public update(req: Request, res: Response, next: NextFunction) {
+  public update(req: Request, res: Response) {
     try {
       console.log(req.body);
       this.schema
           .isValid(req.body)
-          .then(() => this._cardController.update(req.body as CardModel));
+          .then(() => this._cardController.update(req.body as Card));
 
       res.status(201)
           .send({
@@ -88,11 +84,11 @@ export class CardRouter {
     }
   }
 
-  public delete(req: Request, res: Response, next: NextFunction) {
+  public delete(req: Request, res: Response) {
     try {
       console.log(req.body);
-      this._cardController.delete(req.body as CardModel);
-      new FileController().delete((req.body as CardModel).cardId).then();
+      this._cardController.delete(req.body as Card);
+      new FileController().delete((req.body as Card).cardId).then();
 
       res.status(201)
           .send({
@@ -109,10 +105,10 @@ export class CardRouter {
    * endpoints.
    */
   init() {
-    this._router.get('/', this.search);
-    this._router.post('/', this.create);
-    this._router.put('/:cardId', this.update);
-    this._router.delete('/:cardId', this.delete);
+    this._router.get('', this.search.bind(this));
+    this._router.post('', this.create.bind(this));
+    this._router.put('/:cardId', this.update.bind(this));
+    this._router.delete('/:cardId', this.delete.bind(this));
   }
 
 }

@@ -1,42 +1,42 @@
 import { FileModel } from '../models/fileModel';
-import { getDB } from '../../app';
 import { CardModel } from '../models/cardModel';
 import { TagModel } from "../models/tagModel";
 import { AlreadyExistsError } from "../errors/alreadyExistsError";
+import { Card, Pagination } from "../../types/card";
 
 export class CardController {
 
     constructor() {
     }
 
-    public create(card: CardModel): void {
-        const db = getDB();
-        card.exists(db).then((cardExists: boolean) => {
+    public create(card: Card): void {
+        new CardModel(card).exists().then((cardExists: boolean) => {
             if (cardExists) {
-                card.insert(db).then(insertedCardId => {
-                    new FileModel(db, insertedCardId, card.files).link();
-                    new TagModel(db, insertedCardId, card.tags).insert();
+                new CardModel(card).insert().then(insertedCardId => {
+                    new FileModel(insertedCardId, card.files).link();
+                    new TagModel(insertedCardId, card.tags).insert();
                 });
-                db.close();
             } else
                 throw new AlreadyExistsError("Card already exists in db");
         });
     }
 
-    public update(card: CardModel): void {
-        const db = getDB();
-        card.exists(db).then((cardExists: boolean) => {
+    public update(card: Card): void {
+        new CardModel(card).exists().then((cardExists: boolean) => {
             if (cardExists) {
-                card.update(db);
-                new FileModel(db, card.cardId, card.files).update();
-                new TagModel(db, card.cardId, card.tags).update();
+                new CardModel(card).update();
+                new FileModel(card.cardId, card.files).update();
+                new TagModel(card.cardId, card.tags).update();
             } else
                 throw new AlreadyExistsError("Card already exists in db");
         });
     }
 
-    public delete(card: CardModel) {
-        const db = getDB();
-        card.delete(db);
+    public delete(card: Card): void {
+        new CardModel(card).delete();
+    }
+
+    get(card: Card, query: Pagination): Promise<Card[]> {
+        return new CardModel(card).get(query);
     }
 }

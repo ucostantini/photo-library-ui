@@ -1,13 +1,14 @@
-import { Database, RunResult } from "sqlite3";
+import { RunResult } from "sqlite3";
+import { db } from "../../app";
 
 export class FileModel {
 
-    constructor(private db: Database, private cardId: number, private fileIds: number[]) {
+    constructor(private cardId: number, private fileIds: number[]) {
     }
 
     public async get(): Promise<number[]> {
         return new Promise<number[]>((resolve, reject) => {
-            this.db.prepare('SELECT fileId FROM files WHERE cardId = ?').all(this.cardId, (_res: RunResult, err: Error, rows: number[]) => {
+            db.prepare('SELECT fileId FROM files WHERE cardId = ?').all(this.cardId, (_res: RunResult, err: Error, rows: number[]) => {
                 if (err) {
                     reject(err);
                 } else {
@@ -19,20 +20,15 @@ export class FileModel {
 
     public insert(): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            this.db.prepare('INSERT INTO files (cardId) VALUES(?)')
+            db.prepare('INSERT INTO files (cardId) VALUES(?)')
                 .run(this.cardId)
-                .finalize().get('SELECT last_insert_rowid()', (_res: RunResult, err: Error, row: number) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(row)
-                }
-            });
+                .finalize().get('SELECT last_insert_rowid() AS id', (_res: RunResult, row: { 'id': number }) => resolve(row.id)
+            );
         });
     }
 
     public link(): void {
-        const stmt = this.db.prepare('UPDATE files SET cardId = ? WHERE fileId = ?');
+        const stmt = db.prepare('UPDATE files SET cardId = ? WHERE fileId = ?');
         this.fileIds.forEach((fileId: number) => {
             stmt.run(this.cardId, fileId);
         });
@@ -45,6 +41,6 @@ export class FileModel {
     }
 
     public delete(): void {
-        this.db.prepare('DELETE FROM files WHERE cardId = ?').run(this.cardId).finalize();
+        db.prepare('DELETE FROM files WHERE cardId = ?').run(this.cardId).finalize();
     }
 }

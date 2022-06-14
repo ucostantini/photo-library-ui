@@ -1,6 +1,7 @@
 import debug from 'debug';
-
 import App from './app';
+
+require('source-map-support').install();
 
 debug('ts-express:server');
 

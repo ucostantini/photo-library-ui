@@ -1,5 +1,6 @@
-import { NextFunction, Request, Response, Router } from 'express';
+import { Request, Response, Router } from 'express';
 import { FileController } from "../core/controllers/fileController";
+import { UploadedFile } from "express-fileupload";
 
 export class FileRouter {
     private readonly _router: Router;
@@ -21,10 +22,11 @@ export class FileRouter {
 
     private static errorHandler(error: any, req: Request, res: Response<any, Record<string, any>>) {
         req.flash('error', error.message);
+        console.log(error);
         res.status(error.code).json({error: error.toString()});
     }
 
-    public get(req: Request, res: Response, next: NextFunction) {
+    public get(req: Request, res: Response) {
         try {
             console.log(req.body);
             this._fileController.get(req.body.cardId, true).then((fileUrls: string[]) =>
@@ -39,10 +41,9 @@ export class FileRouter {
         }
     }
 
-    public create(req: Request, res: Response, next: NextFunction) {
+    public create(req: Request, res: Response) {
         try {
-            console.log(req.body);
-            this._fileController.create(req.body as File).then((fileId: number) =>
+            this._fileController.create(req.files.file as UploadedFile).then((fileId: number) =>
                 res.status(201)
                     .send({
                         message: 'File successfully created',
@@ -55,7 +56,7 @@ export class FileRouter {
         }
     }
 
-    public delete(req: Request, res: Response, next: NextFunction) {
+    public delete(req: Request, res: Response) {
         try {
             console.log(req.body);
             this._fileController.delete(req.body.cardId).then((message: string) =>
@@ -72,9 +73,9 @@ export class FileRouter {
 
 
     init() {
-        this._router.get('/:cardId', this.get);
-        this._router.post('/', this.create);
-        this._router.delete('/:cardId', this.delete);
+        this._router.get('/:cardId', this.get.bind(this));
+        this._router.post('', this.create.bind(this));
+        this._router.delete('/:cardId', this.delete.bind(this));
     }
 
 }

@@ -5,8 +5,9 @@ import flash from 'express-flash-plus';
 import { cardRoutes } from './routes/cardRouter';
 import { fileRoutes } from './routes/fileRouter';
 import { Database } from 'sqlite3';
-
-const db: Database = new Database(':memory:');
+import fileUpload from "express-fileupload";
+// TODO CHANGE THIS !!!
+export const db: Database = new Database('/home/wolfie/git/photo-library/server/resources/db.sqlite');
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -36,6 +37,7 @@ class App {
         }));
     this.app.use(flash());
     this.app.use(require('cors')());
+    this.app.use(fileUpload());
   }
 
   // Configure API endpoints.
@@ -53,7 +55,3 @@ class App {
 }
 
 export default new App().app;
-
-export function getDB(): Database {
-  return this.db;
-}
