@@ -32,6 +32,7 @@ export class CardFormComponent implements OnInit {
         Validators.maxLength(30)] : []
       ),
       files: new FormControl(inCard ? inCard.files : this.files, !isSearch ? Validators.minLength(1) : []),
+      // TODO use chips and dropdown autocomplete for tags
       tags: new FormControl(inCard ? inCard.tags : '', !isSearch ? Validators.required : []),
       source: new FormGroup({
         website: new FormControl(inCard ? inCard.source.website : '', !isSearch ? [
@@ -61,7 +62,7 @@ export class CardFormComponent implements OnInit {
   }
 
   onFileUploaded($event: FilePreviewModel): void {
-    this.files.push($event.uploadResponse.fileId);
+    this.files.push($event.uploadResponse as number);
   }
 
   onFileRemoved($event: FilePreviewModel): void {

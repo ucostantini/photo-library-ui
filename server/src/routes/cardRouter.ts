@@ -34,7 +34,7 @@ export class CardRouter {
 
   private static errorHandler(error: any, req: Request, res: Response<any, Record<string, any>>) {
     req.flash('error', error.message);
-    console.log(error);
+    console.error(error);
     res.status(error.code).json({error: error.toString()});
   }
 
@@ -51,7 +51,6 @@ export class CardRouter {
 
   public create(req: Request, res: Response) {
     try {
-      console.log(req.body);
       this.schema
           .isValid(req.body)
           .then(() => this._cardController.create(req.body as Card));
@@ -69,7 +68,6 @@ export class CardRouter {
 
   public update(req: Request, res: Response) {
     try {
-      console.log(req.body);
       this.schema
           .isValid(req.body)
           .then(() => this._cardController.update(req.body as Card));
@@ -86,9 +84,9 @@ export class CardRouter {
 
   public delete(req: Request, res: Response) {
     try {
-      console.log(req.body);
       this._cardController.delete(req.body as Card);
-      new FileController().delete((req.body as Card).cardId).then();
+      const fileController = new FileController();
+      (req.body as Card).files.forEach((fileId: number) => fileController.delete(fileId).then());
 
       res.status(201)
           .send({

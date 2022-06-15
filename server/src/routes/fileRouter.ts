@@ -22,19 +22,15 @@ export class FileRouter {
 
     private static errorHandler(error: any, req: Request, res: Response<any, Record<string, any>>) {
         req.flash('error', error.message);
-        console.log(error);
+        console.error(error);
         res.status(error.code).json({error: error.toString()});
     }
 
     public get(req: Request, res: Response) {
         try {
-            console.log(req.body);
-            this._fileController.get(req.body.cardId, true).then((fileUrls: string[]) =>
+            this._fileController.get(Number(req.params['cardId']), true).then((fileUrls: string[]) =>
                 res.status(200)
-                    .send({
-                        body: fileUrls,
-                        status: res.status
-                    })
+                    .send(fileUrls)
             );
         } catch (error) {
             FileRouter.errorHandler(error, req, res);
@@ -44,12 +40,7 @@ export class FileRouter {
     public create(req: Request, res: Response) {
         try {
             this._fileController.create(req.files.file as UploadedFile).then((fileId: number) =>
-                res.status(201)
-                    .send({
-                        message: 'File successfully created',
-                        body: fileId,
-                        status: res.status
-                    })
+                res.status(201).send('' + fileId)
             );
         } catch (error) {
             FileRouter.errorHandler(error, req, res);
@@ -58,8 +49,7 @@ export class FileRouter {
 
     public delete(req: Request, res: Response) {
         try {
-            console.log(req.body);
-            this._fileController.delete(req.body.cardId).then((message: string) =>
+            this._fileController.delete(req.body.fileId).then((message: string) =>
                 res.status(201)
                     .send({
                         message: message,
@@ -75,7 +65,7 @@ export class FileRouter {
     init() {
         this._router.get('/:cardId', this.get.bind(this));
         this._router.post('', this.create.bind(this));
-        this._router.delete('/:cardId', this.delete.bind(this));
+        this._router.delete('/:fileId', this.delete.bind(this));
     }
 
 }

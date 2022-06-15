@@ -44,7 +44,6 @@ export class FileController {
     public async create(file: UploadedFile): Promise<number> {
         return new Promise<number>(async (resolve, reject) => {
             try {
-                // TODO files uploaded as "binary/octet-stream" + missing extension
                 const bucketExists: boolean = await FileController.MINIO.bucketExists(FileController.BUCKET);
                 if (bucketExists) {
                     const fileId: number = await new FileModel(null, []).insert();
@@ -60,22 +59,15 @@ export class FileController {
         });
     }
 
-    public async delete(cardId: number): Promise<string> {
-        // TODO handles only delete request when card is deleted, not when in form (upload/edit)
+    public async delete(fileId: number): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 const bucketExists: boolean = await FileController.MINIO.bucketExists(FileController.BUCKET);
                 if (bucketExists) {
-                    const strFileIds: string[] = [];
-                    const thumbFileIds: string[] = [];
-                    (await new FileModel(cardId, []).get()).forEach((fileId: number) => {
-                        strFileIds.push(fileId + '');
-                        thumbFileIds.push('thumb-' + fileId);
-                    });
-                    await FileController.MINIO.removeObjects(FileController.BUCKET, strFileIds);
-                    await FileController.MINIO.removeObjects(FileController.BUCKET, thumbFileIds);
-                    new FileModel(cardId, []).delete();
-                    resolve('File was deleted successfully');
+                    await FileController.MINIO.removeObject(FileController.BUCKET, fileId + '');
+                    await FileController.MINIO.removeObject(FileController.BUCKET, 'thumb-' + fileId);
+                    new FileModel(null, [fileId]).delete();
+                    resolve('File was successfully removed');
                 }
             } catch (err) {
                 reject(err);

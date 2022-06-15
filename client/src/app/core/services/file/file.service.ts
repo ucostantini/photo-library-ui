@@ -46,4 +46,8 @@ export class FileService extends FilePickerAdapter {
   public removeFile(fileItem: FilePreviewModel): Observable<any> {
     return this.http.delete(`${baseURL}/${fileItem.uploadResponse.fileId}`);
   }
+
+  getThumbnails(cardId: number): Observable<string[]> {
+    return this.http.get<string[]>(`${baseURL}/${cardId}`);
+  }
 }

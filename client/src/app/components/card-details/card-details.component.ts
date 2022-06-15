@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { Image } from 'angular-responsive-carousel';
-import { ImageService } from '../../core/services/image/image.service';
+import { FileService } from "../../core/services/file/file.service";
 
 @Component({
   selector: 'app-card-details',
@@ -21,11 +21,14 @@ export class CardDetailsComponent implements OnInit {
   constructor(public dialog: MatDialog,
               private cardService: CardService,
               private notifService: NotificationService,
-              private imageService: ImageService) {
+              private fileService: FileService) {
   }
 
   ngOnInit(): void {
-    this.card.files.forEach(fileId => this.images.push({path: this.imageService.getThumbnailPath(fileId)}));
+    this.fileService.getThumbnails(this.card.cardId)
+        .subscribe((fileUrls: string[]) =>
+            fileUrls.forEach((fileUrl: string) => this.images.push({path: fileUrl}))
+        );
   }
 
   onEdit(): void {

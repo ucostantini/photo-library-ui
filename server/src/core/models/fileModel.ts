@@ -8,13 +8,9 @@ export class FileModel {
 
     public async get(): Promise<number[]> {
         return new Promise<number[]>((resolve, reject) => {
-            db.prepare('SELECT fileId FROM files WHERE cardId = ?').all(this.cardId, (_res: RunResult, err: Error, rows: number[]) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(rows);
-                }
-            });
+            db.prepare('SELECT fileId FROM files WHERE cardId = ?').all(this.cardId, (_res: RunResult, rows: { 'fileId': number }[]) =>
+                resolve(rows.map(object => object.fileId))
+            );
         });
     }
 
@@ -28,11 +24,12 @@ export class FileModel {
     }
 
     public link(): void {
-        const stmt = db.prepare('UPDATE files SET cardId = ? WHERE fileId = ?');
+        let stmt = db.prepare('INSERT INTO files VALUES(?,?)');
         this.fileIds.forEach((fileId: number) => {
             stmt.run(this.cardId, fileId);
         });
         stmt.finalize();
+        db.run('DELETE FROM files WHERE cardId IS NULL AND fileId IS NULL');
     }
 
     public update(): void {
@@ -41,6 +38,6 @@ export class FileModel {
     }
 
     public delete(): void {
-        db.prepare('DELETE FROM files WHERE cardId = ?').run(this.cardId).finalize();
+        db.prepare('DELETE FROM files WHERE fileId = ?').run(this.fileIds[0]).finalize();
     }
 }

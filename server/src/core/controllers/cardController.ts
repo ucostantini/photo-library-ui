@@ -11,7 +11,7 @@ export class CardController {
 
     public create(card: Card): void {
         new CardModel(card).exists().then((cardExists: boolean) => {
-            if (cardExists) {
+            if (!cardExists) {
                 new CardModel(card).insert().then(insertedCardId => {
                     new FileModel(insertedCardId, card.files).link();
                     new TagModel(insertedCardId, card.tags).insert();
@@ -23,7 +23,7 @@ export class CardController {
 
     public update(card: Card): void {
         new CardModel(card).exists().then((cardExists: boolean) => {
-            if (cardExists) {
+            if (!cardExists) {
                 new CardModel(card).update();
                 new FileModel(card.cardId, card.files).update();
                 new TagModel(card.cardId, card.tags).update();
