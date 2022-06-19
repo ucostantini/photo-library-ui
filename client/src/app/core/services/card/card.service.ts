@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Card, Pagination, Sorting } from '../../models/card';
-import { DataUtils } from "../../../utils/data-utils";
 
 const baseURL = 'http://localhost:3000/cards';
 
@@ -26,8 +25,9 @@ export class CardService {
     return this.httpClient.delete(`${baseURL}/${id}`);
   }
 
-  fetch(page: Pagination, sort: Sorting, search: Card): Observable<Card[]> {
-    const searchUrl = (search ? `?${DataUtils.params(search).toString()}&` : '?');
-    return this.httpClient.get<Card[]>(`${baseURL}${searchUrl}_page=${page.pageIndex + 1}&_limit=${page.pageSize}&_sort=${sort.sort}&_order=${sort.order}`);
+  fetch(page: Pagination, sort: Sorting, search: Card): Observable<HttpResponse<Card[]>> {
+    const searchUrl = (search ? `?_search=${JSON.stringify(search)}&` : '?');
+    const paginationUrl = {_page: page.pageIndex, _limit: page.pageSize, _sort: sort.sort, _order: sort.order};
+    return this.httpClient.get<Card[]>(`${baseURL}${searchUrl}_pagination=${JSON.stringify(paginationUrl)}`, {observe: "response"});
   }
 }

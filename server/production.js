@@ -2,3 +2,6 @@
 // TODO implement caching with redis
 // TODO deployment ? Electron ? WHere to store data ? minio ?
 // TODO use elasticsearch ?
+// TODO tests, UT, FT, E2E, Black Box...
+// TODO documentation
+// TODO logging (error, bug, info)

@@ -7,33 +7,59 @@ export class CardModel {
     constructor(private card: Card) {
     }
 
-    public insert(): Promise<number> {
-        return new Promise((resolve, reject) => {
-            db.prepare('INSERT INTO cards(title,website,username) VALUES(?,?,?)')
-                .run(this.card.title, this.card.source.website, this.card.source.username)
-                .finalize().get('SELECT last_insert_rowid() AS id', (_res: RunResult, row: { 'id': number }) => {
-                db.prepare('INSERT INTO card_fts VALUES(?,?,?,?)')
-                    .run(row.id, this.card.title, this.card.source.website, this.card.source.username)
-                    .finalize();
-                resolve(row.id);
-            });
+    private static getPaginationOffset(query: Pagination): string {
+        const l = Number(query._limit);
+        const p = Number(query._page);
+        return '' + ((l * p) - l);
+    }
+
+    public get(query: Pagination): Promise<Card[]> {
+        return new Promise<Card[]>((resolve, reject) => {
+            if (Object.keys(this.card).length === 0) {
+                db.prepare("SELECT DISTINCT cards.cardId, title, json_group_array(DISTINCT fileId) AS files, group_concat(DISTINCT tag) AS tags, website, username, created, modified FROM cards\n" +
+                    '    INNER JOIN tags t1 on cards.cardId = t1.cardId\n' +
+                    '    INNER JOIN files f on cards.cardId = f.cardId\n' +
+                    '    GROUP BY cards.cardId, title, website, username, created, modified\n' +
+                    '    ORDER BY cards.' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
+                    .all(query._limit, CardModel.getPaginationOffset(query), (_res: RunResult, err: Error, cards: Card[]) => {
+                        if (err) reject(err);
+                        resolve(cards);
+                    }).finalize();
+            } else {
+                // TODO tags not included in MATCH, not included in table
+                db.prepare("SELECT DISTINCT c.cardId, c.title,\n" +
+                    "                json_group_array(DISTINCT fileId) AS files,\n" +
+                    "                group_concat(DISTINCT tag) AS tags, c.website, c.username, created, modified\n" +
+                    "FROM card_fts\n" +
+                    "         INNER JOIN cards c on card_fts.cardId = c.cardId\n" +
+                    "                        INNER JOIN tags t1 on c.cardId = t1.cardId\n" +
+                    "                        INNER JOIN files f on c.cardId = f.cardId\n" +
+                    "WHERE card_fts MATCH ?\n" +
+                    "                        GROUP BY c.cardId, c.title, c.website, c.username, created, modified\n" +
+                    "                        ORDER BY c." + query._sort + " " + query._order + " LIMIT ? OFFSET ?")
+                    .all(this.card.title + ' ' + this.card.website + ' ' + this.card.username, query._limit, CardModel.getPaginationOffset(query), (_res: RunResult, err: Error, cards: Card[]) => {
+                        if (err) reject(err);
+                        resolve(cards);
+                    }).finalize();
+            }
         });
     }
 
-    public update(): void {
-        db.prepare('UPDATE cards SET title = ?, website = ?, username = ? WHERE cardId = ?')
-            .run(this.card.title, this.card.source.website, this.card.source.username)
-            .finalize();
-        db.prepare('UPDATE card_fts SET title = ?, website = ?, username = ? WHERE cardId = ?')
-            .run(this.card.title, this.card.source.website, this.card.source.username, this.card.cardId)
-            .finalize();
-        db.close();
-    }
-
-    public delete(): void {
-        db.prepare('DELETE FROM cards WHERE cardId = ?').run(this.card.cardId).finalize();
-        db.prepare('DELETE FROM card_fts WHERE cardId = ?').run(this.card.cardId).finalize();
-        db.close();
+    public getTotalCount(): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            if (Object.keys(this.card).length === 0) {
+                db.get('SELECT COUNT(cardId) AS count FROM cards', (_res: RunResult, err: Error, row: { count: number }) => {
+                    if (err) reject(err);
+                    resolve(row.count);
+                });
+            } else {
+                db.prepare("SELECT COUNT(cardId) FROM card_fts WHERE card_fts MATCH ?")
+                    .get(this.card.title + ' ' + this.card.website + ' ' + this.card.username, (_res: RunResult, err: Error, row: { count: number }) => {
+                        if (err) reject(err);
+                        resolve(row.count);
+                    }).finalize();
+            }
+        });
     }
 
     public exists(): Promise<boolean> {
@@ -41,50 +67,38 @@ export class CardModel {
             let prep = '?,'.repeat(this.card.files.length - 1);
             db.prepare('SELECT EXISTS (SELECT 1 FROM files WHERE fileId IN (' + prep.slice(0, prep.length - 1) + '))')
                 .get(this.card.files, (_res: RunResult, err: Error, row: number) => {
-                    if (err)
-                        reject(err);
-                    if (row === 1)
-                        resolve(true);
-                    else
-                        resolve(false);
+                    if (err) reject(err);
+                    if (row === 1) resolve(true);
+                    else resolve(false);
                 }).finalize();
         });
     }
 
-    public get(query: Pagination): Promise<Card[]> {
-        // TODO revamp this function, absolutely disgusting
-        // TODO full text search not done yet
-        // TODO do something with the return object types
-        return new Promise<Card[]>((resolve, reject) => {
-            db.prepare('SELECT cardId FROM card_fts')
-                .all((_res: RunResult, cardIds: { 'cardId': number }[]) => {
-                    if (cardIds !== undefined && cardIds.length !== 0) {
-                        let prep = ' IN (' + '?,'.repeat(cardIds.length)
-                        prep = prep.slice(0, prep.length - 1) + ') ';
-
-                        const select = "json_array(json_object(\n" +
-                            "               'cardId', cards.cardId,\n" +
-                            "               'title', cards.title,\n" +
-                            "               'tags', (SELECT json_group_array(tag) FROM tags WHERE cardId" + prep + "),\n" +
-                            "               'files', (SELECT json_group_array(fileId) FROM files WHERE cardId" + prep + "),\n" +
-                            "               'source', json_object(\n" +
-                            "                       'website', cards.website,\n" +
-                            "                       'username', cards.username\n" +
-                            "                   ),\n" +
-                            "               'created', cards.created,\n" +
-                            "               'modified', cards.modified\n" +
-                            "\n" +
-                            "           ))";
-                        const cardIdsNumber = cardIds.map((object: { 'cardId': number }) => object.cardId);
-
-                        db.prepare('SELECT ' + select + ' AS cards FROM cards WHERE cardId' + prep + 'ORDER BY ? ' + query._order + ' LIMIT ? OFFSET ?')
-                            .get(...(cardIdsNumber), ...cardIdsNumber, ...cardIdsNumber, query._sort, Number(query._limit), Number(query._page) - 1, (_res2: RunResult, cards: { 'cards': Card[] }) => {
-                                resolve(cards.cards);
-                            }).finalize();
-                    } else {
-                        resolve([]);
-                    }
-                }).finalize();
+    public create(): Promise<number> {
+        return new Promise((resolve, reject) => {
+            db.prepare('INSERT INTO cards(title,website,username) VALUES(?,?,?)')
+                .run(this.card.title, this.card.website, this.card.username)
+                .finalize()
+                .get('SELECT last_insert_rowid() AS id', (_res: RunResult, err: Error, row: { 'id': number }) => {
+                    if (err) reject(err);
+                    db.prepare('INSERT INTO card_fts VALUES(?,?,?,?)')
+                        .run(row.id, this.card.title, this.card.website, this.card.username)
+                        .finalize();
+                    resolve(row.id);
+                });
         });
+    }
+
+    public update(): void {
+        db.prepare('UPDATE cards SET title = ?, website = ?, username = ? WHERE cardId = ?')
+            .run(this.card.title, this.card.website, this.card.username)
+            .finalize().prepare('UPDATE card_fts SET title = ?, website = ?, username = ? WHERE cardId = ?')
+            .run(this.card.title, this.card.website, this.card.username, this.card.cardId)
+            .finalize().close();
+    }
+
+    public delete(): void {
+        db.prepare('DELETE FROM cards WHERE cardId = ?').run(this.card.cardId).finalize()
+            .prepare('DELETE FROM card_fts WHERE cardId = ?').run(this.card.cardId).finalize().close();
     }
 }

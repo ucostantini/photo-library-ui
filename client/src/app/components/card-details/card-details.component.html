@@ -19,11 +19,12 @@
       </button>
     </mat-menu>
   </mat-card-header>
+  <!-- TODO click on image popup ? see full thumbnail ?-->
   <carousel [cellsToShow]="1" [images]="this.images"></carousel>
   <mat-card-content class="mat-card-content" style="padding-top: 14px">
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>
-    <p class="card-text">Credits : {{card.source.website}} / {{card.source.username}} </p>
+    <p class="card-text">Credits : {{card.website}} / {{card.username}} </p>
     <hr/>
     <p class="card-text"><small class="text-muted">Created the {{card.created | date: 'short'}}</small></p>
     <p class="card-text"><small class="text-muted">Last modified the {{card.modified | date: 'short'}}</small></p>

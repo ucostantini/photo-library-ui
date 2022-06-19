@@ -19,7 +19,8 @@ export interface Card {
   title: string;
   files: number[];
   tags: string;
-  source: Source;
+  website: string;
+  username: string;
   created?: Date;
   modified?: Date;
 }

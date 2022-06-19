@@ -6,15 +6,22 @@ import { Card, Pagination } from "../../types/card";
 
 export class CardController {
 
-    constructor() {
+    get(card: Card, query: Pagination): Promise<{ cards: Card[], count: number }> {
+        return new Promise(async (resolve, _reject) => {
+            const cardModel = new CardModel(card);
+            const cards: Card[] = await cardModel.get(query);
+            const count: number = await cardModel.getTotalCount();
+            resolve({cards: cards, count: count});
+        });
     }
 
     public create(card: Card): void {
-        new CardModel(card).exists().then((cardExists: boolean) => {
+        const cardModel = new CardModel(card);
+        cardModel.exists().then((cardExists: boolean) => {
             if (!cardExists) {
-                new CardModel(card).insert().then(insertedCardId => {
+                cardModel.create().then(insertedCardId => {
                     new FileModel(insertedCardId, card.files).link();
-                    new TagModel(insertedCardId, card.tags).insert();
+                    new TagModel(insertedCardId, card.tags).create();
                 });
             } else
                 throw new AlreadyExistsError("Card already exists in db");
@@ -22,9 +29,10 @@ export class CardController {
     }
 
     public update(card: Card): void {
-        new CardModel(card).exists().then((cardExists: boolean) => {
+        const cardModel = new CardModel(card);
+        cardModel.exists().then((cardExists: boolean) => {
             if (!cardExists) {
-                new CardModel(card).update();
+                cardModel.update();
                 new FileModel(card.cardId, card.files).update();
                 new TagModel(card.cardId, card.tags).update();
             } else
@@ -34,9 +42,5 @@ export class CardController {
 
     public delete(card: Card): void {
         new CardModel(card).delete();
-    }
-
-    get(card: Card, query: Pagination): Promise<Card[]> {
-        return new CardModel(card).get(query);
     }
 }

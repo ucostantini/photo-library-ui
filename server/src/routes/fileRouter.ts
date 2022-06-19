@@ -12,16 +12,11 @@ export class FileRouter {
         this.init();
     }
 
-    get fileController() {
-        return this._fileController;
-    }
-
     get router() {
         return this._router;
     }
 
-    private static errorHandler(error: any, req: Request, res: Response<any, Record<string, any>>) {
-        req.flash('error', error.message);
+    private static errorHandler(error: any, _req: Request, res: Response<any, Record<string, any>>) {
         console.error(error);
         res.status(error.code).json({error: error.toString()});
     }
@@ -38,36 +33,26 @@ export class FileRouter {
     }
 
     public create(req: Request, res: Response) {
-        try {
-            this._fileController.create(req.files.file as UploadedFile).then((fileId: number) =>
-                res.status(201).send('' + fileId)
-            );
-        } catch (error) {
-            FileRouter.errorHandler(error, req, res);
-        }
+        this._fileController.create(req.files.file as UploadedFile).then((fileId: number) =>
+            res.status(201).send('' + fileId)
+        ).catch(error => FileRouter.errorHandler(error, req, res));
     }
 
     public delete(req: Request, res: Response) {
-        try {
-            this._fileController.delete(req.body.fileId).then((message: string) =>
-                res.status(201)
-                    .send({
-                        message: message,
-                        status: res.status
-                    })
-            );
-        } catch (error) {
-            FileRouter.errorHandler(error, req, res);
-        }
+        this._fileController.delete(req.body.fileId).then((message: string) =>
+            res.status(201)
+                .send({
+                    message: message,
+                    status: res.status
+                })
+        ).catch(error => FileRouter.errorHandler(error, req, res));
     }
-
 
     init() {
         this._router.get('/:cardId', this.get.bind(this));
         this._router.post('', this.create.bind(this));
         this._router.delete('/:fileId', this.delete.bind(this));
     }
-
 }
 
 export const fileRoutes = new FileRouter();

@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { Card, Pagination, Sorting } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { PageEvent } from '@angular/material/paginator';
-import { Observable } from 'rxjs';
+import { HttpResponse } from "@angular/common/http";
 
 @Component({
   selector: 'app-card-list',
@@ -12,7 +12,7 @@ import { Observable } from 'rxjs';
 export class CardListComponent implements OnInit, OnChanges {
 
   @Input() pagination: Pagination;
-  cards: Observable<Card[]>;
+  cards: Card[];
   isLoading: boolean;
   @Input() private cardFormData: Card;
   @Input() private sorting: Sorting;
@@ -31,11 +31,16 @@ export class CardListComponent implements OnInit, OnChanges {
 
   onPageChange(event: PageEvent): void {
     this.pagination = event as Pagination;
-    this.cards = this.cardService.fetch(this.pagination, this.sorting, this.cardFormData);
+    this.fetchCards();
   }
 
   private fetchCards(): void {
+    this.cardService.fetch(this.pagination, this.sorting, this.cardFormData)
+      .subscribe((response: HttpResponse<Card[]>) => {
+        this.cards = response.body;
+        console.log(response.headers);
+        this.pagination.length = Number(response.headers.get("X-Total-Count"));
+      });
     this.isLoading = false;
-    this.cards = this.cardService.fetch(this.pagination, this.sorting, this.cardFormData);
   }
 }

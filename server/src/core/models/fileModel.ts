@@ -1,4 +1,4 @@
-import { RunResult } from "sqlite3";
+import { RunResult, Statement } from "sqlite3";
 import { db } from "../../app";
 
 export class FileModel {
@@ -6,35 +6,38 @@ export class FileModel {
     constructor(private cardId: number, private fileIds: number[]) {
     }
 
-    public async get(): Promise<number[]> {
-        return new Promise<number[]>((resolve, reject) => {
-            db.prepare('SELECT fileId FROM files WHERE cardId = ?').all(this.cardId, (_res: RunResult, rows: { 'fileId': number }[]) =>
-                resolve(rows.map(object => object.fileId))
-            );
+    public async get(): Promise<{ fileId: number }[]> {
+        return new Promise<{ fileId: number }[]>((resolve, _reject) => {
+            db.prepare('SELECT fileId FROM files WHERE cardId = ?')
+                .all(this.cardId, (_res: RunResult, rows: { 'fileId': number }[]) =>
+                    resolve(rows)
+                );
         });
     }
 
-    public insert(): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
+    public create(): Promise<number> {
+        return new Promise<number>((resolve, _reject) => {
             db.prepare('INSERT INTO files (cardId) VALUES(?)')
                 .run(this.cardId)
-                .finalize().get('SELECT last_insert_rowid() AS id', (_res: RunResult, row: { 'id': number }) => resolve(row.id)
-            );
+                .finalize()
+                .get('SELECT last_insert_rowid() AS id',
+                    (_res: RunResult, row: { 'id': number }) => resolve(row.id)
+                );
         });
     }
 
     public link(): void {
-        let stmt = db.prepare('INSERT INTO files VALUES(?,?)');
+        let statement: Statement = db.prepare('INSERT INTO files VALUES(?,?)');
         this.fileIds.forEach((fileId: number) => {
-            stmt.run(this.cardId, fileId);
+            statement.run(this.cardId, fileId);
         });
-        stmt.finalize();
-        db.run('DELETE FROM files WHERE cardId IS NULL AND fileId IS NULL');
+        statement.finalize()
+            .run('DELETE FROM files WHERE cardId IS NULL AND fileId IS NULL');
     }
 
     public update(): void {
         this.delete();
-        this.insert().then();
+        this.create();
     }
 
     public delete(): void {

@@ -34,18 +34,16 @@ export class CardFormComponent implements OnInit {
       files: new FormControl(inCard ? inCard.files : this.files, !isSearch ? Validators.minLength(1) : []),
       // TODO use chips and dropdown autocomplete for tags
       tags: new FormControl(inCard ? inCard.tags : '', !isSearch ? Validators.required : []),
-      source: new FormGroup({
-        website: new FormControl(inCard ? inCard.source.website : '', !isSearch ? [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(30)] : []
-        ),
-        username: new FormControl(inCard ? inCard.source.username : '', !isSearch ? [
-          Validators.required,
-          Validators.minLength(3),
-          Validators.maxLength(20)] : []
-        )
-      })
+      website: new FormControl(inCard ? inCard.website : '', !isSearch ? [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(30)] : []
+      ),
+      username: new FormControl(inCard ? inCard.username : '', !isSearch ? [
+        Validators.required,
+        Validators.minLength(3),
+        Validators.maxLength(20)] : []
+      )
     });
   }
 
