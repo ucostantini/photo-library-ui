@@ -50,7 +50,7 @@ export class CardDetailsComponent implements OnInit {
     }).afterClosed().subscribe((cardId: number) => {
       if (cardId) {
         this.cardService.delete(cardId).subscribe({
-          next: () => this.notifService.notifySuccess('deleted'),
+          next: () => this.notifService.notifySuccess('deleted'), // TODO notifications always pop up, even when error
           error: (error) => this.notifService.notifyError(JSON.stringify(error))
         });
       }

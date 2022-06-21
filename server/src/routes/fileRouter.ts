@@ -1,6 +1,7 @@
 import { Request, Response, Router } from 'express';
 import { FileController } from "../core/controllers/fileController";
 import { UploadedFile } from "express-fileupload";
+import { log } from "../app";
 
 export class FileRouter {
     private readonly _router: Router;
@@ -17,35 +18,37 @@ export class FileRouter {
     }
 
     private static errorHandler(error: any, _req: Request, res: Response<any, Record<string, any>>) {
-        console.error(error);
+        log.error(error);
         res.status(error.code).json({error: error.toString()});
     }
 
     public get(req: Request, res: Response) {
-        try {
-            this._fileController.get(Number(req.params['cardId']), true).then((fileUrls: string[]) =>
-                res.status(200)
-                    .send(fileUrls)
-            );
-        } catch (error) {
-            FileRouter.errorHandler(error, req, res);
-        }
+        log.debug(req.params, "Request Parameters Payload");
+        this._fileController.get(Number(req.params['cardId']), true).then((fileUrls: string[]) => {
+            log.debug(fileUrls, 'Response Payload');
+            res.status(200)
+                .send(fileUrls);
+        }).catch(error => FileRouter.errorHandler(error, req, res));
     }
 
     public create(req: Request, res: Response) {
-        this._fileController.create(req.files.file as UploadedFile).then((fileId: number) =>
-            res.status(201).send('' + fileId)
-        ).catch(error => FileRouter.errorHandler(error, req, res));
+        log.debug(req.files, "Request Files Payload");
+        this._fileController.create(req.files.file as UploadedFile).then((fileId: number) => {
+            log.debug(fileId, 'Response Payload');
+            res.status(201).send('' + fileId);
+        }).catch(error => FileRouter.errorHandler(error, req, res));
     }
 
     public delete(req: Request, res: Response) {
-        this._fileController.delete(req.body.fileId).then((message: string) =>
+        log.debug(req.params, "Request Parameters Payload");
+        this._fileController.delete([Number(req.params.fileId)]).then((message: string) => {
+            log.debug(message, 'Response Payload');
             res.status(201)
                 .send({
                     message: message,
                     status: res.status
-                })
-        ).catch(error => FileRouter.errorHandler(error, req, res));
+                });
+        }).catch(error => FileRouter.errorHandler(error, req, res));
     }
 
     init() {

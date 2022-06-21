@@ -47,6 +47,10 @@ export class FileService extends FilePickerAdapter {
     return this.http.delete(`${baseURL}/${fileItem.uploadResponse.fileId}`);
   }
 
+  public downloadFile(url: string): Observable<Blob> {
+    return this.http.get(url, {responseType: 'blob'});
+  }
+
   getThumbnails(cardId: number): Observable<string[]> {
     return this.http.get<string[]>(`${baseURL}/${cardId}`);
   }

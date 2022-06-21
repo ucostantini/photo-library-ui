@@ -2,28 +2,44 @@ import express from 'express';
 import logger from 'morgan';
 import { cardRoutes } from './routes/cardRouter';
 import { fileRoutes } from './routes/fileRouter';
-import { Database } from 'sqlite3';
+import { Database, verbose } from 'sqlite3';
 import fileUpload from "express-fileupload";
 import dotenv from 'dotenv';
 import cors from 'cors';
+import pino, { Logger } from "pino";
 
 class App {
 
-    public app: express.Application;
+    public expressApp: express.Application;
+    public db: Database;
+    public log: Logger;
 
     constructor() {
-        this.app = express();
+        this.expressApp = express();
+        this.db = new Database(process.env.DB_PATH);
+        this.log = pino({
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true
+                }
+            }
+        });
         this.middleware();
         this.routes();
     }
 
     private middleware(): void {
-        this.app.use(logger('dev') as express.RequestHandler);
-        this.app.use(express.json() as express.RequestHandler);
-        this.app.use(express.urlencoded({extended: false}) as express.RequestHandler);
-        this.app.use(cors({exposedHeaders: ['X-Total-Count']}));
-        this.app.use(fileUpload());
         dotenv.config();
+        if (process.env.ENVIRONMENT === 'dev') {
+            verbose();
+            this.db.on('trace', (sql: string) => log.debug(sql)); // TODO does not work
+        }
+        this.expressApp.use(logger(process.env.ENVIRONMENT) as express.RequestHandler);
+        this.expressApp.use(express.json() as express.RequestHandler);
+        this.expressApp.use(express.urlencoded({extended: false}) as express.RequestHandler);
+        this.expressApp.use(cors({exposedHeaders: ['X-Total-Count']}));
+        this.expressApp.use(fileUpload());
     }
 
     private routes(): void {
@@ -33,11 +49,14 @@ class App {
             res.redirect('/');
         });
 
-        this.app.use('/', router);
-        this.app.use('/cards', cardRoutes.router);
-        this.app.use('/files', fileRoutes.router);
+        this.expressApp.use('/', router);
+        this.expressApp.use('/cards', cardRoutes.router);
+        this.expressApp.use('/files', fileRoutes.router);
     }
 }
 
-export default new App().app;
-export const db: Database = new Database(process.env.DB_PATH);
+const mainInstance = new App();
+const app = mainInstance.expressApp;
+const log = mainInstance.log;
+const db = mainInstance.db;
+export { app, db, log };

@@ -1,13 +1,14 @@
 import { Request, Response, Router } from 'express';
 import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
-import { FileController } from "../core/controllers/fileController";
+import { BaseSchema } from 'yup';
 import { Card, Pagination } from "../types/card";
+import { log } from "../app";
 
 export class CardRouter {
     private readonly _router: Router;
     private readonly _cardController: CardController;
-    private readonly schema;
+    private readonly schema: BaseSchema;
 
     constructor() {
         this._cardController = new CardController();
@@ -31,63 +32,52 @@ export class CardRouter {
     }
 
     private static errorHandler(error: any, _req: Request, res: Response<any, Record<string, any>>) {
-        console.error(error);
-        res.status(error.code).json({error: error.toString()});
+        log.error(error, "Error occurred");
+        res.status(500).json({error: error.toString()});
     }
 
     public get(req: Request, response: Response) {
-        try {
-            this._cardController.get(JSON.parse(req.query._search ? req.query._search as string : '{}') as Card,
-                JSON.parse(req.query._pagination as string) as Pagination)
-                .then((result) => {
-                        response.header("X-Total-Count", '' + result.count).status(200)
-                            .send(result.cards)
-                    }
-                );
-        } catch (error) {
-            CardRouter.errorHandler(error, req, response);
-        }
+        log.info(req.query, "Request Query Payload");
+        this._cardController.get(JSON.parse(req.query._search ? req.query._search as string : '{}') as Card,
+            JSON.parse(req.query._pagination as string) as Pagination)
+            .then((result) => {
+                    log.debug(result, 'Response Payload');
+                    response.header("X-Total-Count", '' + result.count).status(200)
+                        .send(result.cards)
+                }
+            ).catch(error => CardRouter.errorHandler(error, req, response));
     }
 
     public create(req: Request, res: Response) {
-        try {
-            this.schema
-                .isValid(req.body)
-                .then(() => this._cardController.create(req.body as Card));
-            // TODO DEBUG is the response sent before being able to catch any error ?
-            // TODO DEBUG handle errors properly + response properly
-            res.status(201)
-                .send({
-                    message: 'Card successfully created',
-                    status: res.status
-                });
-        } catch (error) {
-            CardRouter.errorHandler(error, req, res);
-        }
+        log.info(req.body, "Request Body Payload");
+        this.schema
+            .isValid(req.body)
+            .then(() => this._cardController.create(req.body as Card))
+            .catch(error => CardRouter.errorHandler(error, req, res));
+        res.status(201)
+            .send({
+                message: 'Card successfully created',
+                status: res.status
+            });
     }
 
     public update(req: Request, res: Response) {
-        try {
-            this.schema
-                .isValid(req.body)
-                .then(() => this._cardController.update(req.body as Card));
-
-            res.status(201)
-                .send({
-                    message: 'Card successfully updated',
-                    status: res.status
-                });
-        } catch (error) {
-            CardRouter.errorHandler(error, req, res);
-        }
+        log.info(req.body, "Request Body Payload");
+        this.schema
+            .isValid(req.body)
+            .then(() => this._cardController.update(req.body as Card))
+            .catch(error => CardRouter.errorHandler(error, req, res));
+        res.status(201)
+            .send({
+                message: 'Card successfully updated',
+                status: res.status
+            });
     }
 
     public delete(req: Request, res: Response) {
         try {
-            this._cardController.delete(req.body as Card);
-            const fileController = new FileController();
-            (req.body as Card).files.forEach((fileId: number) => fileController.delete(fileId).then());
-
+            log.info(req.params, "Request Parameters Payload");
+            this._cardController.delete(Number(req.params.cardId));
             res.status(201)
                 .send({
                     message: 'Card successfully deleted',

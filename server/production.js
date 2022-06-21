@@ -4,4 +4,6 @@
 // TODO use elasticsearch ?
 // TODO tests, UT, FT, E2E, Black Box...
 // TODO documentation
-// TODO logging (error, bug, info)
+// TODO cleanup response statuses, messages, errors
+// TODO check API endpoints consistence + controllers (Swagger)
+// TODO check YUP

@@ -1,5 +1,5 @@
 import debug from 'debug';
-import App from './app';
+import { app } from './app';
 
 require('source-map-support').install();
 
@@ -11,7 +11,7 @@ if (Number.isNaN(port)) {
     process.exit(1);
 }
 
-const server = App.listen(port, () => {
+const server = app.listen(port, () => {
     console.info(`Server is listening on http://localhost:${port}`);
 });
 server.on('error', onError);
