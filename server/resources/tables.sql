@@ -27,8 +27,13 @@ CREATE TABLE IF NOT EXISTS tags
 
 CREATE TABLE IF NOT EXISTS files
 (
-    cardId INTEGER,
-    fileId INTEGER,
+    cardId   INTEGER,
+    fileId   INTEGER,
+    fileName VARCHAR(20),
+    mimeType VARCHAR(20),
+    width    INTEGER,
+    height   INTEGER,
+    PRIMARY KEY (cardId, fileId),
     FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
 );
 

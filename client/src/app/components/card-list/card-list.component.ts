@@ -38,7 +38,6 @@ export class CardListComponent implements OnInit, OnChanges {
     this.cardService.fetch(this.pagination, this.sorting, this.cardFormData)
       .subscribe((response: HttpResponse<Card[]>) => {
         this.cards = response.body;
-        console.log(response.headers);
         this.pagination.length = Number(response.headers.get("X-Total-Count"));
       });
     this.isLoading = false;

@@ -14,10 +14,15 @@ export interface Source {
   author?: Author;
 }
 
+export interface CardFile {
+  fileId: number;
+  fileName?: string;
+}
+
 export interface Card {
   cardId?: number;
   title: string;
-  files: number[];
+  files: CardFile[];
   tags: string;
   website: string;
   username: string;
@@ -34,4 +39,9 @@ export interface Pagination {
 export interface Sorting {
   sort: 'cardId' | 'title';
   order: 'asc' | 'desc';
+}
+
+export interface Thumbnail {
+  fileId: number;
+  file: File;
 }

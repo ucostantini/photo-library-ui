@@ -27,7 +27,7 @@ export class CardController {
             if (!cardExists) {
                 cardModel.create().then(insertedCardId => {
                     log.debug(insertedCardId, 'Link files and tags for following cardId');
-                    new FileModel(insertedCardId, card.files).link();
+                    new FileModel(insertedCardId, card.files.map(file => file.fileId)).link();
                     new TagModel(insertedCardId, card.tags).create();
                 }).catch(error => {
                     throw new Error(error)
@@ -44,7 +44,7 @@ export class CardController {
         cardModel.exists().then((cardExists: boolean) => {
             if (!cardExists) {
                 cardModel.update();
-                new FileModel(card.cardId, card.files).update();
+                new FileModel(card.cardId, card.files.map(file => file.fileId)).update();
                 new TagModel(card.cardId, card.tags).update();
             } else
                 throw new AlreadyExistsError("Card already exists");

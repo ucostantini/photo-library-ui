@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { Card } from '../../../core/models/card';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Card, CardFile } from '../../../core/models/card';
+import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FileService } from '../../../core/services/file/file.service';
 import { FilePickerComponent, FilePreviewModel } from 'ngx-awesome-uploader';
@@ -15,20 +15,21 @@ export class CardFormComponent implements OnInit, AfterViewInit {
   @ViewChild(FilePickerComponent) viewChild: FilePickerComponent;
   form: FormGroup;
   status: string;
-  private files: number[] = [];
+  private files: CardFile[] = [];
 
   constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }) {
+              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean, files: File[] }) {
   }
 
   ngAfterViewInit(): void {
-    /* if (this.data.card) {
-         this.fileService.getThumbnails(this.data.card.cardId).pipe(
-           mergeMap((urls: string[]) => )
-           concatMap((url: string) => this.fileService.downloadFile(url))
-         );
-     }
-     this.viewChild.pushFile();*/
+    if (this.data) {
+      this.data.files.forEach((file: File) => {
+        this.viewChild.files.push({file: file, fileName: file.name} as FilePreviewModel)
+      });
+      console.log(this.viewChild.files);
+      console.log(this.viewChild.changeRef);
+      this.viewChild.changeRef.detectChanges();
+    }
   }
 
   ngOnInit(): void {
@@ -40,9 +41,11 @@ export class CardFormComponent implements OnInit, AfterViewInit {
       title: new FormControl(inputCard ? inputCard.title : '', !isSearch ? [
         Validators.required,
         Validators.minLength(3),
-        Validators.maxLength(30)] : []
+        Validators.maxLength(80)] : []
       ),
-      files: new FormControl(inputCard ? inputCard.files : this.files, !isSearch ? Validators.minLength(1) : []),
+      files: new FormArray(
+        [], !isSearch ? Validators.minLength(1) : []
+      ),
       // TODO use chips and dropdown autocomplete for tags
       tags: new FormControl(inputCard ? inputCard.tags : '', !isSearch ? Validators.required : []),
       website: new FormControl(inputCard ? inputCard.website : '', !isSearch ? [
@@ -56,6 +59,14 @@ export class CardFormComponent implements OnInit, AfterViewInit {
         Validators.maxLength(20)] : []
       )
     });
+    console.log(inputCard)
+    if (inputCard) {
+      // @ts-ignore
+      JSON.parse(inputCard.files).forEach((file: CardFile) =>
+        (this.form.get('files') as FormArray).push(new FormGroup({fileId: new FormControl(file.fileId)}))
+      );
+    }
+
   }
 
   onCancel(): void {
@@ -71,10 +82,14 @@ export class CardFormComponent implements OnInit, AfterViewInit {
   }
 
   onFileUploaded($event: FilePreviewModel): void {
-    this.files.push($event.uploadResponse as number);
+    this.files.push({fileId: $event.uploadResponse as number});
+    (this.form.get('files') as FormArray).push(new FormGroup({fileId: new FormControl($event.uploadResponse as number)}));
   }
 
   onFileRemoved($event: FilePreviewModel): void {
-    this.files = this.files.filter((fileId: number) => fileId !== $event.uploadResponse.fileId);
+    this.files = this.files.filter((file: CardFile) => file.fileId !== $event.uploadResponse.fileId);
+    const formArray = (this.form.get('files') as FormArray);
+    formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) => (item.value as string) === $event.uploadResponse.fileId));
   }
+
 }

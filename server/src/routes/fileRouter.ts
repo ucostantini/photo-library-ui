@@ -19,15 +19,15 @@ export class FileRouter {
 
     private static errorHandler(error: any, _req: Request, res: Response<any, Record<string, any>>) {
         log.error(error);
-        res.status(error.code).json({error: error.toString()});
+        res.status(500).json({error: error.toString()});
     }
 
     public get(req: Request, res: Response) {
         log.debug(req.params, "Request Parameters Payload");
-        this._fileController.get(Number(req.params['cardId']), true).then((fileUrls: string[]) => {
-            log.debug(fileUrls, 'Response Payload');
+        this._fileController.getThumbnailUrl(req.params['fileName'], true).then((fileUrl: string) => {
+            log.debug(fileUrl, 'Response Payload');
             res.status(200)
-                .send(fileUrls);
+                .send(fileUrl);
         }).catch(error => FileRouter.errorHandler(error, req, res));
     }
 
@@ -52,7 +52,7 @@ export class FileRouter {
     }
 
     init() {
-        this._router.get('/:cardId', this.get.bind(this));
+        this._router.get('/:fileName', this.get.bind(this));
         this._router.post('', this.create.bind(this));
         this._router.delete('/:fileId', this.delete.bind(this));
     }

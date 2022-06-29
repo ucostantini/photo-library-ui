@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Card } from '../../core/models/card';
+import { Card, CardFile } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,6 +7,7 @@ import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { Image } from 'angular-responsive-carousel';
 import { FileService } from "../../core/services/file/file.service";
+import { mergeMap, tap } from "rxjs";
 
 @Component({
   selector: 'app-card-details',
@@ -17,6 +18,7 @@ export class CardDetailsComponent implements OnInit {
 
   @Input() card: Card;
   images: Image[] = [];
+  thumbnails: File[] = []
 
   constructor(public dialog: MatDialog,
               private cardService: CardService,
@@ -25,15 +27,19 @@ export class CardDetailsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.fileService.getThumbnails(this.card.cardId)
-        .subscribe((fileUrls: string[]) =>
-            fileUrls.forEach((fileUrl: string) => this.images.push({path: fileUrl}))
-        );
+    // @ts-ignore
+    JSON.parse(this.card.files).forEach((file: CardFile) =>
+      this.fileService.getThumbnailUrl(file.fileName).pipe(
+        tap((fileUrl: string) => this.images.push({path: fileUrl})),
+        mergeMap((fileUrl: string) => this.fileService.downloadFile(fileUrl))
+      ).subscribe((thumbnail: Blob) =>
+        this.thumbnails.push(new File([thumbnail], file.fileName))
+      ));
   }
 
   onEdit(): void {
     this.dialog.open(CardFormComponent, {
-      data: {card: this.card, isSearch: false},
+      data: {card: this.card, isSearch: false, files: this.thumbnails},
     }).afterClosed().subscribe((card: Card) => {
       if (card) {
         this.cardService.update(card).subscribe({

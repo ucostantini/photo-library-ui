@@ -51,7 +51,7 @@ export class FileService extends FilePickerAdapter {
     return this.http.get(url, {responseType: 'blob'});
   }
 
-  getThumbnails(cardId: number): Observable<string[]> {
-    return this.http.get<string[]>(`${baseURL}/${cardId}`);
+  public getThumbnailUrl(fileName: string): Observable<string> {
+    return this.http.get(`${baseURL}/${fileName}`, {responseType: 'text'});
   }
 }

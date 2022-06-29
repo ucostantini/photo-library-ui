@@ -25,7 +25,7 @@ export class CardModel {
     public get(query: Pagination): Promise<Card[]> {
         return new Promise<Card[]>((resolve, reject) => {
             if (Object.keys(this.card).length === 0) {
-                db.prepare("SELECT DISTINCT cards.cardId, title, json_group_array(DISTINCT fileId) AS files, group_concat(DISTINCT tag) AS tags, website, username, created, modified FROM cards\n" +
+                db.prepare("SELECT DISTINCT cards.cardId, title, json_group_array(DISTINCT json_object('fileId',fileId, 'fileName',fileName)) AS files, group_concat(DISTINCT tag) AS tags, website, username, created, modified FROM cards\n" +
                     '    INNER JOIN tags t1 on cards.cardId = t1.cardId\n' +
                     '    INNER JOIN files f on cards.cardId = f.cardId\n' +
                     '    GROUP BY cards.cardId, title, website, username, created, modified\n' +
