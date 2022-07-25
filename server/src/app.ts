@@ -2,21 +2,23 @@ import express from 'express';
 import logger from 'morgan';
 import { cardRoutes } from './routes/cardRouter';
 import { fileRoutes } from './routes/fileRouter';
-import { Database, verbose } from 'sqlite3';
 import fileUpload from "express-fileupload";
 import dotenv from 'dotenv';
 import cors from 'cors';
 import pino, { Logger } from "pino";
+import { IDBStrategy } from "./core/dbUtils/dbStrategy";
+import { DBClient } from "./types/card";
 
 class App {
 
     public expressApp: express.Application;
-    public db: Database;
+    public db: IDBStrategy;
     public log: Logger;
 
     constructor() {
         this.expressApp = express();
-        this.db = new Database(process.env.DB_PATH);
+        this.db = new (DBClient[process.env.DB_CLIENT])();
+
         this.log = pino({
             transport: {
                 target: 'pino-pretty',
@@ -32,8 +34,7 @@ class App {
     private middleware(): void {
         dotenv.config();
         if (process.env.ENVIRONMENT === 'dev') {
-            verbose();
-            this.db.on('trace', (sql: string) => log.debug(sql)); // TODO does not work
+            // TODO change this
         }
         this.expressApp.use(logger(process.env.ENVIRONMENT) as express.RequestHandler);
         this.expressApp.use(express.json() as express.RequestHandler);
@@ -55,6 +56,7 @@ class App {
     }
 }
 
+// TODO refactor these global variables
 const mainInstance = new App();
 const app = mainInstance.expressApp;
 const log = mainInstance.log;

@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { UploadedFile } from "express-fileupload";
 import { NotFoundError } from "../errors/notFoundError";
 import { log } from "../../app";
+import { CardFile } from "../../types/card";
 
 dotenv.config();
 
@@ -59,17 +60,17 @@ export class FileController {
         });
     }
 
-    public async delete(fileIds: number[]): Promise<string> {
+    public async delete(files: CardFile[]): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 const bucketExists: boolean = await FileController.MINIO.bucketExists(process.env.MINIO_BUCKET_NAME);
                 if (bucketExists) {
-                    log.debug(fileIds, 'Delete files from MinIO for following file Ids');
-                    for (const fileId in fileIds) {
+                    log.debug(files, 'Delete files from MinIO for following file Ids');
+                    for (const fileId in files) {
                         await FileController.MINIO.removeObject(process.env.MINIO_BUCKET_NAME, fileId + '');
                         await FileController.MINIO.removeObject(process.env.MINIO_BUCKET_NAME, 'thumb-' + fileId);
                     }
-                    new FileModel(null, fileIds).delete();
+                    new FileModel(null, files).delete();
                     resolve('File was successfully removed');
                 } else {
                     throw new NotFoundError("Bucket does not exists");

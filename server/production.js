@@ -7,4 +7,4 @@
 // TODO cleanup response statuses, messages, errors
 // TODO check API endpoints consistence + controllers (Swagger)
 // TODO check YUP
-// TODO sql queries in files
+// TODO mysql + pgsql

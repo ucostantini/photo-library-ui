@@ -1,4 +1,3 @@
-import { Statement } from "sqlite3";
 import { db } from "../../app";
 
 export class TagModel {
@@ -7,14 +6,11 @@ export class TagModel {
     }
 
     public create(): void {
-        const statement: Statement = db.prepare('INSERT OR IGNORE INTO tags VALUES(?,?)');
-        this.tags.toLowerCase().split(',')
-            .forEach((tag: string) => statement.run(this.cardId, tag.trim()))
-        statement.finalize();
+        return db.tagCreate(this.cardId, this.tags.toLowerCase().split(','));
     }
 
     public update(): void {
-        db.prepare('DELETE FROM tags WHERE cardId = ?').run(this.cardId).finalize();
+        db.tagUpdate(this.cardId);
         this.create();
     }
 }

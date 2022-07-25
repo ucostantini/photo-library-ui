@@ -1,3 +1,7 @@
+import { SqliteStrategy } from "../core/dbUtils/sqliteStrategy";
+import { PgsqlStrategy } from "../core/dbUtils/pgsqlStrategy";
+import { MysqlStrategy } from "../core/dbUtils/mysqlStrategy";
+
 interface Author {
     id: number;
 }
@@ -14,7 +18,7 @@ export interface Source {
     author?: Author;
 }
 
-interface CardFile {
+export interface CardFile {
     fileId: number;
     fileName?: string;
 }
@@ -46,3 +50,15 @@ export interface Image {
     fileId: number;
     file: string;
 }
+
+export interface CardResult {
+    cards: Card[];
+    count: number;
+}
+
+const DBClient = {
+    sqlite: SqliteStrategy,
+    pgsql: PgsqlStrategy,
+    mysql: MysqlStrategy
+}
+export { DBClient }

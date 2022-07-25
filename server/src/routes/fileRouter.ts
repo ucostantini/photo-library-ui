@@ -41,7 +41,7 @@ export class FileRouter {
 
     public delete(req: Request, res: Response) {
         log.debug(req.params, "Request Parameters Payload");
-        this._fileController.delete([Number(req.params.fileId)]).then((message: string) => {
+        this._fileController.delete([{fileId: Number(req.params.fileId)}]).then((message: string) => {
             log.debug(message, 'Response Payload');
             res.status(201)
                 .send({
