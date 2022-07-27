@@ -1,6 +1,9 @@
 import debug from 'debug';
 import { app } from './app';
 
+/* Entry point of the Node.js server */
+
+// Provides source map support for stack traces in node
 require('source-map-support').install();
 
 debug('ts-express:server');

@@ -7,10 +7,13 @@ import { NotFoundError } from "../errors/notFoundError";
 import { log } from "../../app";
 import { CardFile } from "../../types/card";
 
-dotenv.config();
-
+/**
+ * Controller of CRUD operations related to files
+ * Performs requests to DB and storage
+ */
 export class FileController {
 
+    // MinIO options, stored in .env
     private static MINIO: Client = new Client({
         endPoint: process.env.MINIO_ENDPOINT,
         port: +process.env.MINIO_PORT,
@@ -19,62 +22,63 @@ export class FileController {
         secretKey: process.env.MINIO_SECRET_KEY
     } as ClientOptions);
 
-    public async getThumbnailUrl(fileName: string, isThumbnail: boolean): Promise<string> {
-        return new Promise<string>(async (resolve, reject) => {
-            try {
-                const bucketExists: boolean = await FileController.MINIO.bucketExists(process.env.MINIO_BUCKET_NAME);
-                if (bucketExists) {
-                    const prefix = isThumbnail ? 'thumb-' : '';
-                    log.info('Get object from MinIO for fileId %s, thumbnail is %s', fileName, isThumbnail);
-                    const url: string = await FileController.MINIO.presignedGetObject(process.env.MINIO_BUCKET_NAME, prefix + fileName);
-                    resolve(url);
-                } else {
-                    throw new NotFoundError("Bucket does not exists");
-                }
-            } catch (err) {
-                reject(err);
-            }
-        });
+    /**
+     * Provided the name of the requested file, return a temporary URL to said file
+     * @param fileName name of the file to be retrieved, e.g. : 1975_Ford_Thunderbird_2D.jpg
+     * @param isThumbnail is the file requested a thumbnail ?
+     * @return an URL leading to the requested file
+     */
+    public async get(fileName: string, isThumbnail: boolean): Promise<string> {
+        const prefix = isThumbnail ? 'thumb-' : '';
+        log.info('Get object from MinIO for fileId %s, thumbnail is %s', fileName, isThumbnail);
+        return FileController.MINIO.presignedGetObject(process.env.MINIO_BUCKET_NAME, prefix + fileName);
     }
 
+    /**
+     * Store the provided file in the MinIO storage, its metadata in the DB, retrieving the fileId
+     * TODO use model to generify file storage (minio, S3...)
+     * @param file the file to be stored
+     * @return the generated ID of the provided file
+     */
     public async create(file: UploadedFile): Promise<number> {
         return new Promise<number>(async (resolve, reject) => {
             try {
-                const bucketExists: boolean = await FileController.MINIO.bucketExists(process.env.MINIO_BUCKET_NAME);
-                if (bucketExists) {
-                    const fileId: number = await new FileModel(null, []).create();
-                    const base64: string = file.data.toString('base64');
-                    log.debug(fileId, 'Put file in MinIO for following file Id');
-                    const fileName = fileId.toString() + '.' + file.name.split('.').pop();
-                    await FileController.MINIO.putObject(process.env.MINIO_BUCKET_NAME, fileName, base64, undefined, {'Content-Type': file.mimetype});
-                    const thumbnail: Buffer = await imageFunction(base64, {responseType: 'buffer', percentage: 40});
-                    log.debug(fileId, 'Put thumbnail in MinIO for following file Id');
-                    await FileController.MINIO.putObject(process.env.MINIO_BUCKET_NAME, 'thumb-' + fileName, thumbnail);
-                    resolve(fileId);
-                } else {
-                    throw new NotFoundError("Bucket does not exists");
-                }
+                // 1. Store the metadata of the file in DB and retrieve file ID
+                const fileId: number = await new FileModel(null, []).create();
+
+                // 2. Generate base64 and full name of the file (i.e. including its extension) and store the file in the storage
+                log.debug(fileId, 'Put file in MinIO for following file Id');
+                const base64: string = file.data.toString('base64');
+                const fileName = fileId.toString() + '.' + file.name.split('.').pop();
+                await FileController.MINIO.putObject(process.env.MINIO_BUCKET_NAME, fileName, base64, undefined, {'Content-Type': file.mimetype});
+
+                // 3. create thumbnail using image-thumbnail library and store it in the storage
+                log.debug(fileId, 'Put thumbnail in MinIO for following file Id');
+                const thumbnail: Buffer = await imageFunction(base64, {responseType: 'buffer', percentage: 40});
+                await FileController.MINIO.putObject(process.env.MINIO_BUCKET_NAME, 'thumb-' + fileName, thumbnail);
+
+                resolve(fileId);
             } catch (err) {
                 reject(err);
             }
         });
     }
 
-    public async delete(files: CardFile[]): Promise<string> {
+    /**
+     * Remove files from DB and storage, provided a list of file IDs and file names
+     * @param fileIds provided files, with file names and file IDs
+     */
+    public async delete(fileIds: number[]): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
-                const bucketExists: boolean = await FileController.MINIO.bucketExists(process.env.MINIO_BUCKET_NAME);
-                if (bucketExists) {
-                    log.debug(files, 'Delete files from MinIO for following file Ids');
-                    for (const fileId in files) {
-                        await FileController.MINIO.removeObject(process.env.MINIO_BUCKET_NAME, fileId + '');
-                        await FileController.MINIO.removeObject(process.env.MINIO_BUCKET_NAME, 'thumb-' + fileId);
-                    }
-                    new FileModel(null, files).delete();
-                    resolve('File was successfully removed');
-                } else {
-                    throw new NotFoundError("Bucket does not exists");
+                log.debug(fileIds, 'Remove files from MinIO for following file Ids');
+                for (const fileId in fileIds) {
+                    await FileController.MINIO.removeObject(process.env.MINIO_BUCKET_NAME, fileId + '');
+                    await FileController.MINIO.removeObject(process.env.MINIO_BUCKET_NAME, 'thumb-' + fileId);
                 }
+                // remove files metadata from DB
+                new FileModel(null, fileIds).delete();
+                resolve('File was successfully removed');
             } catch (err) {
                 reject(err);
             }

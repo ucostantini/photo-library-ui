@@ -17,18 +17,18 @@ export class SqliteStrategy implements IDBStrategy {
         });
     }
 
-    fileLink(cardId: number, files: CardFile[]): void {
+    fileLink(cardId: number, fileIds: number[]): void {
         let statement: Statement = this.db.prepare('INSERT INTO files (cardId, fileId) VALUES(?,?)');
-        files.forEach((file: CardFile) => {
-            statement.run(cardId, file.fileId);
+        fileIds.forEach((fileId: number) => {
+            statement.run(cardId, fileId);
         });
         statement.finalize()
             .run('DELETE FROM files WHERE cardId IS NULL AND fileId IS NULL');
     }
 
-    fileDelete(files: CardFile[]) {
-        const statement: Statement = this.db.prepare('DELETE FROM files WHERE fileId = ?');
-        files.forEach((file: CardFile) => statement.run(file.fileId));
+    fileDelete(fileIds: number[]) {
+        const statement: Statement = this.db.prepare('DELETE FROM fileIds WHERE fileId = ?');
+        fileIds.forEach((fileId: number) => statement.run(fileId));
     }
 
     tagCreate(cardId: number, tags: string[]): void {
@@ -41,10 +41,10 @@ export class SqliteStrategy implements IDBStrategy {
         this.db.prepare('DELETE FROM tags WHERE cardId = ?').run(cardId).finalize();
     }
 
-    cardGetFilesById(cardId: number): Promise<CardFile[]> {
-        return new Promise<CardFile[]>((resolve, reject) => {
+    cardGetFilesById(cardId: number): Promise<number[]> {
+        return new Promise<number[]>((resolve, reject) => {
             this.db.prepare("SELECT fileId FROM files WHERE cardId = ?")
-                .get(cardId, (err: Error, rows: CardFile[]) => {
+                .all(cardId, (err: Error, rows: number[]) => {
                     if (err) reject(err);
                     resolve(rows);
                 }).finalize();
@@ -105,11 +105,11 @@ export class SqliteStrategy implements IDBStrategy {
         });
     }
 
-    cardExists(files: CardFile[]): Promise<boolean> {
+    cardExists(fileIds: number[]): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            let prep = '?,'.repeat(files.length - 1);
+            let prep = '?,'.repeat(fileIds.length - 1);
             this.db.prepare('SELECT EXISTS (SELECT 1 FROM files WHERE fileId IN (' + prep.slice(0, prep.length - 1) + '))')
-                .get(files.map(file => file.fileId), (err: Error, row: number) => {
+                .get(fileIds, (err: Error, row: number) => {
                     if (err) reject(err);
                     if (row === 1) resolve(true);
                     else resolve(false);

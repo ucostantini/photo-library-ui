@@ -11,14 +11,20 @@ import { DBClient } from "./types/card";
 import * as swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
 
+/**
+ * Represents the whole Express Application
+ */
 class App {
 
+    // node.js application
     public expressApp: express.Application;
+    // Strategy interface for the used DB
     public db: IDBStrategy;
     public log: Logger;
 
     constructor() {
         this.expressApp = express();
+        // initialize DB strategy based on .env value
         this.db = new (DBClient[process.env.DB_CLIENT])();
 
         this.log = pino({
@@ -33,8 +39,15 @@ class App {
         this.routes();
     }
 
+    /**
+     * Provides middlewares too express app
+     * @private
+     */
     private middleware(): void {
+        // .env support
         dotenv.config();
+
+        // configure options related to development environment, like DB debugging options or logging
         if (process.env.ENVIRONMENT === 'dev') {
             // TODO change this
         }
@@ -42,8 +55,10 @@ class App {
         this.expressApp.use(express.json() as express.RequestHandler);
         this.expressApp.use(express.urlencoded({extended: false}) as express.RequestHandler);
         this.expressApp.use(cors({exposedHeaders: ['X-Total-Count']}));
+        // support for file upload
         this.expressApp.use(fileUpload());
 
+        // swagger openApi configuration
         const options: swaggerJSDoc.OAS3Options = {
             definition: {
                 openapi: '3.0.0',
@@ -58,15 +73,15 @@ class App {
         this.expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(options)))
     }
 
+    /**
+     * Entry point for routes, more routes in routes/* folder
+     * @private
+     */
     private routes(): void {
-        const router = express.Router();
-
-        router.get('/', (_req, res) => {
-            res.redirect('/');
-        });
-
-        this.expressApp.use('/', router);
+        this.expressApp.get('/', (_req, res) => res.redirect('/'));
+        // routes related to cards, see cardRouter.ts
         this.expressApp.use('/cards', cardRoutes.router);
+        // routes related to files, see fileRouter.ts
         this.expressApp.use('/files', fileRoutes.router);
     }
 }

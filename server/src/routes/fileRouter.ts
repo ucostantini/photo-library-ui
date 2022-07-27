@@ -3,23 +3,27 @@ import { FileController } from "../core/controllers/fileController";
 import { UploadedFile } from "express-fileupload";
 import { log } from "../app";
 
+/**
+ * Entry point for all CRUD routes related to files
+ */
 export class FileRouter {
     private readonly _router: Router;
-    private readonly _fileController: FileController;
+    private readonly fileController: FileController;
 
     constructor() {
-        this._fileController = new FileController();
+        this.fileController = new FileController();
         this._router = Router();
-        this.init();
+        // configure routes
+        this.routes();
     }
 
-    get router() {
-        return this._router;
-    }
-
-    private static errorHandler(error: any, _req: Request, res: Response<any, Record<string, any>>) {
-        log.error(error);
-        res.status(500).json({error: error.toString()});
+    /**
+     * This method configures all the routes related to files
+     */
+    public routes() {
+        this._router.get('/:fileName', this.get.bind(this));
+        this._router.post('', this.create.bind(this));
+        this._router.delete('/:fileId', this.delete.bind(this));
     }
 
     /**
@@ -46,11 +50,11 @@ export class FileRouter {
      */
     public get(req: Request, res: Response) {
         log.debug(req.params, "Request Parameters Payload");
-        this._fileController.getThumbnailUrl(req.params['fileName'], true).then((fileUrl: string) => {
+        this.fileController.get(req.params['fileName'], true).then((fileUrl: string) => {
             log.debug(fileUrl, 'Response Payload');
             res.status(200)
                 .send(fileUrl);
-        }).catch(error => FileRouter.errorHandler(error, req, res));
+        }).catch(error => FileRouter.errorHandler(error, res));
     }
 
     /**
@@ -74,10 +78,10 @@ export class FileRouter {
      */
     public create(req: Request, res: Response) {
         log.debug(req.files, "Request Files Payload");
-        this._fileController.create(req.files.file as UploadedFile).then((fileId: number) => {
+        this.fileController.create(req.files.file as UploadedFile).then((fileId: number) => {
             log.debug(fileId, 'Response Payload');
             res.status(201).send('' + fileId);
-        }).catch(error => FileRouter.errorHandler(error, req, res));
+        }).catch(error => FileRouter.errorHandler(error, res));
     }
 
     /**
@@ -112,22 +116,31 @@ export class FileRouter {
      */
     public delete(req: Request, res: Response) {
         log.debug(req.params, "Request Parameters Payload");
-        this._fileController.delete([{fileId: Number(req.params.fileId)}]).then((message: string) => {
+        this.fileController.delete([Number(req.params.fileId)]).then((message: string) => {
             log.debug(message, 'Response Payload');
             res.status(201)
                 .send({
                     message: message,
                     status: res.status
                 });
-        }).catch(error => FileRouter.errorHandler(error, req, res));
+        }).catch(error => FileRouter.errorHandler(error, res));
     }
 
-    init() {
-        this._router.get('/:fileName', this.get.bind(this));
-        this._router.post('', this.create.bind(this));
-        this._router.delete('/:fileId', this.delete.bind(this));
+    /**
+     * Error handler for all operations related to file requests
+     * @param error the error that occurred in the application. Can be type related, schema (YUP) related, DB related, etc.
+     * @param res the 500 error response to be returned to the user
+     * @private
+     */
+    private static errorHandler(error: any, res: Response<any, Record<string, any>>) {
+        log.error(error, "Error occurred in /files entry point");
+        res.status(500).json({error: error.toString()});
+    }
+
+    get router() {
+        return this._router;
     }
 }
 
 export const fileRoutes = new FileRouter();
-fileRoutes.init();
+fileRoutes.routes();

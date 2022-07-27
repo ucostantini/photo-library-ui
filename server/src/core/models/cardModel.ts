@@ -1,12 +1,13 @@
 import { Card, CardFile, CardResult, Pagination } from "../../types/card";
 import { db } from "../../app";
-
+//TODO remove models to use only strategies
+// TODO seperate strategy in 2 different interfaces ?
 export class CardModel {
 
     constructor(private card: Card) {
     }
 
-    public getFilesByCardId(): Promise<CardFile[]> {
+    public getFilesByCardId(): Promise<number[]> {
         return db.cardGetFilesById(this.card.cardId);
     }
 

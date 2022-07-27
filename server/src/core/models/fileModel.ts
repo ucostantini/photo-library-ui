@@ -3,7 +3,7 @@ import { CardFile } from "../../types/card";
 
 export class FileModel {
 
-    constructor(private cardId: number, private files: CardFile[]) {
+    constructor(private cardId: number, private fileIds: number[]) {
     }
 
     public create(): Promise<number> {
@@ -11,7 +11,7 @@ export class FileModel {
     }
 
     public link(): void {
-        db.fileLink(this.cardId, this.files);
+        db.fileLink(this.cardId, this.fileIds);
     }
 
     public update(): void {
@@ -20,6 +20,6 @@ export class FileModel {
     }
 
     public delete(): void {
-        db.fileDelete(this.files);
+        db.fileDelete(this.fileIds);
     }
 }

@@ -6,5 +6,5 @@
 // TODO documentation
 // TODO cleanup response statuses, messages, errors
 // TODO check API endpoints consistence + controllers (Swagger)
-// TODO check YUP
-// TODO mysql + pgsql
+// TODO check YUP + check all errors (error types, single point for error handling, formatiing...)
+
