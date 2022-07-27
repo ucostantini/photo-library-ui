@@ -27,10 +27,10 @@ export class CardModel {
     }
 
     public update(): void {
-        return db.cardUpdate(this.card);
+        db.cardUpdate(this.card);
     }
 
     public delete(): void {
-        return db.cardDelete(this.card.cardId);
+        db.cardDelete(this.card.cardId);
     }
 }

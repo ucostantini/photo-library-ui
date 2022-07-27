@@ -8,6 +8,8 @@ import cors from 'cors';
 import pino, { Logger } from "pino";
 import { IDBStrategy } from "./core/dbUtils/dbStrategy";
 import { DBClient } from "./types/card";
+import * as swaggerUi from "swagger-ui-express";
+import swaggerJSDoc from "swagger-jsdoc";
 
 class App {
 
@@ -41,6 +43,19 @@ class App {
         this.expressApp.use(express.urlencoded({extended: false}) as express.RequestHandler);
         this.expressApp.use(cors({exposedHeaders: ['X-Total-Count']}));
         this.expressApp.use(fileUpload());
+
+        const options: swaggerJSDoc.OAS3Options = {
+            definition: {
+                openapi: '3.0.0',
+                info: {
+                    title: 'Photo Library',
+                    description: 'A library to store information related to photos',
+                    version: '1.0.0',
+                },
+            },
+            apis: ['./src/routes/*Router.ts'],
+        };
+        this.expressApp.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerJSDoc(options)))
     }
 
     private routes(): void {

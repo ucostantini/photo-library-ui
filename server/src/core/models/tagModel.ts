@@ -6,7 +6,7 @@ export class TagModel {
     }
 
     public create(): void {
-        return db.tagCreate(this.cardId, this.tags.toLowerCase().split(','));
+        db.tagCreate(this.cardId, this.tags.toLowerCase().split(','));
     }
 
     public update(): void {

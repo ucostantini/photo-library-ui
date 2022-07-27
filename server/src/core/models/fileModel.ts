@@ -11,7 +11,7 @@ export class FileModel {
     }
 
     public link(): void {
-        return db.fileLink(this.cardId, this.files);
+        db.fileLink(this.cardId, this.files);
     }
 
     public update(): void {
@@ -20,6 +20,6 @@ export class FileModel {
     }
 
     public delete(): void {
-        return db.fileDelete(this.files);
+        db.fileDelete(this.files);
     }
 }
