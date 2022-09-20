@@ -26,7 +26,7 @@ export interface CardFile {
 export interface Card {
     cardId?: number;
     title?: string;
-    files?: number[];
+    files?: CardFile[];
     tags?: string;
     website?: string;
     username?: string;

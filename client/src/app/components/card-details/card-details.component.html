@@ -20,7 +20,7 @@
     </mat-menu>
   </mat-card-header>
   <!-- TODO click on image popup ? see full thumbnail ?-->
-  <carousel [cellsToShow]="1" [images]="this.images"></carousel>
+  <carousel [cellsToShow]="1" [images]="this.images" [overflowCellsLimit]="1"></carousel>
   <mat-card-content class="mat-card-content" style="padding-top: 14px">
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>

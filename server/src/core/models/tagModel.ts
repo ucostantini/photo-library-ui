@@ -10,7 +10,11 @@ export class TagModel {
     }
 
     public update(): void {
-        db.tagUpdate(this.cardId);
+        db.tagDelete(this.cardId);
         this.create();
+    }
+
+    public delete(): void {
+        db.tagDelete(this.cardId);
     }
 }

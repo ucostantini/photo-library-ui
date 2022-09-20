@@ -45,3 +45,5 @@ export interface Thumbnail {
   fileId: number;
   file: File;
 }
+
+export type Status = "Create" | "Edit" | "Search";

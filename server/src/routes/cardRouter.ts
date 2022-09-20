@@ -68,11 +68,13 @@ export class CardRouter {
         this.cardController = new CardController();
         this._router = Router();
         // YUP schema specification for validation of a Card object
-        // TODO move YUP verification to controller
         this.schema = yup.object().shape({
             title: yup.string().required().max(60),
-            files: yup.array().of(yup.number().min(1)).required(),
-            tags: yup.string().required(),
+            files: yup.array().of(yup.object().shape({
+                fileId: yup.number().required(),
+                fileName: yup.string()
+            })).min(1).required(),
+            tags: yup.string().required().min(3),
             website: yup.string().required().max(30),
             username: yup.string().required().max(30)
         });

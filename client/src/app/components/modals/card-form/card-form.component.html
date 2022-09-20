@@ -6,13 +6,14 @@
       <input formControlName="title" matInput placeholder="Advices for yoga">
     </mat-form-field>
 
-    <ngx-awesome-uploader
-      (removeSuccess)="onFileRemoved($event)"
-      (uploadSuccess)="onFileUploaded($event)"
-      [accept]="'image/*'"
-      [adapter]="this.fileService"
-    >
-    </ngx-awesome-uploader>
+    <div *ngIf="status === 'Create'">
+      <ngx-awesome-uploader
+        (removeSuccess)="onFileRemoved($event)"
+        (uploadSuccess)="onFileUploaded($event)"
+        [accept]="'image/*'"
+        [adapter]="this.fileService">
+      </ngx-awesome-uploader>
+    </div>
 
     <mat-form-field appearance="fill" style="padding-top: 36px">
       <mat-label>Enter tags</mat-label>

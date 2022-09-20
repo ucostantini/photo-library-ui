@@ -10,8 +10,11 @@
     </app-card-details>
   </div>
   <!--TODO images overlap pagination component-->
+  <!-- TODO custom number in pagination -->
+  <!-- TODO load only 1 pic for thumbnail -->
   <mat-paginator (page)="onPageChange($event)"
                  [length]=this.pagination.length
+                 [showFirstLastButtons]="true"
                  [pageSizeOptions]="[10, 25, 50, 100]"
                  [pageSize]="this.pagination.pageSize"
                  aria-label="Select page" class="paginator">

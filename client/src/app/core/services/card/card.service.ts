@@ -26,6 +26,7 @@ export class CardService {
   }
 
   fetch(page: Pagination, sort: Sorting, search: Card): Observable<HttpResponse<Card[]>> {
+    // TODO request fired twice instead of once
     const searchUrl = (search ? `?_search=${JSON.stringify(search)}&` : '?');
     const paginationUrl = {_page: page.pageIndex, _limit: page.pageSize, _sort: sort.sort, _order: sort.order};
     return this.httpClient.get<Card[]>(`${baseURL}${searchUrl}_pagination=${JSON.stringify(paginationUrl)}`, {observe: "response"});

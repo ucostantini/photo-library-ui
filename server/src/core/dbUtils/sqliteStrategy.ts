@@ -5,30 +5,40 @@ import { Database, Statement } from "sqlite3";
 export class SqliteStrategy implements IDBStrategy {
     private db: Database = new Database(process.env.DB_PATH);
 
-    fileCreate(cardId: number): Promise<number> {
-        return new Promise<number>((resolve, reject) => {
-            this.db.prepare('INSERT INTO files (cardId) VALUES(?)')
-                .run(cardId)
-                .finalize()
-                .get('SELECT last_insert_rowid() AS id', (err: Error, row: { 'id': number }) => {
+    fileCreate(extension: string): Promise<CardFile> {
+        return new Promise<CardFile>((resolve, reject) => {
+            this.db.run('INSERT INTO files (fileName) VALUES(?)', extension)
+                .run('UPDATE files SET fileId = last_insert_rowid(), fileName = last_insert_rowid() || \'.\' || ? WHERE ROWID = last_insert_rowid()', extension)
+                .get('SELECT fileId, fileName FROM files WHERE ROWID = last_insert_rowid()', (err: Error, row: CardFile) => {
                     if (err) reject(err)
-                    else resolve(row.id)
+                    else resolve(row)
                 });
         });
     }
 
-    fileLink(cardId: number, fileIds: number[]): void {
-        let statement: Statement = this.db.prepare('INSERT INTO files (cardId, fileId) VALUES(?,?)');
-        fileIds.forEach((fileId: number) => {
-            statement.run(cardId, fileId);
+    getFileNameById(fileId: number): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
+            this.db.prepare('SELECT fileName WHERE fileId = ?')
+                .get(fileId, (err: Error, row: { fileName: string }) => {
+                    if (err) reject(err)
+                    else resolve(row.fileName)
+                });
         });
+    }
+
+    fileLink(cardId: number, files: CardFile[]): void {
+        let statement: Statement = this.db.prepare('UPDATE files SET cardId = ? WHERE fileId = ?');
+        files.forEach((file: CardFile) => {
+            statement.run(cardId, file.fileId);
+        });
+        // run garbage collector
         statement.finalize()
             .run('DELETE FROM files WHERE cardId IS NULL AND fileId IS NULL');
     }
 
-    fileDelete(fileIds: number[]) {
-        const statement: Statement = this.db.prepare('DELETE FROM fileIds WHERE fileId = ?');
-        fileIds.forEach((fileId: number) => statement.run(fileId));
+    fileDelete(files: CardFile[]): void {
+        const statement: Statement = this.db.prepare('DELETE FROM files WHERE fileId = ?');
+        files.forEach((file: CardFile) => statement.run(file.fileId));
     }
 
     tagCreate(cardId: number, tags: string[]): void {
@@ -37,22 +47,24 @@ export class SqliteStrategy implements IDBStrategy {
         statement.finalize();
     }
 
-    tagUpdate(cardId: number): void {
+    tagDelete(cardId: number): void {
         this.db.prepare('DELETE FROM tags WHERE cardId = ?').run(cardId).finalize();
     }
 
-    cardGetFilesById(cardId: number): Promise<number[]> {
-        return new Promise<number[]>((resolve, reject) => {
-            this.db.prepare("SELECT fileId FROM files WHERE cardId = ?")
-                .all(cardId, (err: Error, rows: number[]) => {
+    cardGetFilesByCardId(cardId: number): Promise<CardFile[]> {
+        return new Promise<CardFile[]>((resolve, reject) => {
+            this.db.prepare("SELECT fileId, fileName FROM files WHERE cardId = ?")
+                .all(cardId, (err: Error, files: CardFile[]) => {
                     if (err) reject(err);
-                    resolve(rows);
+                    resolve(files);
                 }).finalize();
         });
     }
 
     cardGetAll(query: Pagination): Promise<CardResult> {
         return new Promise<CardResult>((resolve, reject) => {
+            // the column "files" returns all the files grouped by each card in the form of an array of object (fileId, fileName)
+            // the column "tags" will return all the tags separated by a space
             this.db.prepare(`SELECT DISTINCT cards.cardId,
                                                 title,
                                                 json_group_array(DISTINCT json_object('fileId',fileId, 'fileName',fileName)) AS files,
@@ -68,6 +80,7 @@ export class SqliteStrategy implements IDBStrategy {
                 '               ORDER BY cards.' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
                 .all([query._limit, query._page], (err: Error, cards: Card[]) => {
                     if (err) reject(err);
+                    // return the number of cards for pagination
                     this.db.get('SELECT COUNT(cardId) AS count FROM cards', (err2: Error, row: { count: number }) => {
                         if (err2) reject(err2);
                         resolve({cards: cards, count: row.count});
@@ -81,7 +94,7 @@ export class SqliteStrategy implements IDBStrategy {
         return new Promise<CardResult>((resolve, reject) => {
             this.db.prepare(`SELECT DISTINCT c.cardId,
                                             c.title,
-                                            json_group_array(DISTINCT fileId) AS files,
+                                            json_group_array(DISTINCT json_object('fileId',fileId, 'fileName',fileName)) AS files,
                                             group_concat(DISTINCT tag)        AS tags,
                                             c.website,
                                             c.username,
@@ -96,6 +109,7 @@ export class SqliteStrategy implements IDBStrategy {
                 '           ORDER BY c.' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
                 .all(card.title + ' ' + card.website + ' ' + card.username, query._limit, query._page, (err: Error, cards: Card[]) => {
                     if (err) reject(err);
+                    // return the number of cards for pagination
                     this.db.prepare("SELECT COUNT(cardId) FROM cards_fts WHERE cards_fts MATCH ?")
                         .get(card.title + ' ' + card.website + ' ' + card.username, (err2: Error, row: { count: number }) => {
                             if (err2) reject(err2);
@@ -105,11 +119,11 @@ export class SqliteStrategy implements IDBStrategy {
         });
     }
 
-    cardExists(fileIds: number[]): Promise<boolean> {
+    cardExists(cardId: number, files: CardFile[]): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            let prep = '?,'.repeat(fileIds.length - 1);
-            this.db.prepare('SELECT EXISTS (SELECT 1 FROM files WHERE fileId IN (' + prep.slice(0, prep.length - 1) + '))')
-                .get(fileIds, (err: Error, row: number) => {
+            let prep = '?,'.repeat(files.length - 1);
+            this.db.prepare('SELECT EXISTS (SELECT 1 FROM files WHERE fileId IN (' + prep.slice(0, prep.length - 1) + ') AND cardId IS NOT ?)')
+                .get(files.map((file: CardFile) => file.fileId), cardId, (err: Error, row: number) => {
                     if (err) reject(err);
                     if (row === 1) resolve(true);
                     else resolve(false);
@@ -119,11 +133,14 @@ export class SqliteStrategy implements IDBStrategy {
 
     cardCreate(card: Card): Promise<number> {
         return new Promise((resolve, reject) => {
+            // insert data related to card
             this.db.prepare('INSERT INTO cards(title,website,username) VALUES(?,?,?)')
                 .run(card.title, card.website, card.username)
                 .finalize()
+                // return ID of the inserted card
                 .get('SELECT last_insert_rowid() AS id', (err: Error, row: { 'id': number }) => {
                     if (err) reject(err);
+                    // populate full text search table
                     this.db.prepare('INSERT INTO cards_fts VALUES(?,?,?,?)')
                         .run(row.id, card.title, card.website, card.username)
                         .finalize();
@@ -133,15 +150,18 @@ export class SqliteStrategy implements IDBStrategy {
     }
 
     cardUpdate(card: Card): void {
-        this.db.prepare('UPDATE cards SET title = ?, website = ?, username = ? WHERE cardId = ?')
-            .run(card.title, card.website, card.username)
-            .finalize().prepare('UPDATE cards_fts SET title = ?, website = ?, username = ? WHERE cardId = ?')
-            .run(card.title, card.website, card.username, card.cardId)
-            .finalize().close();
+        // update main table
+        this.db.run('UPDATE cards SET title = ?, website = ?, username = ? WHERE cardId = ?',
+            [card.title, card.website, card.username, card.cardId])
+            // update full text search table
+            .run('UPDATE cards_fts SET title = ?, website = ?, username = ? WHERE cardId = ?',
+                [card.title, card.website, card.username, card.cardId]);
     }
 
     cardDelete(cardId: number): void {
-        this.db.prepare('DELETE FROM cards WHERE cardId = ?').run(cardId).finalize()
-            .prepare('DELETE FROM cards_fts WHERE cardId = ?').run(cardId).finalize();
+        // delete from main table
+        this.db.run('DELETE FROM cards WHERE cardId = ?', cardId)
+            // delete from full text search table
+            .run('DELETE FROM cards_fts WHERE cardId = ?', cardId);
     }
 }

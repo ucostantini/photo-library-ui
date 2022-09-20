@@ -61,13 +61,13 @@ export class CardController {
                         new FileModel(insertedCardId, card.files).link();
                         new TagModel(insertedCardId, card.tags).create();
                     }).catch((error: Error) => {
-                        throw error; //TODO test that
+                        throw error;
                     });
                 } else {
                     throw new AlreadyExistsError('Card already exists');
                 }
             }).catch((error: Error) => {
-            throw error; //TODO test that
+            throw error;
         });
     }
 
@@ -81,12 +81,11 @@ export class CardController {
             if (!cardExists) {
                 // if card does not already exist, update card data, files and tags
                 cardModel.update();
-                new FileModel(card.cardId, card.files).update();
                 new TagModel(card.cardId, card.tags).update();
             } else
                 throw new AlreadyExistsError("Card already exists");
         }).catch((error: Error) => {
-            throw error; //TODO test that
+            throw error;
         });
     }
 
@@ -97,14 +96,17 @@ export class CardController {
     public delete(cardId: number): void {
         const cardModel = new CardModel({cardId: cardId});
         cardModel.delete();
+        // delete linked tags
+        new TagModel(cardId, "").delete();
+
         // after card deletion, delete corresponding files
-        cardModel.getFilesByCardId().then((fileIds: number[]) => {
-            log.debug(fileIds, 'Remove files from DB and storage for following cardId : {}', cardId);
-            new FileController().delete(fileIds).catch((error: Error) => {
-                throw error; //TODO test that
+        cardModel.getFilesByCardId().then((files: CardFile[]) => {
+            log.debug(files, 'Remove files from DB and storage for following cardId : {}', cardId);
+            new FileController().deleteFromNames(files).catch((error: Error) => {
+                throw error;
             });
         }).catch((error: Error) => {
-            throw error; //TODO test that
+            throw error;
         });
     }
 }

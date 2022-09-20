@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { Card, CardFile } from '../../../core/models/card';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Card, CardFile, Status } from '../../../core/models/card';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FileService } from '../../../core/services/file/file.service';
@@ -10,26 +10,15 @@ import { FilePickerComponent, FilePreviewModel } from 'ngx-awesome-uploader';
   templateUrl: './card-form.component.html',
   styleUrls: ['./card-form.component.scss']
 })
-export class CardFormComponent implements OnInit, AfterViewInit {
+export class CardFormComponent implements OnInit {
 
   @ViewChild(FilePickerComponent) viewChild: FilePickerComponent;
   form: FormGroup;
-  status: string;
+  status: Status;
   private files: CardFile[] = [];
 
   constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean, files: File[] }) {
-  }
-
-  ngAfterViewInit(): void {
-    if (this.data) {
-      this.data.files.forEach((file: File) => {
-        this.viewChild.files.push({file: file, fileName: file.name} as FilePreviewModel)
-      });
-      console.log(this.viewChild.files);
-      console.log(this.viewChild.changeRef);
-      this.viewChild.changeRef.detectChanges();
-    }
   }
 
   ngOnInit(): void {
@@ -59,7 +48,6 @@ export class CardFormComponent implements OnInit, AfterViewInit {
         Validators.maxLength(20)] : []
       )
     });
-    console.log(inputCard)
     if (inputCard) {
       // @ts-ignore
       JSON.parse(inputCard.files).forEach((file: CardFile) =>
@@ -87,6 +75,7 @@ export class CardFormComponent implements OnInit, AfterViewInit {
   }
 
   onFileRemoved($event: FilePreviewModel): void {
+    // TODO delete file independently does not work
     this.files = this.files.filter((file: CardFile) => file.fileId !== $event.uploadResponse.fileId);
     const formArray = (this.form.get('files') as FormArray);
     formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) => (item.value as string) === $event.uploadResponse.fileId));

@@ -7,8 +7,8 @@ export class CardModel {
     constructor(private card: Card) {
     }
 
-    public getFilesByCardId(): Promise<number[]> {
-        return db.cardGetFilesById(this.card.cardId);
+    public getFilesByCardId(): Promise<CardFile[]> {
+        return db.cardGetFilesByCardId(this.card.cardId);
     }
 
     public getAll(query: Pagination): Promise<CardResult> {
@@ -20,7 +20,7 @@ export class CardModel {
     }
 
     public exists(): Promise<boolean> {
-        return db.cardExists(this.card.files);
+        return db.cardExists(this.card.cardId, this.card.files);
     }
 
     public create(): Promise<number> {

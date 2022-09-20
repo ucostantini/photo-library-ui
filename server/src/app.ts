@@ -1,15 +1,17 @@
 import express from 'express';
 import logger from 'morgan';
+import dotenv from 'dotenv';
 import { cardRoutes } from './routes/cardRouter';
 import { fileRoutes } from './routes/fileRouter';
 import fileUpload from "express-fileupload";
-import dotenv from 'dotenv';
 import cors from 'cors';
 import pino, { Logger } from "pino";
 import { IDBStrategy } from "./core/dbUtils/dbStrategy";
 import { DBClient } from "./types/card";
 import * as swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
+
+dotenv.config();
 
 /**
  * Represents the whole Express Application
@@ -44,9 +46,6 @@ class App {
      * @private
      */
     private middleware(): void {
-        // .env support
-        dotenv.config();
-
         // configure options related to development environment, like DB debugging options or logging
         if (process.env.ENVIRONMENT === 'dev') {
             // TODO change this
