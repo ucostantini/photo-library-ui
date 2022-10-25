@@ -50,7 +50,7 @@ export class FileRouter {
      */
     public get(req: Request, res: Response) {
         log.debug(req.params, "Request Parameters Payload");
-        this.fileController.get(req.params['fileName'], true).then((fileUrl: string) => {
+        this.fileController.get('thumb-' + req.params['fileName']).then((fileUrl: string) => {
             log.debug(fileUrl, 'Response Payload');
             res.status(200)
                 .send(fileUrl);

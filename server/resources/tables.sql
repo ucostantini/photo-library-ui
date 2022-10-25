@@ -37,6 +37,11 @@ CREATE TABLE IF NOT EXISTS files
     FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
 );
 
+/*
+Example for files column : "[{fileId: 45, fileName: "1975_Ford_Thunderbird_2D.jpg"}]"
+Example for tags column : "car,antique,v8,70s"
+*/
+
 CREATE VIEW IF NOT EXISTS cards_view AS
 SELECT DISTINCT cardId,
                 title,

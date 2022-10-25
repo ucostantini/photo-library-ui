@@ -200,8 +200,7 @@ export class CardRouter {
                 this.cardController.create(req.body as Card);
                 res.status(201)
                     .send({
-                        message: 'Card successfully created',
-                        status: res.status
+                        message: 'Card successfully created'
                     });
             })
             .catch(error => CardRouter.errorHandler(error, res));
@@ -249,10 +248,9 @@ export class CardRouter {
             .isValid(req.body)
             .then(() => {
                 this.cardController.update(req.body as Card);
-                res.status(201)
+                res.status(200)
                     .send({
-                        message: 'Card successfully updated',
-                        status: res.status
+                        message: 'Card successfully updated'
                     });
             })
             .catch(error => CardRouter.errorHandler(error, res));
@@ -290,10 +288,9 @@ export class CardRouter {
         try {
             log.info(req.params, "Request Parameters Payload");
             this.cardController.delete(Number(req.params.cardId));
-            res.status(201)
+            res.status(200)
                 .send({
-                    message: 'Card successfully deleted',
-                    status: res.status
+                    message: 'Card successfully deleted'
                 });
         } catch (error) {
             CardRouter.errorHandler(error, res);

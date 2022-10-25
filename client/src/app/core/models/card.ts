@@ -40,7 +40,7 @@ export interface Pagination {
 }
 
 export interface Sorting {
-  sort: 'cardId' | 'title';
+  sort: 'cardId' | 'title' | 'rank';
   order: 'asc' | 'desc';
 }
 

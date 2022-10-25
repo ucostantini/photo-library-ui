@@ -1,7 +1,6 @@
 import { Card, CardFile, CardResult, Pagination } from "../../types/card";
 import { db } from "../../app";
-//TODO remove models to use only strategies
-// TODO seperate strategy in 2 different interfaces ?
+//TODO refactor DB access logic
 export class CardModel {
 
     constructor(private card: Card) {

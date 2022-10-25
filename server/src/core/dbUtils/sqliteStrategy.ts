@@ -60,8 +60,6 @@ export class SqliteStrategy implements IDBStrategy {
 
     cardGetAll(query: Pagination): Promise<CardResult> {
         return new Promise<CardResult>((resolve, reject) => {
-            // the column "files" returns all the files grouped by each card in the form of an array of object (fileId, fileName)
-            // the column "tags" will return all the tags separated by a space
             this.db.prepare('SELECT * FROM cards_view ORDER BY ' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
                 .all([query._limit, query._page], (err: Error, cards: Card[]) => {
                     if (err) reject(err);
@@ -77,36 +75,31 @@ export class SqliteStrategy implements IDBStrategy {
     cardSearch(card: Card, query: Pagination): Promise<CardResult> {
         verbose();
         this.db.on('trace', (stmt: string) => log.info(stmt));
+        // prepare tags for full-text search
         card.tags = card.tags.split(',').join(' ');
+
+        /*
+        * match_fts will look like this,
+        * for each non-empty entry in the provided card query :
+        * (title: "1975 Ford Thunderbird 2D") AND (tags: "car antique v8 70s")
+        */
         let match_fts = '';
         for (const [key, value] of Object.entries(card)) {
-            if (typeof value === 'string' && value !== '' && key !== 'tags') {
+            if (typeof value === 'string' && value !== '') {
                 match_fts += ' AND (' + key + ' : "' + value + '")';
             }
         }
         match_fts = match_fts.slice(5);
 
-        const cards_fts_match = match_fts === '' ? '1 = 1 ' : 'cards_fts MATCH ? ';
-        const tags_fts_match = card.tags === '' ? ' 1 = 1' : ' tags_fts MATCH ?';
-
-        const queryParameters = [query._limit, query._page];
-
-        if (card.tags !== '')
-            queryParameters.unshift(card.tags);
-        if (match_fts !== '')
-            queryParameters.unshift(match_fts);
-
         return new Promise<CardResult>((resolve, reject) => {
-            this.db.prepare('SELECT DISTINCT * FROM cards_view NATURAL JOIN cards_fts NATURAL JOIN tags_fts WHERE ' + cards_fts_match + 'AND' + tags_fts_match +
+            this.db.prepare('SELECT DISTINCT * FROM cards_view NATURAL JOIN cards_fts WHERE cards_fts MATCH ?' +
                 '           ORDER BY ' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
-                // TODO order by rank option
                 //TODO handle spelling mistakes
-                .all(queryParameters, (err: Error, cards: Card[]) => {
+                .all(match_fts, query._limit, query._page, (err: Error, cards: Card[]) => {
                     if (err) reject(err);
-                    // return the number of cards for pagination
-                    else this.db.prepare('SELECT DISTINCT COUNT(cardId) FROM cards_view NATURAL JOIN cards_fts NATURAL JOIN tags_fts  WHERE ' + cards_fts_match + 'AND' + tags_fts_match +
-                        '           ORDER BY ' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
-                        .get(queryParameters, (err2: Error, row: { count: number }) => {
+                    // return the count of cards for pagination
+                    else this.db.prepare('SELECT DISTINCT COUNT(cardId) FROM cards_view NATURAL JOIN cards_fts WHERE cards_fts MATCH ? LIMIT ? OFFSET ?')
+                        .get(match_fts, query._limit, query._page, (err2: Error, row: { count: number }) => {
                             if (err2) reject(err2);
                             else resolve({cards: cards, count: row.count});
                         }).finalize();

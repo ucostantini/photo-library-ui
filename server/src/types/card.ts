@@ -1,28 +1,11 @@
 import { SqliteStrategy } from "../core/dbUtils/sqliteStrategy";
-import { PgsqlStrategy } from "../core/dbUtils/pgsqlStrategy";
-import { MysqlStrategy } from "../core/dbUtils/mysqlStrategy";
-
-interface Author {
-    id: number;
-}
-
-export interface Tag {
-    tagId: number;
-    name: string;
-}
-
-export interface Source {
-    sourceId?: number;
-    username: string;
-    website: string;
-    author?: Author;
-}
-
+import { MinIOStorageService } from '../core/minIOStorageService';
+// fileName is needed to retrieve files from Minio
 export interface CardFile {
     fileId: number;
     fileName?: string;
 }
-
+// TODO add Card Form to remove nullable fields
 export interface Card {
     cardId?: number;
     title?: string;
@@ -34,21 +17,12 @@ export interface Card {
     modified?: Date;
 }
 
+// TODO generify sorting options
 export interface Pagination {
     _page: string;
     _limit: string;
-    _sort: 'cardId' | 'title';
+    _sort: 'cardId' | 'title' | 'rank';
     _order: 'asc' | 'desc';
-}
-
-export interface Sorting {
-    sort: 'cardId' | 'title';
-    order: 'asc' | 'desc';
-}
-
-export interface Image {
-    fileId: number;
-    file: string;
 }
 
 export interface CardResult {
@@ -58,7 +32,10 @@ export interface CardResult {
 
 const DBClient = {
     sqlite: SqliteStrategy,
-    pgsql: PgsqlStrategy,
-    mysql: MysqlStrategy
 }
-export { DBClient }
+
+const StorageService = {
+    minio: MinIOStorageService
+}
+
+export { DBClient, StorageService }

@@ -7,9 +7,10 @@ import fileUpload from "express-fileupload";
 import cors from 'cors';
 import pino, { Logger } from "pino";
 import { IDBStrategy } from "./core/dbUtils/dbStrategy";
-import { DBClient } from "./types/card";
+import { DBClient, StorageService } from './types/card';
 import * as swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
+import { IStorageService } from './core/IStorageService';
 
 dotenv.config();
 
@@ -22,12 +23,14 @@ class App {
     public expressApp: express.Application;
     // Strategy interface for the used DB
     public db: IDBStrategy;
+    public storage: IStorageService;
     public log: Logger;
 
     constructor() {
         this.expressApp = express();
         // initialize DB strategy based on .env value
         this.db = new (DBClient[process.env.DB_CLIENT])();
+        this.storage = new (StorageService[process.env.STORAGE_SERVICE])();
 
         this.log = pino({
             transport: {
@@ -90,4 +93,5 @@ const mainInstance = new App();
 const app = mainInstance.expressApp;
 const log = mainInstance.log;
 const db = mainInstance.db;
-export { app, db, log };
+const storage = mainInstance.storage;
+export { app, db, log, storage };

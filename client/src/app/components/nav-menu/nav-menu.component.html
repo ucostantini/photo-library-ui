@@ -22,6 +22,7 @@
             <mat-radio-group formControlName="sort">
               <mat-radio-button class="mat-menu-item" value="cardId">Date</mat-radio-button>
               <mat-radio-button class="mat-menu-item" value="title">Title</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value="rank">Title</mat-radio-button>
             </mat-radio-group>
           </div>
           <div>
@@ -41,4 +42,5 @@
     </mat-menu>
   </div>
 </mat-toolbar>
+<!-- TODO use router -->
 <app-card-list [cardFormData]="this.card" [pagination]="this.pagination" [sorting]="this.sorting"></app-card-list>
