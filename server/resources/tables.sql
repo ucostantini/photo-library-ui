@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS cards
     modified DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE TRIGGER [UpdateLastTime]
+CREATE TRIGGER IF NOT EXISTS [UpdateLastTime]
     AFTER UPDATE
     ON cards
     FOR EACH ROW
@@ -37,10 +37,25 @@ CREATE TABLE IF NOT EXISTS files
     FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
 );
 
+CREATE VIEW IF NOT EXISTS cards_view AS
+SELECT DISTINCT cardId,
+                title,
+                json_group_array(DISTINCT json_object('fileId', fileId, 'fileName', fileName)) AS files,
+                group_concat(DISTINCT tag)                                                     AS tags,
+                website,
+                username,
+                created,
+                modified
+FROM cards
+         NATURAL JOIN tags
+         NATURAL JOIN files
+GROUP BY cardId, title, website, username, created, modified;
+
 CREATE VIRTUAL TABLE cards_fts USING FTS5
 (
     cardId,
     title,
     website,
-    username
+    username,
+    tags
 );

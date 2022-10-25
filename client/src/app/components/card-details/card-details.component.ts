@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Card, CardFile } from '../../core/models/card';
+import { Card, CardFile, Photo } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { Image } from 'angular-responsive-carousel';
 import { FileService } from "../../core/services/file/file.service";
 import { mergeMap, tap } from "rxjs";
+import { Lightbox } from "ngx-lightbox";
 
 @Component({
   selector: 'app-card-details',
@@ -15,22 +15,28 @@ import { mergeMap, tap } from "rxjs";
   styleUrls: ['./card-details.component.scss']
 })
 export class CardDetailsComponent implements OnInit {
-
+// TODO revert methods to before possibility of editing file
   @Input() card: Card;
-  images: Image[] = [];
+  images: Photo[] = [];
   thumbnails: File[] = []
 
   constructor(public dialog: MatDialog,
               private cardService: CardService,
               private notifService: NotificationService,
-              private fileService: FileService) {
+              private fileService: FileService,
+              private lightbox: Lightbox) {
   }
 
   ngOnInit(): void {
     // @ts-ignore
     JSON.parse(this.card.files).forEach((file: CardFile) =>
       this.fileService.getThumbnailUrl(file.fileName).pipe(
-        tap((fileUrl: string) => this.images.push({path: fileUrl})),
+        tap((fileUrl: string) => this.images.push({
+          path: fileUrl,
+          thumb: fileUrl,
+          caption: this.card.title,
+          src: fileUrl
+        })),
         mergeMap((fileUrl: string) => this.fileService.downloadFile(fileUrl))
       ).subscribe((thumbnail: Blob) =>
         this.thumbnails.push(new File([thumbnail], file.fileName))
@@ -61,5 +67,9 @@ export class CardDetailsComponent implements OnInit {
         });
       }
     });
+  }
+
+  onImageClick(i: number) {
+    this.lightbox.open(this.images, i);
   }
 }

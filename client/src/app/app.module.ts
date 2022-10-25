@@ -30,6 +30,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IvyCarouselModule } from 'angular-responsive-carousel';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { LightboxModule } from "ngx-lightbox";
 
 @NgModule({
   declarations: [
@@ -49,6 +50,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     ReactiveFormsModule,
     CommonModule,
     FilePickerModule,
+    LightboxModule,
     MatGridListModule,
     MatCardModule,
     MatIconModule,

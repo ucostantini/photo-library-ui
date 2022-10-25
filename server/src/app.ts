@@ -85,7 +85,7 @@ class App {
     }
 }
 
-// TODO refactor these global variables
+// TODO refactor these global variables + dotenv at top
 const mainInstance = new App();
 const app = mainInstance.expressApp;
 const log = mainInstance.log;

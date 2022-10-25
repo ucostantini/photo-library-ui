@@ -54,7 +54,6 @@ export class FileController {
                 log.debug(fileDB.fileId, 'Put thumbnail in MinIO for following file Id');
                 const thumbnail: Buffer = await imageFunction(base64, {responseType: 'buffer', percentage: 40});
                 await FileController.MINIO.putObject(process.env.MINIO_BUCKET_NAME, 'thumb-' + fileDB.fileName, thumbnail);
-
                 resolve(fileDB.fileId);
             } catch (err) {
                 reject(err);

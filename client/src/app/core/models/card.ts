@@ -1,3 +1,6 @@
+import { IAlbum } from "ngx-lightbox";
+import { Image } from "angular-responsive-carousel";
+
 interface Author {
   id: number;
 }
@@ -41,9 +44,7 @@ export interface Sorting {
   order: 'asc' | 'desc';
 }
 
-export interface Thumbnail {
-  fileId: number;
-  file: File;
+export interface Photo extends IAlbum, Image {
 }
 
 export type Status = "Create" | "Edit" | "Search";

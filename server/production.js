@@ -1,5 +1,5 @@
 // TODO in this file, fire all commands needed to deploy the application : creation of database + tables, creation of minio bucket...
-// TODO implement caching with redis
+// TODO implement caching with redis, server caching and client caching
 // TODO deployment ? Electron ? WHere to store data ? minio ?
 // TODO use elasticsearch ?
 // TODO tests, UT, FT, E2E, Black Box...
@@ -9,3 +9,8 @@
 // TODO check YUP + check all errors (error types, single point for error handling, formatiing...)
 // TODO implement redirects after operations (delete, update, create... refire last GET request)
 // TODO creation does not work for webp files, check for jpeg ?
+// TODO squoosh for images ?
+// TODO lightbox
+// TODO SQLite View to Hide Complex query
+// TODo use Masonry desandro
+// TODO tester injection XSS

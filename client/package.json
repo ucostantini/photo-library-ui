@@ -30,6 +30,7 @@
     "angular-responsive-carousel": "^2.1.0",
     "json-server": "^0.17.0",
     "ngx-awesome-uploader": "^13.0.1",
+    "ngx-lightbox": "^2.6.2",
     "patch-package": "^6.4.7",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
