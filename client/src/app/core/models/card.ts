@@ -1,22 +1,3 @@
-import { IAlbum } from "ngx-lightbox";
-import { Image } from "angular-responsive-carousel";
-
-interface Author {
-  id: number;
-}
-
-export interface Tag {
-  tagId: number;
-  name: string;
-}
-
-export interface Source {
-  sourceId?: number;
-  username: string;
-  website: string;
-  author?: Author;
-}
-
 export interface CardFile {
   fileId: number;
   fileName?: string;
@@ -39,12 +20,18 @@ export interface Pagination {
   length?: number;
 }
 
+export interface CardResult {
+  cards: Card[],
+  pagination: Pagination
+}
+
+export interface Message {
+  message: string;
+}
+
 export interface Sorting {
-  sort: 'cardId' | 'title' | 'rank';
+  sort: 'created' | 'title' | 'rank';
   order: 'asc' | 'desc';
 }
 
-export interface Photo extends IAlbum, Image {
-}
-
-export type Status = "Create" | "Edit" | "Search";
+export type Status = 'Create' | 'Edit' | 'Search';

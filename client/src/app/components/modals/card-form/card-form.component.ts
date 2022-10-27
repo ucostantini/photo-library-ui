@@ -18,7 +18,7 @@ export class CardFormComponent implements OnInit {
   private files: CardFile[] = [];
 
   constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean, files: File[] }) {
+              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }) {
   }
 
   ngOnInit(): void {
@@ -48,13 +48,6 @@ export class CardFormComponent implements OnInit {
         Validators.maxLength(20)] : []
       )
     });
-    if (inputCard) {
-      // @ts-ignore
-      JSON.parse(inputCard.files).forEach((file: CardFile) =>
-        (this.form.get('files') as FormArray).push(new FormGroup({fileId: new FormControl(file.fileId)}))
-      );
-    }
-
   }
 
   onCancel(): void {

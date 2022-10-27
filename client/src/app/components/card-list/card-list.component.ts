@@ -1,45 +1,36 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { Card, Pagination, Sorting } from '../../core/models/card';
+import { Component, OnInit } from '@angular/core';
+import { Card, CardResult, Pagination } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { PageEvent } from '@angular/material/paginator';
-import { HttpResponse } from "@angular/common/http";
 
 @Component({
   selector: 'app-card-list',
   templateUrl: './card-list.component.html',
   styleUrls: ['./card-list.component.scss']
 })
-export class CardListComponent implements OnInit, OnChanges {
+export class CardListComponent implements OnInit {
 
-  @Input() pagination: Pagination;
+  pagination: Pagination;
   cards: Card[];
   isLoading: boolean;
-  @Input() private cardFormData: Card;
-  @Input() private sorting: Sorting;
 
   constructor(private cardService: CardService) {
   }
 
-  ngOnChanges(_changes: SimpleChanges): void {
-    this.ngOnInit();
-  }
-
   ngOnInit(): void {
     this.isLoading = true;
-    this.fetchCards();
+    this.listenToCardListChanges();
   }
 
   onPageChange(event: PageEvent): void {
-    this.pagination = event as Pagination;
-    this.fetchCards();
+    this.cardService.getPaginationEmitter().emit(event as Pagination);
   }
 
-  private fetchCards(): void {
-    this.cardService.fetch(this.pagination, this.sorting, this.cardFormData)
-      .subscribe((response: HttpResponse<Card[]>) => {
-        this.cards = response.body;
-        this.pagination.length = Number(response.headers.get("X-Total-Count"));
-      });
-    this.isLoading = false;
+  private listenToCardListChanges() {
+    this.cardService.getCardsEmitter().subscribe((result: CardResult) => {
+      this.cards = result.cards;
+      this.pagination = result.pagination;
+      this.isLoading = false;
+    });
   }
 }

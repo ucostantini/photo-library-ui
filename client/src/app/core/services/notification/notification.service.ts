@@ -14,8 +14,8 @@ export class NotificationService {
   constructor(private toaster: MatSnackBar) {
   }
 
-  notifySuccess(status: string): void {
-    this.toaster.open('Card was successfully ' + status, 'Dismiss', this.config);
+  notifySuccess(message: string): void {
+    this.toaster.open(message, 'Dismiss', this.config);
   }
 
   notifyError(error: string): void {

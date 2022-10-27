@@ -6,6 +6,13 @@ import { log } from "../../app";
 export class SqliteStrategy implements IDBStrategy {
     private db: Database = new Database(process.env.DB_PATH);
 
+    constructor() {
+        if (process.env.LOG_LEVEL === 'debug') {
+            verbose();
+            this.db.on('trace', (stmt: string) => log.debug(stmt));
+        }
+    }
+
     fileCreate(extension: string): Promise<CardFile> {
         return new Promise<CardFile>((resolve, reject) => {
             this.db.run('INSERT INTO files (fileName) VALUES(?)', extension)
@@ -41,11 +48,11 @@ export class SqliteStrategy implements IDBStrategy {
     tagCreate(cardId: number, tags: string[]): void {
         const statement: Statement = this.db.prepare('INSERT OR IGNORE INTO tags VALUES(?,?)');
         tags.forEach((tag: string) => statement.run(cardId, tag.trim()))
-        statement.finalize();
+        statement.reset();
     }
 
     tagDelete(cardId: number): void {
-        this.db.prepare('DELETE FROM tags WHERE cardId = ?').run(cardId).finalize();
+        this.db.prepare('DELETE FROM tags WHERE cardId = ?').run(cardId).reset();
     }
 
     cardGetFilesByCardId(cardId: number): Promise<CardFile[]> {
@@ -54,7 +61,7 @@ export class SqliteStrategy implements IDBStrategy {
                 .all(cardId, (err: Error, files: CardFile[]) => {
                     if (err) reject(err);
                     else resolve(files);
-                }).finalize();
+                }).reset();
         });
     }
 
@@ -68,13 +75,11 @@ export class SqliteStrategy implements IDBStrategy {
                         if (err2) reject(err2);
                         else resolve({cards: cards, count: row.count});
                     });
-                }).finalize();
+                }).reset();
         });
     }
 
     cardSearch(card: Card, query: Pagination): Promise<CardResult> {
-        verbose();
-        this.db.on('trace', (stmt: string) => log.info(stmt));
         // prepare tags for full-text search
         card.tags = card.tags.split(',').join(' ');
 
@@ -86,36 +91,36 @@ export class SqliteStrategy implements IDBStrategy {
         let match_fts = '';
         for (const [key, value] of Object.entries(card)) {
             if (typeof value === 'string' && value !== '') {
-                match_fts += ' AND (' + key + ' : "' + value + '")';
+                match_fts += ' AND (' + key + ' : ' + value + ')';
             }
         }
         match_fts = match_fts.slice(5);
 
         return new Promise<CardResult>((resolve, reject) => {
-            this.db.prepare('SELECT DISTINCT * FROM cards_view NATURAL JOIN cards_fts WHERE cards_fts MATCH ?' +
-                '           ORDER BY ' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
+            this.db.prepare('SELECT DISTINCT * FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
+                '           ORDER BY cards_view.' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
                 //TODO handle spelling mistakes
                 .all(match_fts, query._limit, query._page, (err: Error, cards: Card[]) => {
                     if (err) reject(err);
                     // return the count of cards for pagination
-                    else this.db.prepare('SELECT DISTINCT COUNT(cardId) FROM cards_view NATURAL JOIN cards_fts WHERE cards_fts MATCH ? LIMIT ? OFFSET ?')
-                        .get(match_fts, query._limit, query._page, (err2: Error, row: { count: number }) => {
+                    else this.db.prepare('SELECT DISTINCT COUNT(cardId) AS count FROM cards_fts WHERE cards_fts MATCH ?')
+                        .get(match_fts, (err2: Error, row: { count: number }) => {
                             if (err2) reject(err2);
                             else resolve({cards: cards, count: row.count});
-                        }).finalize();
-                }).finalize();
+                        }).reset();
+                }).reset();
         });
     }
 
-    cardExists(cardId: number, files: CardFile[]): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            let prep = '?,'.repeat(files.length - 1);
-            this.db.prepare('SELECT EXISTS (SELECT 1 FROM files WHERE fileId IN (' + prep.slice(0, prep.length - 1) + ') AND cardId IS NOT ?)')
-                .get(files.map((file: CardFile) => file.fileId), cardId, (err: Error, row: number) => {
+    cardExists(files: CardFile[]): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            let prep = '?,'.repeat(files.length);
+            this.db.prepare('SELECT EXISTS (SELECT 1 FROM files WHERE fileId IN (' + prep.slice(0, prep.length - 1) + ')) AS res')
+                .get(...files.map((file: CardFile) => file.fileId), (err: Error, row: { res: number }) => {
                     if (err) reject(err);
-                    else if (row === 1) resolve(true);
-                    else resolve(false);
-                }).finalize();
+                    else if (row.res === 1) reject(new Error('Card already exists'));
+                    else resolve();
+                }).reset();
         });
     }
 
@@ -129,7 +134,7 @@ export class SqliteStrategy implements IDBStrategy {
                     else {
                         this.db.prepare('INSERT INTO cards_fts VALUES(?,?,?,?,?)')
                             .run(row.cardId, card.title, card.website, card.username, card.tags)
-                            .finalize();
+                            .reset();
                         resolve(row.cardId);
                     }
                 });

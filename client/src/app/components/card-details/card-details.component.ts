@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Card, CardFile, Photo } from '../../core/models/card';
+import { Card, Message } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { FileService } from "../../core/services/file/file.service";
-import { mergeMap, tap } from "rxjs";
 import { Lightbox } from "ngx-lightbox";
+import { Image } from "angular-responsive-carousel";
 
 @Component({
   selector: 'app-card-details',
@@ -15,10 +15,8 @@ import { Lightbox } from "ngx-lightbox";
   styleUrls: ['./card-details.component.scss']
 })
 export class CardDetailsComponent implements OnInit {
-// TODO revert methods to before possibility of editing file
   @Input() card: Card;
-  images: Photo[] = [];
-  thumbnails: File[] = []
+  images: Image[] = [];
 
   constructor(public dialog: MatDialog,
               private cardService: CardService,
@@ -29,28 +27,22 @@ export class CardDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     // @ts-ignore
-    JSON.parse(this.card.files).forEach((file: CardFile) =>
-      this.fileService.getThumbnailUrl(file.fileName).pipe(
-        tap((fileUrl: string) => this.images.push({
-          path: fileUrl,
-          thumb: fileUrl,
-          caption: this.card.title,
-          src: fileUrl
-        })),
-        mergeMap((fileUrl: string) => this.fileService.downloadFile(fileUrl))
-      ).subscribe((thumbnail: Blob) =>
-        this.thumbnails.push(new File([thumbnail], file.fileName))
-      ));
+    JSON.parse(this.card.files).forEach(file =>
+      this.fileService.getThumbnailUrl(file.fileName)
+        .subscribe((thumbnailUrl: string) =>
+          this.images.push({path: thumbnailUrl})
+        )
+    );
   }
 
   onEdit(): void {
     this.dialog.open(CardFormComponent, {
-      data: {card: this.card, isSearch: false, files: this.thumbnails},
+      data: {card: this.card, isSearch: false},
     }).afterClosed().subscribe((card: Card) => {
       if (card) {
         this.cardService.update(card).subscribe({
-          next: () => this.notifService.notifySuccess('updated'),
-          error: (error) => this.notifService.notifyError(JSON.stringify(error))
+          next: (message: Message) => this.notifService.notifySuccess(message.message),
+          error: (error: Error) => this.notifService.notifyError(error.message)
         });
       }
     });
@@ -62,14 +54,10 @@ export class CardDetailsComponent implements OnInit {
     }).afterClosed().subscribe((cardId: number) => {
       if (cardId) {
         this.cardService.delete(cardId).subscribe({
-          next: () => this.notifService.notifySuccess('deleted'), // TODO notifications always pop up, even when error
-          error: (error) => this.notifService.notifyError(JSON.stringify(error))
+          next: (message: Message) => this.notifService.notifySuccess(message.message),
+          error: (error: Error) => this.notifService.notifyError(error.message)
         });
       }
     });
-  }
-
-  onImageClick(i: number) {
-    this.lightbox.open(this.images, i);
   }
 }

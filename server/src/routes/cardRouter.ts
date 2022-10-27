@@ -68,15 +68,16 @@ export class CardRouter {
         this.cardController = new CardController();
         this._router = Router();
         // YUP schema specification for validation of a Card object
-        this.schema = yup.object().shape({
-            title: yup.string().required().max(60),
-            files: yup.array().of(yup.object().shape({
+
+        this.schema = yup.object({
+            title: yup.string().max(60).required(),
+            files: yup.array().of(yup.object({
                 fileId: yup.number().required(),
                 fileName: yup.string()
             })).min(1).required(),
-            tags: yup.string().required().min(3),
-            website: yup.string().required().max(30),
-            username: yup.string().required().max(30)
+            tags: yup.string().min(3).required(),
+            website: yup.string().max(30).required(),
+            username: yup.string().max(30).required()
         });
 
         // configure routes
@@ -91,6 +92,17 @@ export class CardRouter {
         this._router.post('', this.create.bind(this));
         this._router.put('/:cardId', this.update.bind(this));
         this._router.delete('/:cardId', this.delete.bind(this));
+    }
+
+    /**
+     * Error handler for all operations related to card requests
+     * @param error the error that occurred in the application. Can be type related, schema (YUP) related, DB related, etc.
+     * @param res the 500 error response to be returned to the user
+     * @private
+     */
+    private static errorHandler(error: Error, res: Response<any, Record<string, any>>) {
+        log.error(error, "Error occurred in /cards entry point");
+        res.status(500).send({message: error.message});
     }
 
     /**
@@ -161,7 +173,7 @@ export class CardRouter {
                         .status(200)
                         .send(result.cards)
                 }
-            ).catch(error => CardRouter.errorHandler(error, response));
+            ).catch((error: Error) => CardRouter.errorHandler(error, response));
     }
 
     /**
@@ -195,15 +207,13 @@ export class CardRouter {
         log.info(req.body, "Request Body Payload");
         // check validity of provided card information using defined schema
         this.schema
-            .isValid(req.body)
-            .then(() => {
-                this.cardController.create(req.body as Card);
-                res.status(201)
-                    .send({
-                        message: 'Card successfully created'
-                    });
-            })
-            .catch(error => CardRouter.errorHandler(error, res));
+            .validate(req.body as Card)
+            .then(() => this.cardController.create(req.body as Card))
+            .then((message: string) => res.status(201)
+                .send({
+                    message: message
+                }))
+            .catch((error: Error) => CardRouter.errorHandler(error, res));
     }
 
     /**
@@ -245,15 +255,13 @@ export class CardRouter {
         log.info(req.body, "Request Body Payload");
         // check validity of provided card information using defined schema
         this.schema
-            .isValid(req.body)
-            .then(() => {
-                this.cardController.update(req.body as Card);
-                res.status(200)
-                    .send({
-                        message: 'Card successfully updated'
-                    });
-            })
-            .catch(error => CardRouter.errorHandler(error, res));
+            .validate(req.body as Card)
+            .then(() => this.cardController.update(req.body as Card))
+            .then((message: string) => res.status(200)
+                .send({
+                    message: message
+                }))
+            .catch((error: Error) => CardRouter.errorHandler(error, res));
     }
 
     /**
@@ -285,27 +293,13 @@ export class CardRouter {
      *                   example: 201
      */
     public delete(req: Request, res: Response) {
-        try {
-            log.info(req.params, "Request Parameters Payload");
-            this.cardController.delete(Number(req.params.cardId));
-            res.status(200)
+        log.info(req.params, "Request Parameters Payload");
+        this.cardController.delete(Number(req.params.cardId))
+            .then((message: string) => res.status(200)
                 .send({
-                    message: 'Card successfully deleted'
-                });
-        } catch (error) {
-            CardRouter.errorHandler(error, res);
-        }
-    }
-
-    /**
-     * Error handler for all operations related to card requests
-     * @param error the error that occurred in the application. Can be type related, schema (YUP) related, DB related, etc.
-     * @param res the 500 error response to be returned to the user
-     * @private
-     */
-    private static errorHandler(error: any, res: Response<any, Record<string, any>>) {
-        log.error(error, "Error occurred in /cards entry point");
-        res.status(500).json({error: error.toString()});
+                    message: message
+                }))
+            .catch((error: Error) => CardRouter.errorHandler(error, res));
     }
 
     get router() {

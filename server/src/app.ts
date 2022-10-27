@@ -38,7 +38,8 @@ class App {
                 options: {
                     colorize: true
                 }
-            }
+            },
+            level: process.env.LOG_LEVEL || 'info'
         });
         this.middleware();
         this.routes();
@@ -49,10 +50,6 @@ class App {
      * @private
      */
     private middleware(): void {
-        // configure options related to development environment, like DB debugging options or logging
-        if (process.env.ENVIRONMENT === 'dev') {
-            // TODO change this
-        }
         this.expressApp.use(logger(process.env.ENVIRONMENT) as express.RequestHandler);
         this.expressApp.use(express.json() as express.RequestHandler);
         this.expressApp.use(express.urlencoded({extended: false}) as express.RequestHandler);

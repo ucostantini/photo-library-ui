@@ -1,5 +1,6 @@
 import { SqliteStrategy } from "../core/dbUtils/sqliteStrategy";
 import { MinIOStorageService } from '../core/minIOStorageService';
+
 // fileName is needed to retrieve files from Minio
 export interface CardFile {
     fileId: number;
@@ -19,9 +20,9 @@ export interface Card {
 
 // TODO generify sorting options
 export interface Pagination {
-    _page: string;
-    _limit: string;
-    _sort: 'cardId' | 'title' | 'rank';
+    _page: number;
+    _limit: number;
+    _sort: 'created' | 'title' | 'rank';
     _order: 'asc' | 'desc';
 }
 

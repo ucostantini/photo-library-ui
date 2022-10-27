@@ -1,5 +1,6 @@
 import { Card, CardFile, CardResult, Pagination } from "../../types/card";
 import { db } from "../../app";
+
 //TODO refactor DB access logic
 export class CardModel {
 
@@ -18,8 +19,8 @@ export class CardModel {
         return db.cardSearch(this.card, query);
     }
 
-    public exists(): Promise<boolean> {
-        return db.cardExists(this.card.cardId, this.card.files);
+    public exists(): Promise<void> {
+        return db.cardExists(this.card.files);
     }
 
     public create(): Promise<number> {

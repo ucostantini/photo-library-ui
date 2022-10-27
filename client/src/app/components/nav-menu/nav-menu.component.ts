@@ -3,8 +3,9 @@ import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { CardService } from '../../core/services/card/card.service';
-import { Card, Pagination, Sorting } from '../../core/models/card';
+import { Card, Message, Pagination, Sorting } from '../../core/models/card';
 import { NotificationService } from '../../core/services/notification/notification.service';
+import { HttpResponse } from "@angular/common/http";
 
 @Component({
   selector: 'app-nav-menu',
@@ -13,7 +14,7 @@ import { NotificationService } from '../../core/services/notification/notificati
 })
 export class NavMenuComponent implements OnInit {
   form: FormGroup;
-  card: Card;
+  cardFormData: Card;
   sorting: Sorting;
   pagination: Pagination;
 
@@ -25,13 +26,10 @@ export class NavMenuComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.card = null;
-    this.sorting = {sort: 'cardId', order: 'asc'};
-    this.pagination = {pageIndex: 0, pageSize: 10};
-  }
-
-  onReset(): void {
-    this.ngOnInit();
+    this.cardFormData = null;
+    this.paginationReset();
+    this.listenToPaginationChanges();
+    this.fetchCards();
   }
 
   onAdd(): void {
@@ -41,26 +39,54 @@ export class NavMenuComponent implements OnInit {
       .subscribe((card: Card) => {
         if (card) {
           this.cardService.create(card).subscribe({
-            next: () => this.notifService.notifySuccess('created'),
-            error: (error) => this.notifService.notifyError(JSON.stringify(error))
+            next: (message: Message) => this.notifService.notifySuccess(message.message),
+            error: (error: Error) => this.notifService.notifyError(error.message)
           });
         }
       });
   }
 
+  onReset(): void {
+    this.ngOnInit();
+  }
+
   onSearch(): void {
     this.dialog.open(CardFormComponent, {
-      data: {card: this.card, isSearch: true},
-    }).afterClosed()
-      .subscribe({
-        next: (card: Card) => {
-          if (card) this.card = card
-        },
-        error: error => this.notifService.notifyError(JSON.stringify(error))
-      });
+      data: {card: this.cardFormData, isSearch: true},
+    }).afterClosed().subscribe({
+      next: (card: Card) => {
+        this.cardFormData = card;
+        this.paginationReset();
+        this.fetchCards();
+      },
+      error: (error: Error) => this.notifService.notifyError(error.message)
+    });
   }
 
   onSortSubmit(): void {
     this.sorting = (this.form.getRawValue() as Sorting);
+    this.fetchCards();
+  }
+
+  fetchCards(): void {
+    this.cardService.fetch(this.pagination, this.sorting, this.cardFormData).subscribe({
+      next: (response: HttpResponse<Card[]>) => {
+        this.pagination.length = Number(response.headers.get("X-Total-Count"));
+        this.cardService.getCardsEmitter().emit({cards: response.body, pagination: this.pagination});
+      },
+      error: (error: Error) => this.notifService.notifyError(error.message)
+    });
+  }
+
+  listenToPaginationChanges() {
+    this.cardService.getPaginationEmitter().subscribe((pagination: Pagination) => {
+      this.pagination = pagination;
+      this.fetchCards();
+    });
+  }
+
+  private paginationReset(): void {
+    this.sorting = {sort: 'created', order: 'asc'};
+    this.pagination = {pageIndex: 0, pageSize: 10};
   }
 }

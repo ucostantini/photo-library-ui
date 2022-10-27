@@ -7,7 +7,6 @@ import { FilePickerModule } from 'ngx-awesome-uploader';
 import { AppComponent } from './app.component';
 import { NavMenuComponent } from './components/nav-menu/nav-menu.component';
 import { CardListComponent } from './components/card-list/card-list.component';
-import { AppRoutingModule } from './app-routing.module';
 import { CardDetailsComponent } from './components/card-details/card-details.component';
 import { CardFormComponent } from './components/modals/card-form/card-form.component';
 import { CommonModule } from '@angular/common';
@@ -43,7 +42,6 @@ import { LightboxModule } from "ngx-lightbox";
   ],
   imports: [
     BrowserAnimationsModule,
-    AppRoutingModule,
     BrowserModule,
     HttpClientModule,
     FormsModule,

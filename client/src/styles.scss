@@ -27,3 +27,12 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+
+.carousel.carousel {
+  z-index: 0 !important;
+}
+
+.carousel-arrow {
+  z-index: 0 !important;
+}

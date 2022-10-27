@@ -64,10 +64,9 @@ export interface IDBStrategy {
 
     /**
      * Check if the card exist given its files' ids
-     * @param cardId the id of the updated card
      * @param files the ids of the files
      */
-    cardExists(cardId: number, files: CardFile[]): Promise<boolean>;
+    cardExists(files: CardFile[]): Promise<void>;
 
     /**
      * Create a new card based on provided information
