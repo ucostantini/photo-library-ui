@@ -11,18 +11,20 @@
       <button mat-menu-item>
         <mat-icon>download</mat-icon>
       </button>
-      <button (click)="onEdit()" data-target="#createModal" data-toggle="modal" mat-menu-item>
+      <button (click)="onCardEdit()" data-target="#createModal" data-toggle="modal" mat-menu-item>
         <mat-icon>edit</mat-icon>
       </button>
-      <button (click)="onDelete()" data-target="#deleteModal" data-toggle="modal" mat-menu-item>
+      <button (click)="onCardDelete()" data-target="#deleteModal" data-toggle="modal" mat-menu-item>
         <mat-icon>delete</mat-icon>
       </button>
     </mat-menu>
   </mat-card-header>
+  <!-- TODO load only 1 pic for thumbnail -->
   <!-- TODO click on image popup ? see full thumbnail ?-->
-  <carousel [cellsToShow]="1" [images]="images" [overflowCellsLimit]="1">
+  <carousel [cellsToShow]="1" [images]="thumbnails" [overflowCellsLimit]="1">
   </carousel>
   <mat-card-content class="mat-card-content" style="padding-top: 14px">
+    <!-- TODO use chips for tags -->
     <p class="card-text">Tags : {{card.tags.toString()}} </p>
     <hr/>
     <p class="card-text">Credits : {{card.website}} / {{card.username}} </p>

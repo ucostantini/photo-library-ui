@@ -1,26 +1,26 @@
 <mat-toolbar class="toolbar" color="primary">
-  <button (click)="onReset()" mat-icon-button>
+  <button (click)="onAppReset()" mat-icon-button>
     <mat-icon>home</mat-icon>
   </button>
   <span class="text-center">Photo Library</span>
   <div class="align-right">
-    <button (click)="onAdd()" mat-icon-button>
+    <button (click)="onCardAdd()" mat-icon-button>
       <mat-icon>add</mat-icon>
     </button>
-    <button (click)="onSearch()" mat-icon-button>
+    <button (click)="onCardSearch()" mat-icon-button>
       <mat-icon>search</mat-icon>
     </button>
     <button [matMenuTriggerFor]="menu" mat-icon-button>
       <mat-icon>menu</mat-icon>
     </button>
     <mat-menu #menu="matMenu" [hasBackdrop]="true">
-      <!-- prevents menu from being closed upon click of a radio button in the form -->
+      <!-- prevents menu from being closed upon click of radio button in form -->
       <div (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
-        <form (ngSubmit)="onSortSubmit()" [formGroup]="form" id="sort" role="form">
+        <form (ngSubmit)="onSortSubmit()" [formGroup]="sortingForm" id="sort" role="form">
           <div>
             <mat-label class="mat-menu-item">Sort by:</mat-label>
             <mat-radio-group formControlName="sort">
-              <mat-radio-button class="mat-menu-item" value="cardId">Date</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value="created">Date</mat-radio-button>
               <mat-radio-button class="mat-menu-item" value="title">Title</mat-radio-button>
               <mat-radio-button class="mat-menu-item" value="rank">Relevance</mat-radio-button>
             </mat-radio-group>

@@ -2,17 +2,15 @@
   Loading...
 </div>
 <div *ngIf="!isLoading">
-  <h1 *ngIf="pagination.length" style="padding: 16px">{{ pagination.length }} results found</h1>
+  <h1 *ngIf="pagination.pageLength" style="padding: 16px">{{ pagination.pageLength }} results found</h1>
 
   <div class="content">
     <app-card-details *ngFor="let card of cards"
                       [card]="card">
     </app-card-details>
   </div>
-  <!-- TODO custom number in pagination -->
-  <!-- TODO load only 1 pic for thumbnail -->
   <mat-paginator (page)="onPageChange($event)"
-                 [length]=this.pagination.length
+                 [length]=this.pagination.pageLength
                  [showFirstLastButtons]="true"
                  [pageSizeOptions]="[10, 25, 50, 100]"
                  [pageSize]="this.pagination.pageSize"

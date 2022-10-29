@@ -9,6 +9,9 @@ import { FileService } from "../../core/services/file/file.service";
 import { Lightbox } from "ngx-lightbox";
 import { Image } from "angular-responsive-carousel";
 
+/**
+ * Displays an individual card's information
+ */
 @Component({
   selector: 'app-card-details',
   templateUrl: './card-details.component.html',
@@ -16,7 +19,7 @@ import { Image } from "angular-responsive-carousel";
 })
 export class CardDetailsComponent implements OnInit {
   @Input() card: Card;
-  images: Image[] = [];
+  thumbnails: Image[] = [];
 
   constructor(public dialog: MatDialog,
               private cardService: CardService,
@@ -25,17 +28,25 @@ export class CardDetailsComponent implements OnInit {
               private lightbox: Lightbox) {
   }
 
+  /**
+   * Retrieve thumbnail URLs of card's files for angular-responsive-carousel library
+   */
   ngOnInit(): void {
     // @ts-ignore
     JSON.parse(this.card.files).forEach(file =>
       this.fileService.getThumbnailUrl(file.fileName)
         .subscribe((thumbnailUrl: string) =>
-          this.images.push({path: thumbnailUrl})
+          this.thumbnails.push({path: thumbnailUrl})
         )
     );
   }
 
-  onEdit(): void {
+  /**
+   * Opens up card form component in modal dialog for card update
+   *
+   * Calls the card update operation if form is filled with data
+   */
+  onCardEdit(): void {
     this.dialog.open(CardFormComponent, {
       data: {card: this.card, isSearch: false},
     }).afterClosed().subscribe((card: Card) => {
@@ -48,7 +59,12 @@ export class CardDetailsComponent implements OnInit {
     });
   }
 
-  onDelete(): void {
+  /**
+   * Opens up card delete component in modal dialog for card deletion
+   *
+   * Calls the card deletion operation if card id is provided
+   */
+  onCardDelete(): void {
     this.dialog.open(CardDeleteComponent, {
       data: this.card.cardId,
     }).afterClosed().subscribe((cardId: number) => {

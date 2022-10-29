@@ -10,8 +10,8 @@
     "lint": "ng lint",
     "e2e": "ng e2e",
     "compodoc:build": "compodoc -p tsconfig.doc.json",
-    "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -s",
-    "compodoc:serve": "compodoc -s",
+    "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -r 8081 -s",
+    "compodoc:serve": "compodoc -s -r 8081",
     "postinstall": "patch-package"
   },
   "private": true,
@@ -28,6 +28,7 @@
     "@angular/router": "~13.3.0",
     "@compodoc/compodoc": "^1.1.19",
     "angular-responsive-carousel": "^2.1.0",
+    "jsdoc": "^3.6.11",
     "json-server": "^0.17.0",
     "ngx-awesome-uploader": "^13.0.1",
     "ngx-lightbox": "^2.6.2",
