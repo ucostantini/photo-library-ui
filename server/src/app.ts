@@ -1,8 +1,6 @@
 import express from 'express';
 import logger from 'morgan';
 import dotenv from 'dotenv';
-import { cardRoutes } from './routes/cardRouter';
-import { fileRoutes } from './routes/fileRouter';
 import fileUpload from "express-fileupload";
 import cors from 'cors';
 import pino, { Logger } from "pino";
@@ -11,8 +9,8 @@ import { DBClient, StorageService } from './types/card';
 import * as swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
 import { IStorageService } from './core/IStorageService';
-
-dotenv.config();
+import { CardRouter } from "./routes/cardRouter";
+import { FileRouter } from "./routes/fileRouter";
 
 /**
  * Represents the whole Express Application
@@ -21,14 +19,15 @@ class App {
 
     // node.js application
     public expressApp: express.Application;
-    // Strategy interface for the used DB
-    public db: IDBStrategy;
-    public storage: IStorageService;
-    public log: Logger;
+
+    private db: IDBStrategy;
+    private storage: IStorageService;
+    private log: Logger;
 
     constructor() {
         this.expressApp = express();
-        // initialize DB strategy based on .env value
+        dotenv.config();
+        // initialize DB connection and storage service based on .env value
         this.db = new (DBClient[process.env.DB_CLIENT])();
         this.storage = new (StorageService[process.env.STORAGE_SERVICE])();
 
@@ -41,6 +40,10 @@ class App {
             },
             level: process.env.LOG_LEVEL || 'info'
         });
+
+        this.expressApp.set('log', this.log);
+        this.expressApp.set('db', this.db);
+        this.expressApp.set('storage', this.storage);
         this.middleware();
         this.routes();
     }
@@ -78,17 +81,17 @@ class App {
      */
     private routes(): void {
         this.expressApp.get('/', (_req, res) => res.redirect('/'));
-        // routes related to cards, see cardRouter.ts
-        this.expressApp.use('/cards', cardRoutes.router);
-        // routes related to files, see fileRouter.ts
-        this.expressApp.use('/files', fileRoutes.router);
+
+        const cardRouter = new CardRouter(this.log);
+        const fileRouter = new FileRouter(this.log, this.storage);
+
+        cardRouter.routes();
+        fileRouter.routes();
+
+        this.expressApp.use('/cards', cardRouter.router);
+        this.expressApp.use('/files', fileRouter.router);
     }
 }
 
-// TODO refactor these global variables + dotenv at top
-const mainInstance = new App();
-const app = mainInstance.expressApp;
-const log = mainInstance.log;
-const db = mainInstance.db;
-const storage = mainInstance.storage;
-export { app, db, log, storage };
+const app = new App().expressApp;
+export { app };

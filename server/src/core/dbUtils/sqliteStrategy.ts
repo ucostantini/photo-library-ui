@@ -1,7 +1,7 @@
 import { IDBStrategy } from "./dbStrategy";
 import { Card, CardFile, CardResult, Pagination } from "../../types/card";
 import { Database, Statement, verbose } from "sqlite3";
-import { log } from "../../app";
+import { app } from "../../app";
 
 export class SqliteStrategy implements IDBStrategy {
     private db: Database = new Database(process.env.DB_PATH);
@@ -9,7 +9,7 @@ export class SqliteStrategy implements IDBStrategy {
     constructor() {
         if (process.env.LOG_LEVEL === 'debug') {
             verbose();
-            this.db.on('trace', (stmt: string) => log.debug(stmt));
+            this.db.on('trace', (stmt: string) => app.get('log').debug(stmt));
         }
     }
 
@@ -25,7 +25,7 @@ export class SqliteStrategy implements IDBStrategy {
 
     getFileNameById(fileId: number): Promise<string> {
         return new Promise<string>((resolve, reject) => {
-            this.db.prepare('SELECT fileName WHERE fileId = ?')
+            this.db.prepare('SELECT fileName FROM files WHERE fileId = ?')
                 .get(fileId, (err: Error, row: { fileName: string }) => {
                     if (err) reject(err)
                     else resolve(row.fileName)
@@ -47,7 +47,7 @@ export class SqliteStrategy implements IDBStrategy {
 
     tagCreate(cardId: number, tags: string[]): void {
         const statement: Statement = this.db.prepare('INSERT OR IGNORE INTO tags VALUES(?,?)');
-        tags.forEach((tag: string) => statement.run(cardId, tag.trim()))
+        tags.forEach((tag: string) => statement.run(cardId, tag.trim().toLowerCase()))
         statement.reset();
     }
 
@@ -80,31 +80,18 @@ export class SqliteStrategy implements IDBStrategy {
     }
 
     cardSearch(card: Card, query: Pagination): Promise<CardResult> {
-        // prepare tags for full-text search
-        card.tags = card.tags.split(',').join(' ');
-
-        /*
-        * match_fts will look like this,
-        * for each non-empty entry in the provided card query :
-        * (title: "1975 Ford Thunderbird 2D") AND (tags: "car antique v8 70s")
-        */
-        let match_fts = '';
-        for (const [key, value] of Object.entries(card)) {
-            if (typeof value === 'string' && value !== '') {
-                match_fts += ' AND (' + key + ' : ' + value + ')';
-            }
-        }
-        match_fts = match_fts.slice(5);
+        const matchFTS = this.prepareFTSMatchStatement(card);
 
         return new Promise<CardResult>((resolve, reject) => {
-            this.db.prepare('SELECT DISTINCT * FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
+            this.db.prepare('SELECT DISTINCT cards_view.* FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
                 '           ORDER BY cards_view.' + query._sort + ' ' + query._order + ' LIMIT ? OFFSET ?')
                 //TODO handle spelling mistakes
-                .all(match_fts, query._limit, query._page, (err: Error, cards: Card[]) => {
+                .all(matchFTS, query._limit, query._page, (err: Error, cards: Card[]) => {
+                    console.log("Query response " + JSON.stringify(cards));
                     if (err) reject(err);
                     // return the count of cards for pagination
                     else this.db.prepare('SELECT DISTINCT COUNT(cardId) AS count FROM cards_fts WHERE cards_fts MATCH ?')
-                        .get(match_fts, (err2: Error, row: { count: number }) => {
+                        .get(matchFTS, (err2: Error, row: { count: number }) => {
                             if (err2) reject(err2);
                             else resolve({cards: cards, count: row.count});
                         }).reset();
@@ -133,7 +120,7 @@ export class SqliteStrategy implements IDBStrategy {
                     // populate full text search table
                     else {
                         this.db.prepare('INSERT INTO cards_fts VALUES(?,?,?,?,?)')
-                            .run(row.cardId, card.title, card.website, card.username, card.tags)
+                            .run(row.cardId, card.title, card.website, card.username, card.tags.join(','))
                             .reset();
                         resolve(row.cardId);
                     }
@@ -147,7 +134,7 @@ export class SqliteStrategy implements IDBStrategy {
             [card.title, card.website, card.username, card.cardId])
             // update full text search table
             .run('UPDATE cards_fts SET title = ?, website = ?, username = ?, tags = ? WHERE cardId = ?',
-                [card.title, card.website, card.username, card.cardId, card.tags]);
+                [card.title, card.website, card.username, card.cardId, card.tags.join(',')]);
     }
 
     cardDelete(cardId: number): void {
@@ -155,5 +142,28 @@ export class SqliteStrategy implements IDBStrategy {
         this.db.run('DELETE FROM cards WHERE cardId = ?', cardId)
             // delete from full text search table
             .run('DELETE FROM cards_fts WHERE cardId = ?', cardId);
+    }
+
+    /**
+     * This function transforms the Card object into a string that can be used by SQLite Full Text Search
+     *
+     * @param card The JS object we will iterate on
+     * @return A string satisfying the specifications of the Full-Text-Search "MATCH" keyword provided by SQLite
+     * @example (title: "1975 Ford Thunderbird 2D") AND (tags: "car antique v8 70s")
+     * @private
+     */
+    private prepareFTSMatchStatement(card: Card): string {
+        let matchFTS = '';
+        for (const [key, value] of Object.entries(card)) {
+            if (typeof value === 'string' && value !== '') {
+                matchFTS += ' AND (' + key + ' : ' + value + ')';
+            } else if (Array.isArray(value) && value.length !== 0) {
+                matchFTS += ' AND (' + key + ' : ' + value.join(' ') + ')';
+            }
+
+        }
+        matchFTS = matchFTS.slice(5);
+
+        return matchFTS;
     }
 }

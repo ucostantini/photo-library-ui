@@ -5,7 +5,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CardService } from '../../core/services/card/card.service';
 import { Card, Message, Pagination, Sorting } from '../../core/models/card';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { HttpResponse } from "@angular/common/http";
+import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 
 /**
  * Handles card and sort form data retrieval for API operations (creation and search of card)
@@ -70,7 +70,7 @@ export class NavMenuComponent implements OnInit {
         if (cardForm)
           this.cardService.create(cardForm).subscribe({
             next: (message: Message) => this.notifService.notifySuccess(message.message),
-            error: (error: Error) => this.notifService.notifyError(error.message)
+            error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
           });
       });
   }
@@ -89,7 +89,7 @@ export class NavMenuComponent implements OnInit {
         this.paginationReset();
         this.fetchCards();
       },
-      error: (error: Error) => this.notifService.notifyError(error.message)
+      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
     });
   }
 
@@ -112,7 +112,7 @@ export class NavMenuComponent implements OnInit {
         this.selectedPagination.pageLength = Number(response.headers.get("X-Total-Count"));
         this.cardService.getCardsEmitter().emit({cards: response.body, pagination: this.selectedPagination});
       },
-      error: (error: Error) => this.notifService.notifyError(error.message)
+      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
     });
   }
 

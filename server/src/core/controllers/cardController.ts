@@ -1,15 +1,20 @@
 import { FileModel } from '../models/fileModel';
 import { CardModel } from '../models/cardModel';
 import { TagModel } from "../models/tagModel";
-import { Card, CardFile, CardResult, Pagination } from "../../types/card";
-import { FileController } from "./fileController";
-import { log } from "../../app";
+import { Card, CardResult, Pagination } from "../../types/card";
+import { Logger } from "pino";
 
 /**
  * Controller of CRUD operations related to cards
  * Validates the data and performs request to models
  */
 export class CardController {
+
+    private log: Logger;
+
+    constructor(log: Logger) {
+        this.log = log;
+    }
 
     /**
      * Retrieved cards based on provided search condition and pagination
@@ -29,8 +34,7 @@ export class CardController {
                     --> offset = (25 * 3) - 25 = 50
                 */
                 if (pagination._page !== 0)
-                    pagination._page = pagination._limit * (pagination._page + 1);
-                // TODO offset can be greater than total number of results, will return empty list instead of last page
+                    pagination._page = pagination._limit * pagination._page;
 
                 let res: CardResult;
                 if (search === null) {
@@ -54,10 +58,9 @@ export class CardController {
     public create(card: Card): Promise<string> {
         return new Promise(async (resolve, reject) => {
             const cardModel = new CardModel(card);
-            cardModel.exists()
-                .then(() => cardModel.create())
+            cardModel.create()
                 .then(insertedCardId => {
-                    log.debug(insertedCardId, 'Link files and tags for following cardId');
+                    this.log.debug(insertedCardId, 'Link files and tags for following cardId');
                     new FileModel(insertedCardId, card.files).link();
                     new TagModel(insertedCardId, card.tags).create();
                     resolve('Card successfully created');
@@ -76,6 +79,7 @@ export class CardController {
     public update(card: Card): Promise<string> {
         return new Promise(async (resolve, reject) => {
             const cardModel = new CardModel(card);
+            // TODO use hash to compare images
             cardModel.exists().then(() => {
                 // if card does not already exist, update card data, files and tags
                 cardModel.update();
@@ -96,16 +100,8 @@ export class CardController {
             const cardModel = new CardModel({cardId: cardId});
             cardModel.delete();
             // delete linked tags
-            new TagModel(cardId, "").delete();
-
-            // after card deletion, delete corresponding files
-            cardModel.getFilesByCardId().then((files: CardFile[]) => {
-                log.debug(files, 'Remove files from DB and storage for following cardId : {}', cardId);
-                return new FileController().deleteFromNames(files)
-            }).then(() => resolve('Card successfully deleted'))
-                .catch((error: Error) => {
-                    reject(error);
-                });
+            new TagModel(cardId, []).delete();
+            resolve('Card successfully deleted');
         });
     }
 }

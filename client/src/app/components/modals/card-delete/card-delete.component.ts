@@ -1,5 +1,6 @@
 import { Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Card } from "../../../core/models/card";
 
 /**
  * Card deletion modal dialog
@@ -12,7 +13,7 @@ export class CardDeleteComponent {
 
   constructor(
     public dialogRef: MatDialogRef<CardDeleteComponent>,
-    @Inject(MAT_DIALOG_DATA) public cardId: number
+    @Inject(MAT_DIALOG_DATA) public card: Card
   ) {
   }
 

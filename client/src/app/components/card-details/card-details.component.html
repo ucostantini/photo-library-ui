@@ -3,8 +3,11 @@
     <mat-card-title>
       {{card.title}}
     </mat-card-title>
-    <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button " mat-icon-button
-            style="margin-right: 0; margin-left: auto">
+    <button (click)="view = !view; onImageView();" [attr.aria-label]="'View image'" [attr.aria-pressed]="view"
+            mat-icon-button matSuffix>
+      <mat-icon>{{view ? 'visibility' : 'visibility_off'}}</mat-icon>
+    </button>
+    <button [matMenuTriggerFor]="menu" aria-label="Toggle menu" class="more-button toggle-menu" mat-icon-button>
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
@@ -20,12 +23,16 @@
     </mat-menu>
   </mat-card-header>
   <!-- TODO load only 1 pic for thumbnail -->
-  <!-- TODO click on image popup ? see full thumbnail ?-->
-  <carousel [cellsToShow]="1" [images]="thumbnails" [overflowCellsLimit]="1">
+  <carousel [cellsToShow]="1" [counter]="true" [images]="thumbnails" [overflowCellsLimit]="1">
   </carousel>
   <mat-card-content class="mat-card-content" style="padding-top: 14px">
-    <!-- TODO use chips for tags -->
-    <p class="card-text">Tags : {{card.tags.toString()}} </p>
+    <div class="tags">
+      <mat-label>Tags :</mat-label>
+      <mat-chip-list>
+        <mat-chip *ngFor="let tag of card.tags" color="accent" selected>{{tag}}</mat-chip>
+      </mat-chip-list>
+    </div>
+
     <hr/>
     <p class="card-text">Credits : {{card.website}} / {{card.username}} </p>
     <hr/>

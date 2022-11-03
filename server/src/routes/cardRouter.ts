@@ -3,7 +3,7 @@ import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
 import { BaseSchema } from 'yup';
 import { Card, Pagination } from "../types/card";
-import { log } from "../app";
+import { Logger } from "pino";
 
 /**
  * Entry point for all CRUD routes related to cards
@@ -14,6 +14,7 @@ export class CardRouter {
     // YUP schema specification for validation of a Card object
     private readonly schema: BaseSchema;
 
+    private log: Logger;
     /**
      * @swagger
      * components:
@@ -64,18 +65,19 @@ export class CardRouter {
      *           example: 2019-07-22
      */
 
-    constructor() {
-        this.cardController = new CardController();
+    constructor(log: Logger) {
+        this.cardController = new CardController(log);
         this._router = Router();
-        // YUP schema specification for validation of a Card object
+        this.log = log;
 
+        // YUP schema specification for validation of a Card object
         this.schema = yup.object({
             title: yup.string().max(60).required(),
             files: yup.array().of(yup.object({
                 fileId: yup.number().required(),
                 fileName: yup.string()
             })).min(1).required(),
-            tags: yup.string().min(3).required(),
+            tags: yup.array().of(yup.string().min(3)).min(1).required(),
             website: yup.string().max(30).required(),
             username: yup.string().max(30).required()
         });
@@ -92,17 +94,6 @@ export class CardRouter {
         this._router.post('', this.create.bind(this));
         this._router.put('/:cardId', this.update.bind(this));
         this._router.delete('/:cardId', this.delete.bind(this));
-    }
-
-    /**
-     * Error handler for all operations related to card requests
-     * @param error the error that occurred in the application. Can be type related, schema (YUP) related, DB related, etc.
-     * @param res the 500 error response to be returned to the user
-     * @private
-     */
-    private static errorHandler(error: Error, res: Response<any, Record<string, any>>) {
-        log.error(error, "Error occurred in /cards entry point");
-        res.status(500).send({message: error.message});
     }
 
     /**
@@ -159,7 +150,7 @@ export class CardRouter {
      *                 $ref: '#/components/schemas/Card'
      */
     public get(req: Request, response: Response) {
-        log.info(req.query, "Request Query Payload");
+        this.log.info(req.query, "Request Query Payload");
         // parse provided search query as Card object, empty if absent
         const card: Card = JSON.parse(req.query._search ? req.query._search as string : null);
         // parse pagination object in query
@@ -167,13 +158,13 @@ export class CardRouter {
 
         this.cardController.get(card, pagination)
             .then((result) => {
-                    log.debug(result, 'Response Payload');
+                    this.log.debug(result, 'Response Payload');
                     // set the total count header to get the total number of resources matching the condition
                     response.header("X-Total-Count", '' + result.count)
                         .status(200)
                         .send(result.cards)
                 }
-            ).catch((error: Error) => CardRouter.errorHandler(error, response));
+            ).catch((error: Error) => this.errorHandler(error, response));
     }
 
     /**
@@ -204,7 +195,7 @@ export class CardRouter {
      *                   example: 201
      */
     public create(req: Request, res: Response) {
-        log.info(req.body, "Request Body Payload");
+        this.log.info(req.body, "Request Body Payload");
         // check validity of provided card information using defined schema
         this.schema
             .validate(req.body as Card)
@@ -213,7 +204,7 @@ export class CardRouter {
                 .send({
                     message: message
                 }))
-            .catch((error: Error) => CardRouter.errorHandler(error, res));
+            .catch((error: Error) => this.errorHandler(error, res));
     }
 
     /**
@@ -252,7 +243,7 @@ export class CardRouter {
      *                   example: 201
      */
     public update(req: Request, res: Response) {
-        log.info(req.body, "Request Body Payload");
+        this.log.info(req.body, "Request Body Payload");
         // check validity of provided card information using defined schema
         this.schema
             .validate(req.body as Card)
@@ -261,7 +252,7 @@ export class CardRouter {
                 .send({
                     message: message
                 }))
-            .catch((error: Error) => CardRouter.errorHandler(error, res));
+            .catch((error: Error) => this.errorHandler(error, res));
     }
 
     /**
@@ -293,19 +284,27 @@ export class CardRouter {
      *                   example: 201
      */
     public delete(req: Request, res: Response) {
-        log.info(req.params, "Request Parameters Payload");
+        this.log.info(req.params, "Request Parameters Payload");
         this.cardController.delete(Number(req.params.cardId))
             .then((message: string) => res.status(200)
                 .send({
                     message: message
                 }))
-            .catch((error: Error) => CardRouter.errorHandler(error, res));
+            .catch((error: Error) => this.errorHandler(error, res));
+    }
+
+    /**
+     * Error handler for all operations related to card requests
+     * @param error the error that occurred in the application. Can be type related, schema (YUP) related, DB related, etc.
+     * @param res the 500 error response to be returned to the user
+     * @private
+     */
+    private errorHandler(error: Error, res: Response<any, Record<string, any>>) {
+        this.log.error(error, "Error occurred in /cards entry point");
+        res.status(500).send({message: error.message});
     }
 
     get router() {
         return this._router;
     }
 }
-
-export const cardRoutes = new CardRouter();
-cardRoutes.routes();

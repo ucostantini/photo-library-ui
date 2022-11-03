@@ -15,10 +15,7 @@
       </ngx-awesome-uploader>
     </div>
 
-    <mat-form-field appearance="fill" style="padding-top: 36px">
-      <mat-label>Enter tags</mat-label>
-      <input formControlName="tags" matInput placeholder="tech,health,science">
-    </mat-form-field>
+    <app-tags (addTag)="addTag($event)" (removeTag)="removeTag($event)" style="padding-top: 36px"></app-tags>
 
     <fieldset class="scheduler-border">
       <legend class="scheduler-border">Credits</legend>

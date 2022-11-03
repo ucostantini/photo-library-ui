@@ -1,9 +1,7 @@
-import { UploadedFile } from "express-fileupload";
-
 export interface IStorageService {
-    storeFile(file: UploadedFile): Promise<any>;
+  storeFile(fileName: string, fileData: Buffer, fileMimeType: string): Promise<any>;
 
-    getFile(fileName: string): Promise<string>;
+  getFile(fileName: string): Promise<string>;
 
-    removeFile(fileName: string): Promise<void>;
+  removeFile(fileName: string): Promise<void>;
 }

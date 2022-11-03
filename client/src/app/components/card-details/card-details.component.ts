@@ -1,13 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Card, Message } from '../../core/models/card';
+import { Card, CardFile, Message } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { FileService } from "../../core/services/file/file.service";
-import { Lightbox } from "ngx-lightbox";
+import { IAlbum, Lightbox, LightboxConfig } from "ngx-lightbox";
 import { Image } from "angular-responsive-carousel";
+import { HttpErrorResponse } from "@angular/common/http";
+import { forkJoin } from "rxjs";
 
 /**
  * Displays an individual card's information
@@ -20,25 +22,51 @@ import { Image } from "angular-responsive-carousel";
 export class CardDetailsComponent implements OnInit {
   @Input() card: Card;
   thumbnails: Image[] = [];
+  view: boolean = false;
+
+  lightboxFiles: Array<IAlbum> = [];
 
   constructor(public dialog: MatDialog,
               private cardService: CardService,
               private notifService: NotificationService,
               private fileService: FileService,
-              private lightbox: Lightbox) {
+              private lightbox: Lightbox,
+              private lightboxConfig: LightboxConfig) {
+    this.lightboxConfig.containerElementResolver = (doc: Document) => doc.getElementById("list");
+    this.lightboxConfig.fadeDuration = 0;
+    this.lightboxConfig.resizeDuration = 0;
   }
 
+// TODO lightbox not loading pic
+
   /**
-   * Retrieve thumbnail URLs of card's files for angular-responsive-carousel library
+   * Retrieve URLs of card's files for angular-responsive-carousel library and lightbox
    */
   ngOnInit(): void {
+    // TODO find a way to avoid JSON parsing
+    // @ts-ignore
+    this.card.tags = JSON.parse(this.card.tags);
     // @ts-ignore
     JSON.parse(this.card.files).forEach(file =>
-      this.fileService.getThumbnailUrl(file.fileName)
-        .subscribe((thumbnailUrl: string) =>
-          this.thumbnails.push({path: thumbnailUrl})
-        )
+      forkJoin({
+        thumbnailURL: this.fileService.getFileURL('thumb-' + file.fileName),
+        fileURL: this.fileService.getFileURL(file.fileName)
+      }).subscribe({
+        next: (res: { thumbnailURL: string, fileURL: string }) => {
+          this.thumbnails.push({path: res.thumbnailURL});
+          this.lightboxFiles.push({src: res.fileURL, thumb: res.thumbnailURL, caption: this.card.title});
+        },
+        error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
+      })
     );
+  }
+
+  onImageView() {
+    if (this.view) {
+      this.lightbox.open(this.lightboxFiles);
+    } else {
+      this.lightbox.close();
+    }
   }
 
   /**
@@ -53,7 +81,7 @@ export class CardDetailsComponent implements OnInit {
       if (card) {
         this.cardService.update(card).subscribe({
           next: (message: Message) => this.notifService.notifySuccess(message.message),
-          error: (error: Error) => this.notifService.notifyError(error.message)
+          error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
         });
       }
     });
@@ -66,12 +94,14 @@ export class CardDetailsComponent implements OnInit {
    */
   onCardDelete(): void {
     this.dialog.open(CardDeleteComponent, {
-      data: this.card.cardId,
-    }).afterClosed().subscribe((cardId: number) => {
-      if (cardId) {
-        this.cardService.delete(cardId).subscribe({
+      data: this.card,
+    }).afterClosed().subscribe((card: Card) => {
+      if (card) {
+        // TODO what if an error happen here ? Test errors everywhere in app to avoid crashes
+        card.files.forEach((file: CardFile) => this.fileService.removeFileFromId(file.fileId));
+        this.cardService.delete(card.cardId).subscribe({
           next: (message: Message) => this.notifService.notifySuccess(message.message),
-          error: (error: Error) => this.notifService.notifyError(error.message)
+          error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
         });
       }
     });

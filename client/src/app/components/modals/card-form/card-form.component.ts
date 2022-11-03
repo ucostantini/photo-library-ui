@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { Card, CardFile, Status } from '../../../core/models/card';
-import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FileService } from '../../../core/services/file/file.service';
 import { FilePickerComponent, FilePreviewModel } from 'ngx-awesome-uploader';
@@ -35,7 +35,7 @@ export class CardFormComponent implements OnInit {
   private files: CardFile[] = [];
 
   constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
-              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }) {
+              @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }, private fb: FormBuilder) {
   }
 
   /**
@@ -46,28 +46,32 @@ export class CardFormComponent implements OnInit {
     const isSearch = this.data.isSearch;
     this.cardOperation = isSearch ? 'Search' : (inputCard ? 'Edit' : 'Create');
 
-    this.cardForm = new FormGroup({
-      title: new FormControl(inputCard ? inputCard.title : '', !isSearch ? [
+    this.cardForm = this.fb.group({
+      title: [inputCard ? inputCard.title : '', !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(80)] : []
-      ),
-      files: new FormArray(
-        [], !isSearch ? Validators.minLength(1) : []
-      ),
-      // TODO use chips and dropdown autocomplete for tags
-      tags: new FormControl(inputCard ? inputCard.tags : '', !isSearch ? Validators.required : []),
-      website: new FormControl(inputCard ? inputCard.website : '', !isSearch ? [
+      ],
+      files: this.fb.array([], !isSearch ? Validators.minLength(1) : []),
+      tags: this.fb.array([], !isSearch ? [Validators.required, Validators.minLength(1)] : []),
+      website: [inputCard ? inputCard.website : '', !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(30)] : []
-      ),
-      username: new FormControl(inputCard ? inputCard.username : '', !isSearch ? [
+      ],
+      username: [inputCard ? inputCard.username : '', !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(20)] : []
-      )
+      ]
     });
+
+    // pre-complete tags field in card form
+    if (inputCard) {
+      inputCard.tags.forEach((tag: string) => {
+        (this.cardForm.get('tags') as FormArray).push(new FormControl(tag, []));
+      });
+    }
   }
 
   /**
@@ -102,9 +106,16 @@ export class CardFormComponent implements OnInit {
    * @param $event Backend response containing the deleted file ID
    */
   onFileRemoved($event: FilePreviewModel): void {
-    // TODO delete file independently does not work
     this.files = this.files.filter((file: CardFile) => file.fileId !== $event.uploadResponse.fileId);
     const formArray = (this.cardForm.get('files') as FormArray);
     formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) => (item.value as string) === $event.uploadResponse.fileId));
+  }
+
+  addTag($event: string): void {
+    (this.cardForm.get('tags') as FormArray).push(new FormControl($event, []));
+  }
+
+  removeTag($event: number): void {
+    (this.cardForm.get('tags') as FormArray).removeAt($event);
   }
 }

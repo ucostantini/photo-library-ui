@@ -39,14 +39,14 @@ CREATE TABLE IF NOT EXISTS files
 
 /*
 Example for files column : "[{fileId: 45, fileName: "1975_Ford_Thunderbird_2D.jpg"}]"
-Example for tags column : "car,antique,v8,70s"
+Example for tags column : ["car","antique","v8","70s"]"
 */
 
 CREATE VIEW IF NOT EXISTS cards_view AS
 SELECT DISTINCT cardId,
                 title,
                 json_group_array(DISTINCT json_object('fileId', fileId, 'fileName', fileName)) AS files,
-                group_concat(DISTINCT tag)                                                     AS tags,
+                json_group_array(DISTINCT tag)                                                 AS tags,
                 website,
                 username,
                 created,

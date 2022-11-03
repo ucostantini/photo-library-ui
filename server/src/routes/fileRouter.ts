@@ -1,7 +1,8 @@
 import { Request, Response, Router } from 'express';
 import { FileController } from "../core/controllers/fileController";
 import { UploadedFile } from "express-fileupload";
-import { log } from "../app";
+import { Logger } from "pino";
+import { IStorageService } from "../core/IStorageService";
 
 /**
  * Entry point for all CRUD routes related to files
@@ -9,10 +10,12 @@ import { log } from "../app";
 export class FileRouter {
     private readonly _router: Router;
     private readonly fileController: FileController;
+    private log: Logger;
 
-    constructor() {
-        this.fileController = new FileController();
+    constructor(log: Logger, storage: IStorageService) {
+        this.fileController = new FileController(log, storage);
         this._router = Router();
+        this.log = log;
         // configure routes
         this.routes();
     }
@@ -49,12 +52,12 @@ export class FileRouter {
      *               example: http://localhost:9000/photo-library/314.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd
      */
     public get(req: Request, res: Response) {
-        log.debug(req.params, "Request Parameters Payload");
-        this.fileController.get('thumb-' + req.params['fileName']).then((fileUrl: string) => {
-            log.debug(fileUrl, 'Response Payload');
+        this.log.debug(req.params, "Request Parameters Payload");
+        this.fileController.get(req.params['fileName']).then((fileUrl: string) => {
+            this.log.debug(fileUrl, 'Response Payload');
             res.status(200)
                 .send(fileUrl);
-        }).catch(error => FileRouter.errorHandler(error, res));
+        }).catch(error => this.errorHandler(error, res));
     }
 
     /**
@@ -77,11 +80,10 @@ export class FileRouter {
      *               example: 2568
      */
     public create(req: Request, res: Response) {
-        log.debug(req.files, "Request Files Payload");
         this.fileController.create(req.files.file as UploadedFile).then((fileId: number) => {
-            log.debug(fileId, 'Response Payload');
+            this.log.debug(fileId, 'Response Payload');
             res.status(201).send('' + fileId);
-        }).catch(error => FileRouter.errorHandler(error, res));
+        }).catch(error => this.errorHandler(error, res));
     }
 
     /**
@@ -115,15 +117,15 @@ export class FileRouter {
      *                   example: 201
      */
     public delete(req: Request, res: Response) {
-        log.debug(req.params, "Request Parameters Payload");
+        this.log.debug(req.params, "Request Parameters Payload");
         this.fileController.deleteFromId(Number(req.params.fileId)).then((message: string) => {
-            log.debug(message, 'Response Payload');
+            this.log.debug(message, 'Response Payload');
             res.status(201)
                 .send({
                     message: message,
                     status: res.status
                 });
-        }).catch(error => FileRouter.errorHandler(error, res));
+        }).catch(error => this.errorHandler(error, res));
     }
 
     /**
@@ -132,8 +134,8 @@ export class FileRouter {
      * @param res the 500 error response to be returned to the user
      * @private
      */
-    private static errorHandler(error: any, res: Response<any, Record<string, any>>) {
-        log.error(error, "Error occurred in /files entry point");
+    private errorHandler(error: any, res: Response<any, Record<string, any>>) {
+        this.log.error(error, "Error occurred in /files entry point");
         res.status(500).json({error: error.toString()});
     }
 
@@ -141,6 +143,3 @@ export class FileRouter {
         return this._router;
     }
 }
-
-export const fileRoutes = new FileRouter();
-fileRoutes.routes();

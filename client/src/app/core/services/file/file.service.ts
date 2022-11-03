@@ -58,7 +58,11 @@ export class FileService extends FilePickerAdapter {
    * @param fileItem The file to be deleted
    */
   public removeFile(fileItem: FilePreviewModel): Observable<any> {
-    return this.http.delete(`${baseURL}/${fileItem.uploadResponse.fileId}`);
+    return this.http.delete(`${baseURL}/${fileItem.uploadResponse}`);
+  }
+
+  public removeFileFromId(fileId: number): Observable<any> {
+    return this.http.delete(`${baseURL}/${fileId}`);
   }
 
   /**
@@ -69,10 +73,10 @@ export class FileService extends FilePickerAdapter {
   }
 
   /**
-   * @param fileName The file's name to retrieve the thumbnail from
-   * @returns The thumbnail's URL
+   * @param fileName The file's name to retrieve the URL from
+   * @returns The file's URL
    */
-  public getThumbnailUrl(fileName: string): Observable<string> {
+  public getFileURL(fileName: string): Observable<string> {
     return this.http.get(`${baseURL}/${fileName}`, {responseType: 'text'});
   }
 }

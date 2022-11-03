@@ -3,6 +3,21 @@
   margin: 16px;
 }
 
+.toggle-menu {
+  margin-right: 0;
+  margin-left: auto
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  column-gap: 4px;
+}
+
+.tags mat-label {
+  flex-shrink: 0;
+}
+
 ::ng-deep {
   .mat-menu-item {
     text-align: center;

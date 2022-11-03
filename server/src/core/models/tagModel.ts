@@ -1,20 +1,23 @@
-import { db } from "../../app";
+import { app } from "../../app";
+import { SqliteStrategy } from "../dbUtils/sqliteStrategy";
 
 export class TagModel {
 
-    constructor(private cardId: number, private tags: string) {
+    private db: SqliteStrategy = app.get('db');
+
+    constructor(private cardId: number, private tags: string[]) {
     }
 
     public create(): void {
-        db.tagCreate(this.cardId, this.tags.toLowerCase().split(','));
+        this.db.tagCreate(this.cardId, this.tags);
     }
 
     public update(): void {
-        db.tagDelete(this.cardId);
+        this.db.tagDelete(this.cardId);
         this.create();
     }
 
     public delete(): void {
-        db.tagDelete(this.cardId);
+        this.db.tagDelete(this.cardId);
     }
 }

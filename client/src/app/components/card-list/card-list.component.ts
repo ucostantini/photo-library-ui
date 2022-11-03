@@ -22,7 +22,7 @@ export class CardListComponent implements OnInit {
 
   constructor(private cardService: CardService) {
   }
-
+// TODO use Masonry desandro
   ngOnInit(): void {
     this.isLoading = true;
     this.listenToCardListChanges();

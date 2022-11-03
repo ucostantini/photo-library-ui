@@ -13,7 +13,7 @@ export interface Card {
   cardId?: number;
   title: string;
   files: CardFile[];
-  tags: string;
+  tags: string[];
   website: string;
   username: string;
   created?: Date;

@@ -30,6 +30,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IvyCarouselModule } from 'angular-responsive-carousel';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LightboxModule } from "ngx-lightbox";
+import { MatChipsModule } from "@angular/material/chips";
+import { MatAutocompleteModule } from "@angular/material/autocomplete";
+import { TagsComponent } from './components/tags/tags.component';
 
 @NgModule({
   declarations: [
@@ -38,7 +41,8 @@ import { LightboxModule } from "ngx-lightbox";
     CardFormComponent,
     CardListComponent,
     CardDetailsComponent,
-    CardDeleteComponent
+    CardDeleteComponent,
+    TagsComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -64,7 +68,9 @@ import { LightboxModule } from "ngx-lightbox";
     MatSidenavModule,
     MatSnackBarModule,
     MatProgressSpinnerModule,
-    IvyCarouselModule
+    IvyCarouselModule,
+    MatChipsModule,
+    MatAutocompleteModule
   ],
   providers: [CardService],
   bootstrap: [AppComponent]

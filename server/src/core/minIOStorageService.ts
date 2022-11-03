@@ -1,6 +1,6 @@
 import { Client, ClientOptions } from 'minio';
-import { UploadedFile } from "express-fileupload";
 import { IStorageService } from './IStorageService';
+
 
 export class MinIOStorageService implements IStorageService {
     private minio: Client = new Client({
@@ -11,8 +11,8 @@ export class MinIOStorageService implements IStorageService {
         secretKey: process.env.MINIO_SECRET_KEY
     } as ClientOptions);
 
-    public storeFile(file: UploadedFile): Promise<any> {
-        return this.minio.putObject(process.env.MINIO_BUCKET_NAME, file.name, file.data, undefined, {'Content-Type': file.mimetype});
+    public storeFile(fileName: string, fileData: Buffer, fileMimeType: string): Promise<any> {
+        return this.minio.putObject(process.env.MINIO_BUCKET_NAME, fileName, fileData, undefined, {'Content-Type': fileMimeType});
     }
 
     public getFile(fileName: string): Promise<string> {

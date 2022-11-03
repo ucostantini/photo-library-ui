@@ -1,37 +1,40 @@
 import { Card, CardFile, CardResult, Pagination } from "../../types/card";
-import { db } from "../../app";
+import { app } from "../../app";
+import { SqliteStrategy } from "../dbUtils/sqliteStrategy";
 
 //TODO refactor DB access logic
 export class CardModel {
+
+    private db: SqliteStrategy = app.get('db');
 
     constructor(private card: Card) {
     }
 
     public getFilesByCardId(): Promise<CardFile[]> {
-        return db.cardGetFilesByCardId(this.card.cardId);
+        return this.db.cardGetFilesByCardId(this.card.cardId);
     }
 
     public getAll(query: Pagination): Promise<CardResult> {
-        return db.cardGetAll(query);
+        return this.db.cardGetAll(query);
     }
 
     public getSearch(query: Pagination): Promise<CardResult> {
-        return db.cardSearch(this.card, query);
+        return this.db.cardSearch(this.card, query);
     }
 
     public exists(): Promise<void> {
-        return db.cardExists(this.card.files);
+        return this.db.cardExists(this.card.files);
     }
 
     public create(): Promise<number> {
-        return db.cardCreate(this.card);
+        return this.db.cardCreate(this.card);
     }
 
     public update(): void {
-        db.cardUpdate(this.card);
+        this.db.cardUpdate(this.card);
     }
 
     public delete(): void {
-        db.cardDelete(this.card.cardId);
+        this.db.cardDelete(this.card.cardId);
     }
 }

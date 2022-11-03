@@ -11,14 +11,13 @@ export interface Card {
     cardId?: number;
     title?: string;
     files?: CardFile[];
-    tags?: string;
+    tags?: string[];
     website?: string;
     username?: string;
     created?: Date;
     modified?: Date;
 }
 
-// TODO generify sorting options
 export interface Pagination {
     _page: number;
     _limit: number;
