@@ -1,9 +1,10 @@
-import { FileModel } from "../models/fileModel";
 import { UploadedFile } from "express-fileupload";
 import { CardFile } from "../../types/card";
 import { IStorageService } from "../IStorageService";
 import { Logger } from "pino";
 import sharp, { Sharp } from "sharp";
+import { IFileRepository } from "../repositories/IFileRepository";
+import { MD5 } from "crypto-js";
 
 /**
  * Controller of CRUD operations related to files
@@ -11,12 +12,7 @@ import sharp, { Sharp } from "sharp";
  */
 export class FileController {
 
-    private log: Logger;
-    private storage: IStorageService;
-
-    constructor(log: Logger, storage: IStorageService) {
-        this.log = log;
-        this.storage = storage;
+    constructor(private log: Logger, private storage: IStorageService, private fileRepository: IFileRepository) {
     }
 
     /**
@@ -24,7 +20,7 @@ export class FileController {
      * @param fileName name of the file to be retrieved, e.g. : 1975_Ford_Thunderbird_2D.jpg
      * @return an URL leading to the requested file
      */
-    public async get(fileName: string): Promise<string> {
+    public get(fileName: string): Promise<string> {
         this.log.debug('Get object from storage service for %s', fileName);
         return this.storage.getFile(fileName);
     }
@@ -34,30 +30,32 @@ export class FileController {
      * @param file the file to be stored
      * @return the generated ID of the provided file
      */
-    public async create(file: UploadedFile): Promise<number> {
+    public create(file: UploadedFile): Promise<number> {
         return new Promise<number>(async (resolve, reject) => {
             try {
-                // 1. Store file's metadata in DB and retrieve file ID
-                const fileDB: CardFile = await new FileModel(null, []).create('jpg');
-
-                // 2. Convert the file to jpg and compress it
+                // 1. Convert the file to jpg and compress it
+                // TODO chek JPEG quality, do tests
                 const convertedFile: Sharp = sharp(file.data).jpeg({mozjpeg: true, quality: 80});
                 const fileData: Buffer = await convertedFile.toBuffer();
+                const fileHash: string = MD5(fileData.toString('base64')).toString();
+
+                // 2. Store file's metadata in DB and retrieve file ID and name if not already exist
+                const fileDB: CardFile = this.fileRepository.create({fileName: fileHash, fileId: null}).files[0];
 
                 // 3. Store file with service
                 this.log.debug('Put file in storage service for %s', file.name);
                 file.name = fileDB.fileName;
                 await this.storage.storeFile(file.name, fileData, "image/jpeg");
 
-                // 3. Create thumbnail using image-thumbnail library then store it
+                // 4. Create thumbnail using image-thumbnail library then store it
                 this.log.debug('Create thumbnail for file and store it');
                 const thumbnailData: Buffer = await convertedFile.resize(400).toBuffer();
                 file.name = 'thumb-' + file.name;
                 await this.storage.storeFile(file.name, thumbnailData, "image/jpeg");
 
                 resolve(fileDB.fileId);
-            } catch (err) {
-                reject(err);
+            } catch (error) {
+                reject(error);
             }
         });
     }
@@ -66,20 +64,21 @@ export class FileController {
      * Remove file from DB and storage
      * @param fileId The file's id
      */
-    public async deleteFromId(fileId: number): Promise<string> {
+    public deleteFromId(fileId: number): Promise<string> {
         return new Promise<string>(async (resolve, reject) => {
             try {
                 // remove file metadata from DB
-                const fm = new FileModel(null, [{fileId: fileId}]);
-                const fileName = await fm.getFileName();
-                fm.delete();
+                const file: CardFile = this.fileRepository.read({fileName: "", fileId: fileId}).files[0];
+                this.fileRepository.delete(file);
 
-                await this.storage.removeFile(fileName);
-                await this.storage.removeFile('thumb-' + fileName);
+                // remove file data from storage
+                this.log.debug('Remove file from storage service for %s', file.fileName);
+                await this.storage.removeFile(file.fileName);
+                await this.storage.removeFile('thumb-' + file.fileName);
 
                 resolve('File was successfully removed');
-            } catch (err) {
-                reject(err);
+            } catch (error) {
+                reject(error);
             }
         });
     }

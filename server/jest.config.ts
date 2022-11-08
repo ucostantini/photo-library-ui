@@ -10,7 +10,7 @@ const config: Config.InitialOptions = {
   //  verbose: true,
   setupFilesAfterEnv: ["jest-extended/all"],
   collectCoverageFrom: ["src/**/*.ts"],
-  coveragePathIgnorePatterns: ["index.ts", "express-flash-plus.d.ts"],
+  coveragePathIgnorePatterns: ["index.ts"],
 
   globals: {
     'ts-jest': {

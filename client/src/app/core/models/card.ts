@@ -34,6 +34,10 @@ export interface CardResult {
   pagination: Pagination
 }
 
+export interface TagResult {
+  tags: string[]
+}
+
 export interface Message {
   message: string;
 }
@@ -42,8 +46,8 @@ export interface Message {
  * Sorting options of the app
  */
 export interface Sorting {
-  sort: 'created' | 'title' | 'rank';
-  order: 'asc' | 'desc';
+  sort: number;
+  order: number;
 }
 
 export type Status = 'Create' | 'Edit' | 'Search';

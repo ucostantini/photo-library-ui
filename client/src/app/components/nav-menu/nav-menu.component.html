@@ -20,16 +20,16 @@
           <div>
             <mat-label class="mat-menu-item">Sort by:</mat-label>
             <mat-radio-group formControlName="sort">
-              <mat-radio-button class="mat-menu-item" value="created">Date</mat-radio-button>
-              <mat-radio-button class="mat-menu-item" value="title">Title</mat-radio-button>
-              <mat-radio-button class="mat-menu-item" value="rank">Relevance</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value=0>Date created</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value=1>Title</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value=2>Relevance</mat-radio-button>
             </mat-radio-group>
           </div>
           <div>
             <mat-label class="mat-menu-item">Order by:</mat-label>
             <mat-radio-group formControlName="order">
-              <mat-radio-button class="mat-menu-item" value="asc">Ascending</mat-radio-button>
-              <mat-radio-button class="mat-menu-item" value="desc">Descending</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value=0>Ascending</mat-radio-button>
+              <mat-radio-button class="mat-menu-item" value=1>Descending</mat-radio-button>
             </mat-radio-group>
           </div>
           <button class="mat-menu-item text-center" color="primary" form="sort" mat-raised-button

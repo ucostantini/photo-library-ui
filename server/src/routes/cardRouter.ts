@@ -2,8 +2,10 @@ import { Request, Response, Router } from 'express';
 import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
 import { BaseSchema } from 'yup';
-import { Card, Pagination } from "../types/card";
+import { Card, CardForm, CardRequest, Pagination } from "../types/card";
 import { Logger } from "pino";
+import { ICardRepository } from "../core/repositories/ICardRepository";
+import { ITagRepository } from "../core/repositories/ITagRepository";
 
 /**
  * Entry point for all CRUD routes related to cards
@@ -14,7 +16,6 @@ export class CardRouter {
     // YUP schema specification for validation of a Card object
     private readonly schema: BaseSchema;
 
-    private log: Logger;
     /**
      * @swagger
      * components:
@@ -65,14 +66,13 @@ export class CardRouter {
      *           example: 2019-07-22
      */
 
-    constructor(log: Logger) {
-        this.cardController = new CardController(log);
+    constructor(private log: Logger, private cardRepository: ICardRepository, private tagRepository: ITagRepository) {
+        this.cardController = new CardController(log, cardRepository, tagRepository);
         this._router = Router();
-        this.log = log;
 
         // YUP schema specification for validation of a Card object
         this.schema = yup.object({
-            title: yup.string().max(60).required(),
+            title: yup.string().max(60),
             files: yup.array().of(yup.object({
                 fileId: yup.number().required(),
                 fileName: yup.string()
@@ -82,7 +82,6 @@ export class CardRouter {
             username: yup.string().max(30).required()
         });
 
-        // configure routes
         this.routes();
     }
 
@@ -152,11 +151,11 @@ export class CardRouter {
     public get(req: Request, response: Response) {
         this.log.info(req.query, "Request Query Payload");
         // parse provided search query as Card object, empty if absent
-        const card: Card = JSON.parse(req.query._search ? req.query._search as string : null);
+        const card: CardRequest = JSON.parse(req.query._search ? req.query._search as string : null);
         // parse pagination object in query
         const pagination: Pagination = JSON.parse(req.query._pagination as string);
 
-        this.cardController.get(card, pagination)
+        this.cardController.get({card: card, pagination: pagination} as CardForm)
             .then((result) => {
                     this.log.debug(result, 'Response Payload');
                     // set the total count header to get the total number of resources matching the condition
@@ -196,10 +195,11 @@ export class CardRouter {
      */
     public create(req: Request, res: Response) {
         this.log.info(req.body, "Request Body Payload");
+        const card: CardRequest = req.body;
         // check validity of provided card information using defined schema
         this.schema
-            .validate(req.body as Card)
-            .then(() => this.cardController.create(req.body as Card))
+            .validate(card)
+            .then(() => this.cardController.create({card: card, pagination: null} as CardForm))
             .then((message: string) => res.status(201)
                 .send({
                     message: message
@@ -244,10 +244,11 @@ export class CardRouter {
      */
     public update(req: Request, res: Response) {
         this.log.info(req.body, "Request Body Payload");
+        const card: CardRequest = req.body;
         // check validity of provided card information using defined schema
         this.schema
             .validate(req.body as Card)
-            .then(() => this.cardController.update(req.body as Card))
+            .then(() => this.cardController.update({card: card, pagination: null} as CardForm))
             .then((message: string) => res.status(200)
                 .send({
                     message: message

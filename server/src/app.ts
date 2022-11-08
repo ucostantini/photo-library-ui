@@ -4,31 +4,30 @@ import dotenv from 'dotenv';
 import fileUpload from "express-fileupload";
 import cors from 'cors';
 import pino, { Logger } from "pino";
-import { IDBStrategy } from "./core/dbUtils/dbStrategy";
 import { DBClient, StorageService } from './types/card';
 import * as swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
 import { IStorageService } from './core/IStorageService';
 import { CardRouter } from "./routes/cardRouter";
 import { FileRouter } from "./routes/fileRouter";
+import { TagRouter } from "./routes/tagRouter";
+import { ICardRepository } from "./core/repositories/ICardRepository";
+import { IFileRepository } from "./core/repositories/IFileRepository";
+import { ITagRepository } from "./core/repositories/ITagRepository";
 
 /**
  * Represents the whole Express Application
  */
 class App {
 
-    // node.js application
     public expressApp: express.Application;
-
-    private db: IDBStrategy;
-    private storage: IStorageService;
-    private log: Logger;
+    private readonly storage: IStorageService;
+    private readonly log: Logger;
 
     constructor() {
         this.expressApp = express();
         dotenv.config();
-        // initialize DB connection and storage service based on .env value
-        this.db = new (DBClient[process.env.DB_CLIENT])();
+        // initialize storage service based on .env value
         this.storage = new (StorageService[process.env.STORAGE_SERVICE])();
 
         this.log = pino({
@@ -41,9 +40,6 @@ class App {
             level: process.env.LOG_LEVEL || 'info'
         });
 
-        this.expressApp.set('log', this.log);
-        this.expressApp.set('db', this.db);
-        this.expressApp.set('storage', this.storage);
         this.middleware();
         this.routes();
     }
@@ -82,14 +78,25 @@ class App {
     private routes(): void {
         this.expressApp.get('/', (_req, res) => res.redirect('/'));
 
-        const cardRouter = new CardRouter(this.log);
-        const fileRouter = new FileRouter(this.log, this.storage);
+        /*
+
+       new (DBClient[process.env.DB_CLIENT][2])() is magic
+         */
+        const cardRepository: ICardRepository = new (DBClient[process.env.DB_CLIENT][0])();
+        const fileRepository: IFileRepository = new (DBClient[process.env.DB_CLIENT][1])();
+        const tagRepository: ITagRepository = new (DBClient[process.env.DB_CLIENT][2])();
+
+        const cardRouter = new CardRouter(this.log, cardRepository, tagRepository);
+        const fileRouter = new FileRouter(this.log, this.storage, fileRepository);
+        const tagRouter = new TagRouter(tagRepository);
 
         cardRouter.routes();
         fileRouter.routes();
+        tagRouter.routes();
 
         this.expressApp.use('/cards', cardRouter.router);
         this.expressApp.use('/files', fileRouter.router);
+        this.expressApp.use('/tags', tagRouter.router);
     }
 }
 

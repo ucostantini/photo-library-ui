@@ -1,8 +1,7 @@
-import { FileModel } from '../models/fileModel';
-import { CardModel } from '../models/cardModel';
-import { TagModel } from "../models/tagModel";
-import { Card, CardResult, Pagination } from "../../types/card";
+import { CardForm, CardResult, Pagination } from "../../types/card";
 import { Logger } from "pino";
+import { ICardRepository } from "../repositories/ICardRepository";
+import { ITagRepository } from "../repositories/ITagRepository";
 
 /**
  * Controller of CRUD operations related to cards
@@ -10,10 +9,9 @@ import { Logger } from "pino";
  */
 export class CardController {
 
-    private log: Logger;
-
-    constructor(log: Logger) {
-        this.log = log;
+    constructor(private log: Logger,
+                private cardRepository: ICardRepository,
+                private tagRepository: ITagRepository) {
     }
 
     /**
@@ -22,27 +20,17 @@ export class CardController {
      * @param pagination query pagination with page number and number of resources to be returned
      * @return promise containing the result values, or an error
      */
-    get(search: Card, pagination: Pagination): Promise<CardResult> {
-        // wrap result in Promise so we can await the DB request
+    get(card: CardForm): Promise<CardResult> {
         return new Promise(async (resolve, reject) => {
             try {
-                const cardModel = new CardModel(search);
-                /*
-                    transform page into pagination offset for DB query
-                    e.g. :
-                    page = 3, limit = 25
-                    --> offset = (25 * 3) - 25 = 50
-                */
-                if (pagination._page !== 0)
-                    pagination._page = pagination._limit * pagination._page;
-
+                card.pagination = this.pageToOffset(card.pagination);
                 let res: CardResult;
-                if (search === null) {
+                if (card.card === null) {
                     // home page request, return all cards
-                    res = await cardModel.getAll(pagination);
+                    res = this.cardRepository.readAll(card);
                 } else {
-                    // return cards matching the conditions provided in the search card object
-                    res = await cardModel.getSearch(pagination);
+                    // return cards matching the values provided in the card object
+                    res = this.cardRepository.read(card);
                 }
                 resolve(res);
             } catch (error) {
@@ -55,39 +43,31 @@ export class CardController {
      * Create new card based on provided data
      * @param card provided card information, must pass YUP schema specifications
      */
-    public create(card: Card): Promise<string> {
+    public create(card: CardForm): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            const cardModel = new CardModel(card);
-            cardModel.create()
-                .then(insertedCardId => {
-                    this.log.debug(insertedCardId, 'Link files and tags for following cardId');
-                    new FileModel(insertedCardId, card.files).link();
-                    new TagModel(insertedCardId, card.tags).create();
-                    resolve('Card successfully created');
-                })
-                .catch((error: Error) => {
-                    reject(error);
-                });
+            try {
+                this.cardRepository.create(card);
+                this.tagRepository.create(card);
+                resolve('Card successfully created');
+            } catch (error) {
+                reject(error);
+            }
         });
-
     }
 
     /**
      * Update existing card based on provided data
      * @param card provided card data, must pass YUP schema specifications
      */
-    public update(card: Card): Promise<string> {
+    public update(card: CardForm): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            const cardModel = new CardModel(card);
-            // TODO use hash to compare images
-            cardModel.exists().then(() => {
-                // if card does not already exist, update card data, files and tags
-                cardModel.update();
-                new TagModel(card.cardId, card.tags).update();
+            try {
+                this.cardRepository.update(card);
+                this.tagRepository.update(card);
                 resolve('Card successfully updated');
-            }).catch((error: Error) => {
+            } catch (error) {
                 reject(error);
-            });
+            }
         });
     }
 
@@ -97,11 +77,27 @@ export class CardController {
      */
     public delete(cardId: number): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            const cardModel = new CardModel({cardId: cardId});
-            cardModel.delete();
-            // delete linked tags
-            new TagModel(cardId, []).delete();
-            resolve('Card successfully deleted');
+            try {
+                const form: CardForm = {card: {cardId: cardId}, pagination: null};
+                this.cardRepository.delete(form);
+                this.tagRepository.delete(form);
+                resolve('Card successfully deleted');
+            } catch (error) {
+                reject(error);
+            }
         });
+    }
+
+    /**
+     * transform page to offset for DB query
+     * N.B. : offset means that the x first rows will be skipped
+     * @example page = 3, limit = 25 --> offset = (3 * 25) = 75
+     * @param pagination
+     * @private
+     */
+    private pageToOffset(pagination: Pagination): Pagination {
+        if (pagination._page !== 0)
+            pagination._page = pagination._limit * pagination._page;
+        return pagination;
     }
 }

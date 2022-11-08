@@ -23,8 +23,10 @@ export class CardDetailsComponent implements OnInit {
   @Input() card: Card;
   thumbnails: Image[] = [];
   view: boolean = false;
+  // TODO set to false when lightbox is closed, subscribe to lightbox events
+  // TODO open image with index lightbox directly
 
-  lightboxFiles: Array<IAlbum> = [];
+  lightboxFiles: IAlbum[] = [];
 
   constructor(public dialog: MatDialog,
               private cardService: CardService,
@@ -33,11 +35,13 @@ export class CardDetailsComponent implements OnInit {
               private lightbox: Lightbox,
               private lightboxConfig: LightboxConfig) {
     this.lightboxConfig.containerElementResolver = (doc: Document) => doc.getElementById("list");
-    this.lightboxConfig.fadeDuration = 0;
-    this.lightboxConfig.resizeDuration = 0;
-  }
+    this.lightboxConfig.showZoom = true;
+    this.lightboxConfig.showDownloadButton = true;
+    this.lightboxConfig.showImageNumberLabel = true;
 
-// TODO lightbox not loading pic
+    // TODO disable scrolling does not work, lightbox background shade does not fill page entirely
+    this.lightboxConfig.disableScrolling = true;
+  }
 
   /**
    * Retrieve URLs of card's files for angular-responsive-carousel library and lightbox
@@ -54,7 +58,12 @@ export class CardDetailsComponent implements OnInit {
       }).subscribe({
         next: (res: { thumbnailURL: string, fileURL: string }) => {
           this.thumbnails.push({path: res.thumbnailURL});
-          this.lightboxFiles.push({src: res.fileURL, thumb: res.thumbnailURL, caption: this.card.title});
+          this.lightboxFiles.push({
+            src: res.fileURL,
+            thumb: res.thumbnailURL,
+            caption: this.card.title,
+            downloadUrl: res.fileURL
+          });
         },
         error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
       })

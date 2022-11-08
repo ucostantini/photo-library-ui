@@ -9,8 +9,10 @@
                       [card]="card">
     </app-card-details>
   </div>
+  <!--TODO can't see list completely-->
   <mat-paginator (page)="onPageChange($event)"
                  [length]=this.pagination.pageLength
+                 [pageIndex]="this.pagination.pageIndex"
                  [showFirstLastButtons]="true"
                  [pageSizeOptions]="[10, 25, 50, 100]"
                  [pageSize]="this.pagination.pageSize"

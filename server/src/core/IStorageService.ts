@@ -1,7 +1,7 @@
 export interface IStorageService {
-  storeFile(fileName: string, fileData: Buffer, fileMimeType: string): Promise<any>;
+  storeFile(name: string, data: Buffer, mimeType: string): Promise<any>;
 
-  getFile(fileName: string): Promise<string>;
+  getFile(name: string): Promise<string>;
 
-  removeFile(fileName: string): Promise<void>;
+  removeFile(name: string): Promise<void>;
 }

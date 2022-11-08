@@ -47,10 +47,8 @@ export class CardFormComponent implements OnInit {
     this.cardOperation = isSearch ? 'Search' : (inputCard ? 'Edit' : 'Create');
 
     this.cardForm = this.fb.group({
-      title: [inputCard ? inputCard.title : '', !isSearch ? [
-        Validators.required,
-        Validators.minLength(3),
-        Validators.maxLength(80)] : []
+      title: [inputCard ? inputCard.title : '', [
+        Validators.maxLength(80)]
       ],
       files: this.fb.array([], !isSearch ? Validators.minLength(1) : []),
       tags: this.fb.array([], !isSearch ? [Validators.required, Validators.minLength(1)] : []),

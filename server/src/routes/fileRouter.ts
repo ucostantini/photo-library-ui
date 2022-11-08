@@ -3,6 +3,7 @@ import { FileController } from "../core/controllers/fileController";
 import { UploadedFile } from "express-fileupload";
 import { Logger } from "pino";
 import { IStorageService } from "../core/IStorageService";
+import { IFileRepository } from "../core/repositories/IFileRepository";
 
 /**
  * Entry point for all CRUD routes related to files
@@ -10,13 +11,10 @@ import { IStorageService } from "../core/IStorageService";
 export class FileRouter {
     private readonly _router: Router;
     private readonly fileController: FileController;
-    private log: Logger;
 
-    constructor(log: Logger, storage: IStorageService) {
-        this.fileController = new FileController(log, storage);
+    constructor(private log: Logger, storage: IStorageService, private fileRepository: IFileRepository) {
+        this.fileController = new FileController(log, storage, fileRepository);
         this._router = Router();
-        this.log = log;
-        // configure routes
         this.routes();
     }
 

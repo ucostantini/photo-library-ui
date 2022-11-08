@@ -133,7 +133,7 @@ export class NavMenuComponent implements OnInit {
    * @private
    */
   private paginationReset(): void {
-    this.selectedSorting = {sort: 'created', order: 'asc'};
+    this.selectedSorting = {sort: 0, order: 0};
     this.selectedPagination = {pageIndex: 0, pageSize: 10};
   }
 }
