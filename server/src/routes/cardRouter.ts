@@ -2,10 +2,11 @@ import { Request, Response, Router } from 'express';
 import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
 import { BaseSchema } from 'yup';
-import { Card, CardForm, CardRequest, Pagination } from "../types/card";
+import { CardForm, CardRequest, Pagination } from "../types/card";
 import { Logger } from "pino";
 import { ICardRepository } from "../core/repositories/ICardRepository";
 import { ITagRepository } from "../core/repositories/ITagRepository";
+import { FileController } from "../core/controllers/fileController";
 
 /**
  * Entry point for all CRUD routes related to cards
@@ -66,17 +67,15 @@ export class CardRouter {
      *           example: 2019-07-22
      */
 
-    constructor(private log: Logger, private cardRepository: ICardRepository, private tagRepository: ITagRepository) {
-        this.cardController = new CardController(log, cardRepository, tagRepository);
+    constructor(private log: Logger, cardRepository: ICardRepository, tagRepository: ITagRepository, fileController: FileController) {
+        this.cardController = new CardController(cardRepository, tagRepository, fileController);
         this._router = Router();
 
         // YUP schema specification for validation of a Card object
         this.schema = yup.object({
             title: yup.string().max(60),
-            files: yup.array().of(yup.object({
-                fileId: yup.number().required(),
-                fileName: yup.string()
-            })).min(1).required(),
+            files: yup.array().of(yup.number().required()).min(1).required(),
+            fileContent: yup.string(),
             tags: yup.array().of(yup.string().min(3)).min(1).required(),
             website: yup.string().max(30).required(),
             username: yup.string().max(30).required()
@@ -247,7 +246,7 @@ export class CardRouter {
         const card: CardRequest = req.body;
         // check validity of provided card information using defined schema
         this.schema
-            .validate(req.body as Card)
+            .validate(card)
             .then(() => this.cardController.update({card: card, pagination: null} as CardForm))
             .then((message: string) => res.status(200)
                 .send({
@@ -302,7 +301,7 @@ export class CardRouter {
      */
     private errorHandler(error: Error, res: Response<any, Record<string, any>>) {
         this.log.error(error, "Error occurred in /cards entry point");
-        res.status(500).send({message: error.message});
+        res.status(500).send(error.message);
     }
 
     get router() {

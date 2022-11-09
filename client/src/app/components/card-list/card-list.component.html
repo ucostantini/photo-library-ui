@@ -2,14 +2,15 @@
   Loading...
 </div>
 <div *ngIf="!isLoading">
-  <h1 *ngIf="pagination.pageLength" style="padding: 16px">{{ pagination.pageLength }} results found</h1>
+  <h1 *ngIf="pagination.pageLength" style="padding: 16px; text-align: center">{{ pagination.pageLength }} results
+    found</h1>
 
   <div class="content">
     <app-card-details *ngFor="let card of cards"
                       [card]="card">
     </app-card-details>
   </div>
-  <!--TODO can't see list completely-->
+
   <mat-paginator (page)="onPageChange($event)"
                  [length]=this.pagination.pageLength
                  [pageIndex]="this.pagination.pageIndex"

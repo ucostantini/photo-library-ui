@@ -61,22 +61,8 @@ export class FileService extends FilePickerAdapter {
     return this.http.delete(`${baseURL}/${fileItem.uploadResponse}`);
   }
 
-  public removeFileFromId(fileId: number): Observable<any> {
-    return this.http.delete(`${baseURL}/${fileId}`);
+  public removeFileFromCardId(cardId: number): Observable<any> {
+    return this.http.delete(`${baseURL}/${cardId}`);
   }
 
-  /**
-   * @ignore
-   */
-  public downloadFile(url: string): void {
-    window.location.href = url;
-  }
-
-  /**
-   * @param fileName The file's name to retrieve the URL from
-   * @returns The file's URL
-   */
-  public getFileURL(fileName: string): Observable<string> {
-    return this.http.get(`${baseURL}/${fileName}`, {responseType: 'text'});
-  }
 }

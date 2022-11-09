@@ -1,21 +1,23 @@
 import { ICardRepository } from "../ICardRepository";
-import { Card, CardFile, CardForm, CardRequest, CardResult, Order, Sort } from "../../../types/card";
+import { Card, CardForm, CardRequest, CardResult, Order, Pagination, Sort } from "../../../types/card";
 import Database, { Statement } from "better-sqlite3";
 import { Logger } from "pino";
 
 export class SqliteCardRepository implements ICardRepository {
     private db: Database.Database;
 
+    // TODO replace FTS populate with triggers
+
     constructor(private log: Logger) {
         if (process.env.LOG_LEVEL === 'debug') {
-            this.db = new Database(process.env.DB_PATH, {verbose: (stmt: string) => console.log(stmt)});
+            this.db = new Database(process.env.DB_PATH, {verbose: console.log});
         } else {
             this.db = new Database(process.env.DB_PATH);
         }
     }
 
     create(entity: CardForm): CardResult {
-        const card = entity.card;
+        const card: CardRequest = entity.card;
         // insert data related to card
         Object.assign(card, this.db.prepare('INSERT INTO cards(title,website,username) VALUES(?,?,?) RETURNING ROWID')
             .get(card.title, card.website, card.username));
@@ -25,34 +27,27 @@ export class SqliteCardRepository implements ICardRepository {
 
         // link card with its files
         let statement: Statement = this.db.prepare('UPDATE files SET cardId = ? WHERE fileId = ?');
-        entity.card.files.forEach((file: CardFile) => {
-            statement.run(entity.card.cardId, file.fileId);
-        });
+        entity.card.files.forEach(file => statement.run(entity.card.cardId, file));
 
-        return {cards: [card as Card], count: 1};
+        return {cards: [], count: 1};
     }
 
     delete(entity: CardForm): void {
-        const id = entity.card.cardId;
+        const id: number = entity.card.cardId;
         // delete from main table
         this.db.prepare('DELETE FROM cards WHERE cardId = ?').run(id)
-        // delete from full text search table
-        this.db.prepare('DELETE FROM cards_fts WHERE cardId = ?').run(id);
     }
 
     read(entity: CardForm): CardResult {
-        const matchFTS = this.prepareFTSMatchStatement(entity.card);
-        const pagination = entity.pagination;
+        const matchFTS: string = this.prepareFTSMatchStatement(entity.card);
+        const pagination: Pagination = entity.pagination;
 
-        console.log('SELECT DISTINCT cards_view.* FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
-            '           ORDER BY cards_view.' + Sort[pagination._sort] + ' ' + Order[pagination._order] + ' LIMIT ? OFFSET ?');
+        const cards: Card[] = this.db.prepare('SELECT DISTINCT cards_view.* FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId INNER JOIN files_fts ON files_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ? AND files_fts MATCH ?' +
+            ` ORDER BY cards_view.${Sort[pagination._sort]} ${Order[pagination._order]} LIMIT ? OFFSET ?`)
+            .all(matchFTS, matchFTS, pagination._limit, pagination._page);
 
-        const cards: Card[] = this.db.prepare('SELECT DISTINCT cards_view.* FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
-            '           ORDER BY cards_view.' + Sort[pagination._sort] + ' ' + Order[pagination._order] + ' LIMIT ? OFFSET ?')
-            .all(matchFTS, pagination._limit, pagination._page);
-
-        const count: number = this.db.prepare('SELECT DISTINCT COUNT(cardId) AS count FROM cards_fts WHERE cards_fts MATCH ?')
-            .get(matchFTS);
+        const count: number = this.db.prepare('SELECT DISTINCT COUNT(cardId) AS count FROM cards_fts NATURAL JOIN files_fts WHERE cards_fts MATCH ? AND files_fts MATCH ?')
+            .get(matchFTS, matchFTS);
 
         return {cards: cards, count: count};
     }
@@ -60,7 +55,7 @@ export class SqliteCardRepository implements ICardRepository {
     readAll(entity: CardForm): CardResult {
         const pagination = entity.pagination;
 
-        const cards: Card[] = this.db.prepare('SELECT * FROM cards_view ORDER BY ' + Sort[pagination._sort] + ' ' + Order[pagination._order] + ' LIMIT ? OFFSET ?')
+        const cards: Card[] = this.db.prepare(`SELECT * FROM cards_view ORDER BY ${Sort[pagination._sort]} ${Order[pagination._order]} LIMIT ? OFFSET ?`)
             .all(pagination._limit, pagination._page);
 
         const count: number = this.db.prepare('SELECT COUNT(cardId) AS count FROM cards').get().count;

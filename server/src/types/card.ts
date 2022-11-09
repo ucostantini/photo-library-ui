@@ -6,13 +6,28 @@ import { SqliteTagRepository } from "../core/repositories/sqlite/sqliteTagReposi
 // fileName is needed to retrieve files from Minio
 export interface CardFile {
     fileId: number;
-    fileName?: string;
+    fileHash?: string;
 }
+
+export interface FileURL {
+    fileURL: string;
+    thumbnailURL: string;
+}
+
+
+export interface FTSCardRequest extends CardRequest {
+    filesContent: string[];
+}
+
+export interface FTSCardResult { // TODO is this interface really necessary ? replace with list of number directly
+    cardIds: number[];
+}
+
 
 export interface Card {
     cardId: number;
     title: string;
-    files: CardFile[];
+    files: FileURL[];
     tags: string[];
     website: string;
     username: string;
@@ -23,7 +38,7 @@ export interface Card {
 export interface CardRequest {
     cardId?: number;
     title?: string;
-    files?: CardFile[];
+    files?: number[];
     tags?: string[];
     website?: string;
     username?: string;
@@ -39,6 +54,12 @@ export interface Pagination {
     _limit: number;
     _sort: Sort;
     _order: Order;
+}
+
+export enum StoredFile {
+    mime = 'image/jpeg',
+    ext = '.jpg',
+    prefix = ext
 }
 
 export enum Sort {
@@ -62,7 +83,7 @@ export interface TagResult {
 }
 
 export interface FileResult {
-    files: CardFile[];
+    files: number[];
 }
 
 export const DBClient = {
@@ -71,4 +92,8 @@ export const DBClient = {
 
 export const StorageService = {
     minio: MinIOStorageService
+}
+
+export enum SqliteErrorMapping {
+    SQL_CONSTRAINT_UNIQUE = 'A card with the provided files already exist in the system.'
 }

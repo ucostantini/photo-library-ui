@@ -1,7 +1,6 @@
 import { Client, ClientOptions } from 'minio';
 import { IStorageService } from './IStorageService';
 
-
 export class MinIOStorageService implements IStorageService {
     private minio: Client = new Client({
         endPoint: process.env.MINIO_ENDPOINT,
@@ -22,5 +21,4 @@ export class MinIOStorageService implements IStorageService {
     public removeFile(fileName: string): Promise<void> {
         return this.minio.removeObject(process.env.MINIO_BUCKET_NAME, fileName);
     }
-
 }

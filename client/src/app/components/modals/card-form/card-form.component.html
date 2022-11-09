@@ -1,12 +1,12 @@
-<h1 mat-dialog-title>{{ cardOperation }} a card</h1>
+<h1 mat-dialog-title>{{ operation }} a card</h1>
 <div mat-dialog-content>
-  <form (ngSubmit)="onFormSubmit()" [formGroup]="cardForm" class="card-form" id="card" role="form">
+  <form (ngSubmit)="onFormSubmit()" [formGroup]="form" class="card-form" id="card" role="form">
     <mat-form-field appearance="fill">
       <mat-label>Enter a title</mat-label>
       <input formControlName="title" matInput placeholder="Advices for yoga">
     </mat-form-field>
 
-    <div *ngIf="cardOperation === 'Create'">
+    <div *ngIf="operation === 'Create'">
       <ngx-awesome-uploader
         (removeSuccess)="onFileRemoved($event)"
         (uploadSuccess)="onFileUploaded($event)"
@@ -33,6 +33,6 @@
 </div>
 <div mat-dialog-actions style="justify-content: flex-end">
   <button (click)="onFormClose()" color="accent" mat-raised-button>Cancel</button>
-  <button [disabled]="!this.cardForm.valid" color="primary" form="card" mat-raised-button
-          type="submit">{{ cardOperation }}</button>
+  <button [disabled]="!this.form.valid" color="primary" form="card" mat-raised-button
+          type="submit">{{ operation }}</button>
 </div>

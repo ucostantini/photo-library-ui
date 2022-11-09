@@ -23,19 +23,18 @@ export class TagsComponent {
   tagCtrl = new FormControl('');
   filteredTags: Observable<string[]>;
   tags: string[] = [];
-  allTags: string[] = [];
+  availableTags: string[] = [];
 
   @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
 
   constructor(private tagService: TagService, private notifService: NotificationService) {
     this.tagService.fetch().subscribe({
-      // TODO tags are not shown in select
-      next: (tags: TagResult) => this.allTags = tags.tags,
+      next: (tags: TagResult) => this.availableTags = tags.tags,
       error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
     });
     this.filteredTags = this.tagCtrl.valueChanges.pipe(
       startWith(null),
-      map((fruit: string | null) => (fruit ? this._filter(fruit) : this.allTags.slice())),
+      map((tag: string | null) => (tag ? this._filter(tag) : this.availableTags.slice())),
     );
   }
 
@@ -75,7 +74,7 @@ export class TagsComponent {
   private _filter(value: string): string[] {
     const filterValue = value.toLowerCase();
 
-    return this.allTags.filter(fruit => fruit.toLowerCase().includes(filterValue));
+    return this.availableTags.filter(tag => tag.toLowerCase().includes(filterValue));
   }
 
 }

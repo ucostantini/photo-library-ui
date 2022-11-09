@@ -4,6 +4,9 @@ import { UploadedFile } from "express-fileupload";
 import { Logger } from "pino";
 import { IStorageService } from "../core/IStorageService";
 import { IFileRepository } from "../core/repositories/IFileRepository";
+import { FileURL, SqliteErrorMapping } from "../types/card";
+import { SqliteError } from "better-sqlite3";
+import { Worker } from "tesseract.js"
 
 /**
  * Entry point for all CRUD routes related to files
@@ -12,7 +15,7 @@ export class FileRouter {
     private readonly _router: Router;
     private readonly fileController: FileController;
 
-    constructor(private log: Logger, storage: IStorageService, private fileRepository: IFileRepository) {
+    constructor(private log: Logger, storage: IStorageService, fileRepository: IFileRepository, private tesseractWorker: Worker) {
         this.fileController = new FileController(log, storage, fileRepository);
         this._router = Router();
         this.routes();
@@ -22,7 +25,7 @@ export class FileRouter {
      * This method configures all the routes related to files
      */
     public routes() {
-        this._router.get('/:fileName', this.get.bind(this));
+        this._router.get('/:cardId', this.get.bind(this));
         this._router.post('', this.create.bind(this));
         this._router.delete('/:fileId', this.delete.bind(this));
     }
@@ -51,10 +54,10 @@ export class FileRouter {
      */
     public get(req: Request, res: Response) {
         this.log.debug(req.params, "Request Parameters Payload");
-        this.fileController.get(req.params['fileName']).then((fileUrl: string) => {
-            this.log.debug(fileUrl, 'Response Payload');
+        this.fileController.get(Number(req.params['cardId'])).then((fileUrls: FileURL[]) => {
+            this.log.debug(fileUrls, 'Response Payload');
             res.status(200)
-                .send(fileUrl);
+                .send({fileURLs: fileUrls});
         }).catch(error => this.errorHandler(error, res));
     }
 
@@ -78,7 +81,7 @@ export class FileRouter {
      *               example: 2568
      */
     public create(req: Request, res: Response) {
-        this.fileController.create(req.files.file as UploadedFile).then((fileId: number) => {
+        this.fileController.create(req.files.file as UploadedFile, this.tesseractWorker).then((fileId: number) => {
             this.log.debug(fileId, 'Response Payload');
             res.status(201).send('' + fileId);
         }).catch(error => this.errorHandler(error, res));
@@ -116,7 +119,7 @@ export class FileRouter {
      */
     public delete(req: Request, res: Response) {
         this.log.debug(req.params, "Request Parameters Payload");
-        this.fileController.deleteFromId(Number(req.params.fileId)).then((message: string) => {
+        this.fileController.deleteFromFileId(Number(req.params.fileId)).then((message: string) => {
             this.log.debug(message, 'Response Payload');
             res.status(201)
                 .send({
@@ -132,9 +135,11 @@ export class FileRouter {
      * @param res the 500 error response to be returned to the user
      * @private
      */
-    private errorHandler(error: any, res: Response<any, Record<string, any>>) {
+    private errorHandler(error: Error, res: Response<any, Record<string, any>>) {
         this.log.error(error, "Error occurred in /files entry point");
-        res.status(500).json({error: error.toString()});
+        if (error instanceof SqliteError)
+            error.message = SqliteErrorMapping[error.code];
+        res.status(500).send(error.message);
     }
 
     get router() {

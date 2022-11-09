@@ -27,7 +27,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IvyCarouselModule } from 'angular-responsive-carousel';
+import { CarouselComponent, IvyCarouselModule } from 'angular-responsive-carousel';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { LightboxModule } from "ngx-lightbox";
 import { MatChipsModule } from "@angular/material/chips";
@@ -37,42 +37,42 @@ import { TagsComponent } from './components/tags/tags.component';
 @NgModule({
   declarations: [
     AppComponent,
-    NavMenuComponent,
-    CardFormComponent,
-    CardListComponent,
     CardDetailsComponent,
     CardDeleteComponent,
+    CardFormComponent,
+    CardListComponent,
+    NavMenuComponent,
     TagsComponent
   ],
   imports: [
     BrowserAnimationsModule,
     BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    ReactiveFormsModule,
     CommonModule,
     FilePickerModule,
+    FormsModule,
+    HttpClientModule,
+    IvyCarouselModule,
     LightboxModule,
-    MatGridListModule,
-    MatCardModule,
-    MatIconModule,
-    MatMenuModule,
+    MatAutocompleteModule,
     MatButtonModule,
-    MatPaginatorModule,
+    MatCardModule,
     MatCheckboxModule,
-    MatRadioModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatToolbarModule,
+    MatChipsModule,
     MatDialogModule,
+    MatFormFieldModule,
+    MatGridListModule,
+    MatIconModule,
+    MatInputModule,
+    MatMenuModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatRadioModule,
     MatSidenavModule,
     MatSnackBarModule,
-    MatProgressSpinnerModule,
-    IvyCarouselModule,
-    MatChipsModule,
-    MatAutocompleteModule
+    MatToolbarModule,
+    ReactiveFormsModule
   ],
-  providers: [CardService],
+  providers: [CardService, CarouselComponent],
   bootstrap: [AppComponent]
 })
 export class AppModule {

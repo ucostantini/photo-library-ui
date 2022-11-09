@@ -14,6 +14,8 @@ import { TagRouter } from "./routes/tagRouter";
 import { ICardRepository } from "./core/repositories/ICardRepository";
 import { IFileRepository } from "./core/repositories/IFileRepository";
 import { ITagRepository } from "./core/repositories/ITagRepository";
+import { FileController } from "./core/controllers/fileController";
+import Tesseract from "tesseract.js";
 
 /**
  * Represents the whole Express Application
@@ -77,7 +79,9 @@ class App {
      */
     private routes(): void {
         this.expressApp.get('/', (_req, res) => res.redirect('/'));
-
+        const tesseractWorker = Tesseract.createWorker({logger: m => this.log.debug(m)});
+        tesseractWorker.loadLanguage('eng');
+        tesseractWorker.initialize('eng');
         /*
 
        new (DBClient[process.env.DB_CLIENT][2])() is magic
@@ -86,8 +90,9 @@ class App {
         const fileRepository: IFileRepository = new (DBClient[process.env.DB_CLIENT][1])();
         const tagRepository: ITagRepository = new (DBClient[process.env.DB_CLIENT][2])();
 
-        const cardRouter = new CardRouter(this.log, cardRepository, tagRepository);
-        const fileRouter = new FileRouter(this.log, this.storage, fileRepository);
+        // TODO find a way to remove file controller
+        const cardRouter = new CardRouter(this.log, cardRepository, tagRepository, new FileController(this.log, this.storage, fileRepository));
+        const fileRouter = new FileRouter(this.log, this.storage, fileRepository, tesseractWorker);
         const tagRouter = new TagRouter(tagRepository);
 
         cardRouter.routes();

@@ -9,13 +9,7 @@ export class TagController {
     constructor(private tagRepository: ITagRepository) {
     }
 
-    public get(): Promise<TagResult> {
-        return new Promise<TagResult>((resolve, reject) => {
-            try {
-                resolve(this.tagRepository.readAll(null));
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public async get(): Promise<TagResult> {
+        return this.tagRepository.readAll(null);
     }
 }

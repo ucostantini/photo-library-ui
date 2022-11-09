@@ -10,7 +10,7 @@ export class TagRouter {
     private readonly _router: Router;
     private readonly tagController: TagController;
 
-    constructor(private tagRepository: ITagRepository) {
+    constructor(tagRepository: ITagRepository) {
         this.tagController = new TagController(tagRepository);
         this._router = Router();
         this.routes();
@@ -63,6 +63,6 @@ export class TagRouter {
      * @private
      */
     private errorHandler(error: any, res: Response<any, Record<string, any>>) {
-        res.status(500).json({error: error.toString()});
+        res.status(500).send(error.message);
     }
 }

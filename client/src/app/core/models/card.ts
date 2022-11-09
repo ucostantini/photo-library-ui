@@ -1,23 +1,29 @@
 /**
- * Represents card's attached files
- */
-export interface CardFile {
-  fileId: number;
-  fileName?: string;
-}
-
-/**
  * Information of a card
  */
 export interface Card {
-  cardId?: number;
+  cardId: number;
   title: string;
-  files: CardFile[];
+  files: FileURL[];
   tags: string[];
   website: string;
   username: string;
-  created?: Date;
-  modified?: Date;
+  created: Date;
+  modified: Date;
+}
+
+export interface CardRequest {
+  cardId?: number;
+  title: string;
+  files: number[];
+  tags: string[];
+  website: string;
+  username: string;
+}
+
+export interface FileURL {
+  fileURL: string;
+  thumbnailURL: string;
 }
 
 export interface Pagination {

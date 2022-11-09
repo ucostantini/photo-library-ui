@@ -1,7 +1,7 @@
 import { CardForm, CardResult, Pagination } from "../../types/card";
-import { Logger } from "pino";
 import { ICardRepository } from "../repositories/ICardRepository";
 import { ITagRepository } from "../repositories/ITagRepository";
+import { FileController } from "./fileController";
 
 /**
  * Controller of CRUD operations related to cards
@@ -9,9 +9,9 @@ import { ITagRepository } from "../repositories/ITagRepository";
  */
 export class CardController {
 
-    constructor(private log: Logger,
-                private cardRepository: ICardRepository,
-                private tagRepository: ITagRepository) {
+    constructor(private cardRepository: ICardRepository,
+                private tagRepository: ITagRepository,
+                private fileController: FileController) {
     }
 
     /**
@@ -20,72 +20,47 @@ export class CardController {
      * @param pagination query pagination with page number and number of resources to be returned
      * @return promise containing the result values, or an error
      */
-    get(card: CardForm): Promise<CardResult> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                card.pagination = this.pageToOffset(card.pagination);
-                let res: CardResult;
-                if (card.card === null) {
-                    // home page request, return all cards
-                    res = this.cardRepository.readAll(card);
-                } else {
-                    // return cards matching the values provided in the card object
-                    res = this.cardRepository.read(card);
-                }
-                resolve(res);
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public async get(card: CardForm): Promise<CardResult> {
+        card.pagination = this.pageToOffset(card.pagination);
+        // if form is absent, home is request, get all cards. If form is present, get matching cards.
+        const cards: CardResult = (card.card === null ? this.cardRepository.readAll(card) : this.cardRepository.read(card));
+        for (const card of cards.cards) {
+            card.files = await this.fileController.get(card.cardId);
+        }
+        return cards;
     }
 
     /**
      * Create new card based on provided data
      * @param card provided card information, must pass YUP schema specifications
      */
-    public create(card: CardForm): Promise<string> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                this.cardRepository.create(card);
-                this.tagRepository.create(card);
-                resolve('Card successfully created');
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public async create(card: CardForm): Promise<string> {
+        this.cardRepository.create(card);
+        this.tagRepository.create(card);
+        return 'Card successfully created';
     }
 
     /**
      * Update existing card based on provided data
      * @param card provided card data, must pass YUP schema specifications
      */
-    public update(card: CardForm): Promise<string> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                this.cardRepository.update(card);
-                this.tagRepository.update(card);
-                resolve('Card successfully updated');
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public async update(card: CardForm): Promise<string> {
+        this.cardRepository.update(card);
+        this.tagRepository.update(card);
+        return 'Card successfully updated';
     }
+
 
     /**
      * Delete card and its file from DB and storage based on provided card ID
      * @param cardId the ID of the card to be deleted
      */
-    public delete(cardId: number): Promise<string> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const form: CardForm = {card: {cardId: cardId}, pagination: null};
-                this.cardRepository.delete(form);
-                this.tagRepository.delete(form);
-                resolve('Card successfully deleted');
-            } catch (error) {
-                reject(error);
-            }
-        });
+    public async delete(cardId: number): Promise<string> {
+        const form: CardForm = {card: {cardId: cardId}, pagination: null};
+        this.cardRepository.delete(form);
+        this.tagRepository.delete(form);
+        await this.fileController.deleteFromCardId(cardId);
+        return 'Card successfully deleted';
     }
 
     /**

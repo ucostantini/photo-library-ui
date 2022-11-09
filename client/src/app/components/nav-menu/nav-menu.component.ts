@@ -25,7 +25,9 @@ export class NavMenuComponent implements OnInit {
 
   cardFormData: Card;
 
-  constructor(public dialog: MatDialog, private cardService: CardService, private notifService: NotificationService) {
+  constructor(public dialog: MatDialog,
+              private cardService: CardService,
+              private notifService: NotificationService) {
   }
 
   /**
@@ -54,6 +56,7 @@ export class NavMenuComponent implements OnInit {
       sort: new FormControl(this.selectedSorting.sort),
       order: new FormControl(this.selectedSorting.order),
     });
+    this.cardFormData = null;
     this.fetchCards();
   }
 
@@ -70,7 +73,7 @@ export class NavMenuComponent implements OnInit {
         if (cardForm)
           this.cardService.create(cardForm).subscribe({
             next: (message: Message) => this.notifService.notifySuccess(message.message),
-            error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
+            error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
           });
       });
   }
@@ -89,7 +92,7 @@ export class NavMenuComponent implements OnInit {
         this.paginationReset();
         this.fetchCards();
       },
-      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
+      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
     });
   }
 
@@ -112,7 +115,7 @@ export class NavMenuComponent implements OnInit {
         this.selectedPagination.pageLength = Number(response.headers.get("X-Total-Count"));
         this.cardService.getCardsEmitter().emit({cards: response.body, pagination: this.selectedPagination});
       },
-      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
+      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
     });
   }
 

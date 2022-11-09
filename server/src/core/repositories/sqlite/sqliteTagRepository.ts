@@ -7,7 +7,8 @@ export class SqliteTagRepository implements ITagRepository {
 
     create(entity: CardForm): TagResult {
         const statement: Statement = this.db.prepare('INSERT OR IGNORE INTO tags VALUES(?,?)');
-        entity.card.tags.forEach((tag: string) => statement.run(entity.card.cardId, tag.trim().toLowerCase()));
+        entity.card.tags.forEach(tag => statement.run(entity.card.cardId, tag.trim().toLowerCase()));
+
         return this.readAll(entity);
     }
 
@@ -20,7 +21,7 @@ export class SqliteTagRepository implements ITagRepository {
     }
 
     readAll(entity: CardForm): TagResult {
-        return {tags: this.db.prepare('SELECT DISTINCT tag FROM tags').all() as string[]};
+        return {tags: this.db.prepare('SELECT DISTINCT tag FROM tags').pluck(true).all() as string[]};
     }
 
     update(entity: CardForm): void {

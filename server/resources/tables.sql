@@ -1,9 +1,14 @@
+-- Create the datatabase :
+-- sqlite3 db.sqlite
+-- sqlite> .databases
+-- sqlite> .quit
 CREATE TABLE IF NOT EXISTS cards
 (
     cardId   INTEGER PRIMARY KEY,
-    title    VARCHAR(70) NOT NULL,
-    website  VARCHAR(40) NOT NULL,
-    username VARCHAR(40) NOT NULL,
+    --TODO why is there a title again ? remove it or make it optional
+    title    VARCHAR(70)                        NOT NULL,
+    website  VARCHAR(40)                        NOT NULL,
+    username VARCHAR(40)                        NOT NULL,
     created  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     modified DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -20,31 +25,40 @@ END;
 CREATE TABLE IF NOT EXISTS tags
 (
     cardId INTEGER,
-    tag    VARCHAR(20),
+    tag    VARCHAR(30),
     PRIMARY KEY (cardId, tag),
     FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS files
 (
-    cardId   INTEGER,
-    fileId   INTEGER,
-    fileName VARCHAR(20),
-    fileHash VARCHAR(20) UNIQUE,
+    cardId      INTEGER,
+    fileId      INTEGER,
+    fileName    VARCHAR(100),
+    fileHash    VARCHAR(20) UNIQUE,
+    fileContent TEXT,
     PRIMARY KEY (cardId, fileId),
     FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
 );
 
+
+CREATE TRIGGER IF NOT EXISTS [UpdateFileContentFilesFTS]
+    AFTER UPDATE OF fileContent
+    ON files
+BEGIN
+    UPDATE cards_fts SET fileContent = NEW.fileContent WHERE files_fts.fileId = OLD.fileId;
+END;
+
+
 /*
-Example for files column : "[{fileId: 45, fileName: "1975_Ford_Thunderbird_2D.jpg"}]"
+Example for files column : "[12,45]"
 Example for tags column : ["car","antique","v8","70s"]"
 */
 
 CREATE VIEW IF NOT EXISTS cards_view AS
 SELECT DISTINCT cardId,
                 title,
-                json_group_array(DISTINCT json_object('fileId', fileId, 'fileName', fileName)) AS files,
-                json_group_array(DISTINCT tag)                                                 AS tags,
+                json_group_array(DISTINCT tag) AS tags,
                 website,
                 username,
                 created,
@@ -54,11 +68,19 @@ FROM cards
          NATURAL JOIN files
 GROUP BY cardId, title, website, username, created, modified;
 
-CREATE VIRTUAL TABLE cards_fts USING FTS5
+CREATE VIRTUAL TABLE IF NOT EXISTS cards_fts USING FTS5
 (
     cardId,
     title,
+    filesContent,
     website,
     username,
     tags
 );
+
+CREATE TRIGGER IF NOT EXISTS [TruncateCardsFTS]
+    AFTER DELETE
+    ON cards
+BEGIN
+    DELETE FROM cards_fts WHERE cardId = OLD.cardId;
+END;

@@ -22,8 +22,9 @@
       </button>
     </mat-menu>
   </mat-card-header>
-  <!-- TODO load only 1 pic for thumbnail -->
-  <carousel [cellsToShow]="1" [counter]="true" [images]="thumbnails" [overflowCellsLimit]="1">
+
+  <carousel [cellsToShow]="1" [counter]="true" [images]="thumbnails" [lightDOM]="true" [loop]="true"
+            [overflowCellsLimit]="1">
   </carousel>
   <mat-card-content class="mat-card-content" style="padding-top: 14px">
     <div class="tags">
