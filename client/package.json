@@ -11,8 +11,7 @@
     "e2e": "ng e2e",
     "compodoc:build": "compodoc -p tsconfig.doc.json",
     "compodoc:build-and-serve": "compodoc -p tsconfig.doc.json -r 8081 -s",
-    "compodoc:serve": "compodoc -s -r 8081",
-    "postinstall": "patch-package"
+    "compodoc:serve": "compodoc -s -r 8081"
   },
   "private": true,
   "dependencies": {
@@ -29,10 +28,8 @@
     "@compodoc/compodoc": "^1.1.19",
     "angular-responsive-carousel": "^2.1.0",
     "jsdoc": "^3.6.11",
-    "json-server": "^0.17.1",
     "ngx-awesome-uploader": "^13.0.1",
     "ngx-lightbox": "^2.6.2",
-    "patch-package": "^6.4.7",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

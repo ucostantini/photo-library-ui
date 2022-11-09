@@ -6,13 +6,13 @@ import { SqliteTagRepository } from "../core/repositories/sqlite/sqliteTagReposi
 // fileName is needed to retrieve files from Minio
 export interface CardFile {
     fileId: number;
-    fileName?: string;
+    fileHash?: string;
 }
 
 export interface Card {
     cardId: number;
     title: string;
-    files: CardFile[];
+    files: number[];
     tags: string[];
     website: string;
     username: string;
@@ -23,7 +23,7 @@ export interface Card {
 export interface CardRequest {
     cardId?: number;
     title?: string;
-    files?: CardFile[];
+    files?: number[];
     tags?: string[];
     website?: string;
     username?: string;
@@ -62,7 +62,7 @@ export interface TagResult {
 }
 
 export interface FileResult {
-    files: CardFile[];
+    files: number[];
 }
 
 export const DBClient = {

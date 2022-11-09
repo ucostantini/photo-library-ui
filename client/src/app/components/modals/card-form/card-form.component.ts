@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, ViewChild } from '@angular/core';
-import { Card, CardFile, Status } from '../../../core/models/card';
+import { Card, Status } from '../../../core/models/card';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { FileService } from '../../../core/services/file/file.service';
@@ -30,9 +30,8 @@ export class CardFormComponent implements OnInit {
    */
   @ViewChild(FilePickerComponent) viewChild: FilePickerComponent;
 
-  cardForm: FormGroup;
-  cardOperation: Status;
-  private files: CardFile[] = [];
+  form: FormGroup;
+  operation: Status;
 
   constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }, private fb: FormBuilder) {
@@ -44,13 +43,13 @@ export class CardFormComponent implements OnInit {
   ngOnInit(): void {
     const inputCard = this.data.card;
     const isSearch = this.data.isSearch;
-    this.cardOperation = isSearch ? 'Search' : (inputCard ? 'Edit' : 'Create');
+    this.operation = isSearch ? 'Search' : (inputCard ? 'Edit' : 'Create');
 
-    this.cardForm = this.fb.group({
+    this.form = this.fb.group({
       title: [inputCard ? inputCard.title : '', [
         Validators.maxLength(80)]
       ],
-      files: this.fb.array([], !isSearch ? Validators.minLength(1) : []),
+      files: this.fb.array([], !isSearch ? [Validators.required, Validators.minLength(1)] : []),
       tags: this.fb.array([], !isSearch ? [Validators.required, Validators.minLength(1)] : []),
       website: [inputCard ? inputCard.website : '', !isSearch ? [
         Validators.required,
@@ -67,7 +66,7 @@ export class CardFormComponent implements OnInit {
     // pre-complete tags field in card form
     if (inputCard) {
       inputCard.tags.forEach((tag: string) => {
-        (this.cardForm.get('tags') as FormArray).push(new FormControl(tag, []));
+        (this.form.get('tags') as FormArray).push(new FormControl(tag, []));
       });
     }
   }
@@ -83,8 +82,8 @@ export class CardFormComponent implements OnInit {
    * Closes the dialog with the provided form data for caller {@link NavMenuComponent}
    */
   onFormSubmit(): void {
-    if (this.cardForm.valid) {
-      const formData = (this.cardForm.getRawValue() as Card);
+    if (this.form.valid) {
+      const formData = (this.form.getRawValue() as Card);
       let card = this.data.card ? {...formData, cardId: this.data.card.cardId} : formData;
       this.dialogRef.close(card);
     }
@@ -95,8 +94,7 @@ export class CardFormComponent implements OnInit {
    * @param $event Backend response containing the generated file ID
    */
   onFileUploaded($event: FilePreviewModel): void {
-    this.files.push({fileId: $event.uploadResponse as number});
-    (this.cardForm.get('files') as FormArray).push(new FormGroup({fileId: new FormControl($event.uploadResponse as number)}));
+    (this.form.get('files') as FormArray).push(new FormControl($event.uploadResponse as number));
   }
 
   /**
@@ -104,16 +102,17 @@ export class CardFormComponent implements OnInit {
    * @param $event Backend response containing the deleted file ID
    */
   onFileRemoved($event: FilePreviewModel): void {
-    this.files = this.files.filter((file: CardFile) => file.fileId !== $event.uploadResponse.fileId);
-    const formArray = (this.cardForm.get('files') as FormArray);
-    formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) => (item.value as string) === $event.uploadResponse.fileId));
+    const formArray = (this.form.get('files') as FormArray);
+    formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) =>
+      (item.value as number) === $event.uploadResponse.fileId)
+    );
   }
 
   addTag($event: string): void {
-    (this.cardForm.get('tags') as FormArray).push(new FormControl($event, []));
+    (this.form.get('tags') as FormArray).push(new FormControl($event));
   }
 
   removeTag($event: number): void {
-    (this.cardForm.get('tags') as FormArray).removeAt($event);
+    (this.form.get('tags') as FormArray).removeAt($event);
   }
 }

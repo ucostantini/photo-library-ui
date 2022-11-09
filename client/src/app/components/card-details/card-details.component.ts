@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Card, CardFile, Message } from '../../core/models/card';
+import { Card, Message } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
@@ -51,10 +51,10 @@ export class CardDetailsComponent implements OnInit {
     // @ts-ignore
     this.card.tags = JSON.parse(this.card.tags);
     // @ts-ignore
-    JSON.parse(this.card.files).forEach(file =>
+    JSON.parse(this.card.files).forEach((fileId: number) =>
       forkJoin({
-        thumbnailURL: this.fileService.getFileURL('thumb-' + file.fileName),
-        fileURL: this.fileService.getFileURL(file.fileName)
+        thumbnailURL: this.fileService.getFileURL('thumb-' + fileId + '.jpg'),
+        fileURL: this.fileService.getFileURL(fileId + '.jpg')
       }).subscribe({
         next: (res: { thumbnailURL: string, fileURL: string }) => {
           this.thumbnails.push({path: res.thumbnailURL});
@@ -107,7 +107,7 @@ export class CardDetailsComponent implements OnInit {
     }).afterClosed().subscribe((card: Card) => {
       if (card) {
         // TODO what if an error happen here ? Test errors everywhere in app to avoid crashes
-        card.files.forEach((file: CardFile) => this.fileService.removeFileFromId(file.fileId));
+        card.files.forEach((fileId: number) => this.fileService.removeFileFromId(fileId));
         this.cardService.delete(card.cardId).subscribe({
           next: (message: Message) => this.notifService.notifySuccess(message.message),
           error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)

@@ -66,13 +66,6 @@ export class FileService extends FilePickerAdapter {
   }
 
   /**
-   * @ignore
-   */
-  public downloadFile(url: string): void {
-    window.location.href = url;
-  }
-
-  /**
    * @param fileName The file's name to retrieve the URL from
    * @returns The file's URL
    */

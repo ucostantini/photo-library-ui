@@ -1,5 +1,5 @@
 import { ICardRepository } from "../ICardRepository";
-import { Card, CardFile, CardForm, CardRequest, CardResult, Order, Sort } from "../../../types/card";
+import { Card, CardForm, CardRequest, CardResult, Order, Sort } from "../../../types/card";
 import Database, { Statement } from "better-sqlite3";
 import { Logger } from "pino";
 
@@ -8,7 +8,7 @@ export class SqliteCardRepository implements ICardRepository {
 
     constructor(private log: Logger) {
         if (process.env.LOG_LEVEL === 'debug') {
-            this.db = new Database(process.env.DB_PATH, {verbose: (stmt: string) => console.log(stmt)});
+            this.db = new Database(process.env.DB_PATH, {verbose: console.log});
         } else {
             this.db = new Database(process.env.DB_PATH);
         }
@@ -25,8 +25,8 @@ export class SqliteCardRepository implements ICardRepository {
 
         // link card with its files
         let statement: Statement = this.db.prepare('UPDATE files SET cardId = ? WHERE fileId = ?');
-        entity.card.files.forEach((file: CardFile) => {
-            statement.run(entity.card.cardId, file.fileId);
+        this.db.transaction((entity) => {
+            for (const file of entity.card.files) statement.run(entity.card.cardId, file.fileId);
         });
 
         return {cards: [card as Card], count: 1};
@@ -43,9 +43,6 @@ export class SqliteCardRepository implements ICardRepository {
     read(entity: CardForm): CardResult {
         const matchFTS = this.prepareFTSMatchStatement(entity.card);
         const pagination = entity.pagination;
-
-        console.log('SELECT DISTINCT cards_view.* FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
-            '           ORDER BY cards_view.' + Sort[pagination._sort] + ' ' + Order[pagination._order] + ' LIMIT ? OFFSET ?');
 
         const cards: Card[] = this.db.prepare('SELECT DISTINCT cards_view.* FROM cards_view INNER JOIN cards_fts ON cards_fts.cardId = cards_view.cardId WHERE cards_fts MATCH ?' +
             '           ORDER BY cards_view.' + Sort[pagination._sort] + ' ' + Order[pagination._order] + ' LIMIT ? OFFSET ?')

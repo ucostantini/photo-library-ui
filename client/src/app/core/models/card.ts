@@ -1,18 +1,10 @@
 /**
- * Represents card's attached files
- */
-export interface CardFile {
-  fileId: number;
-  fileName?: string;
-}
-
-/**
  * Information of a card
  */
 export interface Card {
   cardId?: number;
   title: string;
-  files: CardFile[];
+  files: number[];
   tags: string[];
   website: string;
   username: string;

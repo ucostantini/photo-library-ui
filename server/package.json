@@ -54,16 +54,17 @@
         "crypto-js": "^4.1.1",
         "debug": "^4.3.4",
         "dotenv": "^16.0.1",
-        "express": "^4.18.1",
-        "express-fileupload": "^1.4.0",
-        "minio": "^7.0.28",
-        "morgan": "^1.10.0",
-        "pino": "^8.0.0",
-        "pino-http": "^8.0.1",
-        "pino-pretty": "^8.0.0",
-        "sharp": "^0.31.1",
-        "swagger-jsdoc": "^6.2.1",
-        "swagger-ui-express": "^4.5.0",
-        "yup": "^0.32.11"
+      "express": "^4.18.1",
+      "express-fileupload": "^1.4.0",
+      "minio": "^7.0.28",
+      "morgan": "^1.10.0",
+      "pino": "^8.0.0",
+      "pino-http": "^8.0.1",
+      "pino-pretty": "^8.0.0",
+      "sharp": "^0.31.1",
+      "swagger-jsdoc": "^6.2.1",
+      "swagger-ui-express": "^4.5.0",
+      "tesseract.js": "^3.0.3",
+      "yup": "^0.32.11"
     }
 }
