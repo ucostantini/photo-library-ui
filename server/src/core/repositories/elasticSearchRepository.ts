@@ -1,46 +1,70 @@
 import { Client } from '@elastic/elasticsearch'
 import { IFTSRepository } from "./IFTSRepository";
-import { FTSCardRequest, FTSCardResult } from "../../types/card";
+import { CardRequest } from "../../types/card";
+import {
+    QueryDslBoolQuery,
+    QueryDslQueryContainer,
+    SearchHit,
+    SearchResponse
+} from "@elastic/elasticsearch/lib/api/types";
 
 export class ElasticSearchRepository implements IFTSRepository {
+    private index = 'cards';
 
-    private elastic: Client = new Client({
-        cloud: {id: "id"},
-        auth: {apiKey: "prout"}
-    });
+    private elastic: Client = new Client({node: process.env.ELASTIC_ENDPOINT});
 
-    create(entity: FTSCardRequest): FTSCardResult {
+    async create(entity: CardRequest): Promise<number[]> {
         this.elastic.index({
-            index: "cards",
+            index: this.index,
+            id: String(entity.cardId),
             document: entity
         });
-        return {cardIds: [entity.cardId]};
+        return [entity.cardId];
     }
 
-    delete(entity: FTSCardRequest): void {
+    delete(entity: CardRequest): void {
         this.elastic.delete({
             id: `${entity.cardId}`,
-            index: "cards"
+            index: this.index
         });
     }
 
-    read(entity: FTSCardRequest): FTSCardResult {
-        this.elastic.search({
-            index: "cards",
+    async read(entity: CardRequest): Promise<number[]> {
+        const matches: QueryDslQueryContainer[] = [];
+
+        for (const [key, value] of Object.entries(entity)) {
+            if (value.length !== 0) {
+                matches.push({
+                    match: {
+                        [key]: {
+                            query: (Array.isArray(value) ? value.join(' ') : value),
+                            fuzziness: 2
+                        }
+                    }
+                });
+            }
+        }
+        console.log(matches);
+        const response: SearchResponse = await this.elastic.search<CardRequest>({
+            index: this.index,
             query: {
-                match: entity
+                bool: {
+                    must: matches
+                } as QueryDslBoolQuery
             }
         });
+        return response.hits.hits.map((val: SearchHit) => Number(val._id));
     }
 
-    readAll(entity: FTSCardRequest): FTSCardResult {
+    readAll(entity: CardRequest): Promise<number[]> {
         throw new Error("Not Implemented 501");
     }
 
-    update(entity: FTSCardRequest): void {
+    update(entity: CardRequest): void {
         this.elastic.update({
-            index: "cards",
-            document: entity
+            index: this.index,
+            id: `${entity.cardId}`,
+            doc: entity
         });
     }
 

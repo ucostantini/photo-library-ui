@@ -1,13 +1,12 @@
 import express from 'express';
 import logger from 'morgan';
 import dotenv from 'dotenv';
-import fileUpload from "express-fileupload";
 import cors from 'cors';
 import pino, { Logger } from "pino";
 import { DBClient, StorageService } from './types/card';
 import * as swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
-import { IStorageService } from './core/IStorageService';
+import { IStorageService } from './core/storage/IStorageService';
 import { CardRouter } from "./routes/cardRouter";
 import { FileRouter } from "./routes/fileRouter";
 import { TagRouter } from "./routes/tagRouter";
@@ -16,6 +15,7 @@ import { IFileRepository } from "./core/repositories/IFileRepository";
 import { ITagRepository } from "./core/repositories/ITagRepository";
 import { FileController } from "./core/controllers/fileController";
 import Tesseract from "tesseract.js";
+import { ElasticSearchRepository } from "./core/repositories/elasticSearchRepository";
 
 /**
  * Represents the whole Express Application
@@ -52,11 +52,9 @@ class App {
      */
     private middleware(): void {
         this.expressApp.use(logger(process.env.ENVIRONMENT) as express.RequestHandler);
-        this.expressApp.use(express.json() as express.RequestHandler);
-        this.expressApp.use(express.urlencoded({extended: false}) as express.RequestHandler);
+        this.expressApp.use(express.json({limit: '200mb'}) as express.RequestHandler);
+        this.expressApp.use(express.urlencoded({limit: '200mb', extended: true}) as express.RequestHandler);
         this.expressApp.use(cors({exposedHeaders: ['X-Total-Count']}));
-        // support for file upload
-        this.expressApp.use(fileUpload());
 
         // swagger openApi configuration
         const options: swaggerJSDoc.OAS3Options = {
@@ -77,11 +75,11 @@ class App {
      * Entry point for routes, more routes in routes/* folder
      * @private
      */
-    private routes(): void {
+    private async routes(): Promise<void> {
         this.expressApp.get('/', (_req, res) => res.redirect('/'));
         const tesseractWorker = Tesseract.createWorker({logger: m => this.log.debug(m)});
-        tesseractWorker.loadLanguage('eng');
-        tesseractWorker.initialize('eng');
+        //await tesseractWorker.loadLanguage('eng+fr');
+        //await tesseractWorker.initialize('eng+fr');
         /*
 
        new (DBClient[process.env.DB_CLIENT][2])() is magic
@@ -90,9 +88,11 @@ class App {
         const fileRepository: IFileRepository = new (DBClient[process.env.DB_CLIENT][1])();
         const tagRepository: ITagRepository = new (DBClient[process.env.DB_CLIENT][2])();
 
+        cardRepository.setFTSRepository(new ElasticSearchRepository());
+
         // TODO find a way to remove file controller
-        const cardRouter = new CardRouter(this.log, cardRepository, tagRepository, new FileController(this.log, this.storage, fileRepository));
-        const fileRouter = new FileRouter(this.log, this.storage, fileRepository, tesseractWorker);
+        const cardRouter = new CardRouter(this.log, new FileController(this.log, this.storage, fileRepository), tesseractWorker, cardRepository, tagRepository);
+        const fileRouter = new FileRouter(this.log, this.storage, fileRepository);
         const tagRouter = new TagRouter(tagRepository);
 
         cardRouter.routes();

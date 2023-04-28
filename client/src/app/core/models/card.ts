@@ -1,3 +1,5 @@
+import { FilePreviewModel } from "ngx-awesome-uploader";
+
 /**
  * Information of a card
  */
@@ -15,7 +17,7 @@ export interface Card {
 export interface CardRequest {
   cardId?: number;
   title: string;
-  files: number[];
+  files: FilePreviewModel[];
   tags: string[];
   website: string;
   username: string;

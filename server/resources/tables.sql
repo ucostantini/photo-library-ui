@@ -41,15 +41,6 @@ CREATE TABLE IF NOT EXISTS files
     FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
 );
 
-
-CREATE TRIGGER IF NOT EXISTS [UpdateFileContentFilesFTS]
-    AFTER UPDATE OF fileContent
-    ON files
-BEGIN
-    UPDATE cards_fts SET fileContent = NEW.fileContent WHERE files_fts.fileId = OLD.fileId;
-END;
-
-
 /*
 Example for files column : "[12,45]"
 Example for tags column : ["car","antique","v8","70s"]"
@@ -67,20 +58,3 @@ FROM cards
          NATURAL JOIN tags
          NATURAL JOIN files
 GROUP BY cardId, title, website, username, created, modified;
-
-CREATE VIRTUAL TABLE IF NOT EXISTS cards_fts USING FTS5
-(
-    cardId,
-    title,
-    filesContent,
-    website,
-    username,
-    tags
-);
-
-CREATE TRIGGER IF NOT EXISTS [TruncateCardsFTS]
-    AFTER DELETE
-    ON cards
-BEGIN
-    DELETE FROM cards_fts WHERE cardId = OLD.cardId;
-END;

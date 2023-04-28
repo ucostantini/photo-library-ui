@@ -93,15 +93,17 @@ export class CardFormComponent implements OnInit {
    * After upload of file, retrieve backend-generated file ID from response and add it in card form
    * @param $event Backend response containing the generated file ID
    */
-  onFileUploaded($event: FilePreviewModel): void {
-    (this.form.get('files') as FormArray).push(new FormControl($event.uploadResponse as number));
+  onFileAdded($event: FilePreviewModel): void {
+    const reader = new FileReader();
+    reader.readAsDataURL($event.file);
+    reader.onloadend = () => (this.form.get('files') as FormArray).push(new FormControl((reader.result as string).split(',')[1]));
   }
 
   /**
    * After deletion of file, remove file from form data
    * @param $event Backend response containing the deleted file ID
    */
-  onFileRemoved($event: FilePreviewModel): void {
+  onFileRemoved($event: FilePreviewModel): void { //TODO fix this
     const formArray = (this.form.get('files') as FormArray);
     formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) =>
       (item.value as number) === $event.uploadResponse.fileId)

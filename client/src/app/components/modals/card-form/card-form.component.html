@@ -8,8 +8,8 @@
 
     <div *ngIf="operation === 'Create'">
       <ngx-awesome-uploader
-        (removeSuccess)="onFileRemoved($event)"
-        (uploadSuccess)="onFileUploaded($event)"
+        (fileAdded)="onFileAdded($event)"
+        [enableAutoUpload]=false
         [accept]="'image/*'"
         [adapter]="this.fileService">
       </ngx-awesome-uploader>

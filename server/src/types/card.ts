@@ -1,4 +1,4 @@
-import { MinIOStorageService } from '../core/minIOStorageService';
+import { MinIOStorageService } from "../core/storage/minIOStorageService";
 import { SqliteCardRepository } from "../core/repositories/sqlite/sqliteCardRepository";
 import { SqliteFileRepository } from "../core/repositories/sqlite/sqliteFileRepository";
 import { SqliteTagRepository } from "../core/repositories/sqlite/sqliteTagRepository";
@@ -13,16 +13,6 @@ export interface FileURL {
     fileURL: string;
     thumbnailURL: string;
 }
-
-
-export interface FTSCardRequest extends CardRequest {
-    filesContent: string[];
-}
-
-export interface FTSCardResult { // TODO is this interface really necessary ? replace with list of number directly
-    cardIds: number[];
-}
-
 
 export interface Card {
     cardId: number;
@@ -39,6 +29,7 @@ export interface CardRequest {
     cardId?: number;
     title?: string;
     files?: number[];
+    filesContent?: string[];
     tags?: string[];
     website?: string;
     username?: string;

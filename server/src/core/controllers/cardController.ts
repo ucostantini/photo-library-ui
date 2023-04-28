@@ -23,7 +23,7 @@ export class CardController {
     public async get(card: CardForm): Promise<CardResult> {
         card.pagination = this.pageToOffset(card.pagination);
         // if form is absent, home is request, get all cards. If form is present, get matching cards.
-        const cards: CardResult = (card.card === null ? this.cardRepository.readAll(card) : this.cardRepository.read(card));
+        const cards: CardResult = await (card.card === null ? this.cardRepository.readAll(card) : this.cardRepository.read(card));
         for (const card of cards.cards) {
             card.files = await this.fileController.get(card.cardId);
         }

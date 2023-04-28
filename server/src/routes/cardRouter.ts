@@ -7,6 +7,7 @@ import { Logger } from "pino";
 import { ICardRepository } from "../core/repositories/ICardRepository";
 import { ITagRepository } from "../core/repositories/ITagRepository";
 import { FileController } from "../core/controllers/fileController";
+import { Worker } from "tesseract.js";
 
 /**
  * Entry point for all CRUD routes related to cards
@@ -67,8 +68,12 @@ export class CardRouter {
      *           example: 2019-07-22
      */
 
-    constructor(private log: Logger, cardRepository: ICardRepository, tagRepository: ITagRepository, fileController: FileController) {
-        this.cardController = new CardController(cardRepository, tagRepository, fileController);
+    constructor(private log: Logger,
+                private fileController: FileController,
+                private tesseractWorker: Worker,
+                cardRepository: ICardRepository,
+                tagRepository: ITagRepository) {
+        this.cardController = new CardController(cardRepository, tagRepository, this.fileController);
         this._router = Router();
 
         // YUP schema specification for validation of a Card object
@@ -82,6 +87,10 @@ export class CardRouter {
         });
 
         this.routes();
+    }
+
+    get router() {
+        return this._router;
     }
 
     /**
@@ -192,18 +201,16 @@ export class CardRouter {
      *                   description: The HTTP status code
      *                   example: 201
      */
-    public create(req: Request, res: Response) {
+    public async create(req: Request, res: Response) {
         this.log.info(req.body, "Request Body Payload");
+        const fileIds: number[] = await this.fileController.create(req.body.files as string[], this.tesseractWorker);
+        req.body.files = fileIds;
         const card: CardRequest = req.body;
         // check validity of provided card information using defined schema
-        this.schema
-            .validate(card)
-            .then(() => this.cardController.create({card: card, pagination: null} as CardForm))
-            .then((message: string) => res.status(201)
-                .send({
-                    message: message
-                }))
+        await this.schema.validate(card);
+        const message = await this.cardController.create({card: card, pagination: null} as CardForm)
             .catch((error: Error) => this.errorHandler(error, res));
+        res.status(201).send({message: message});
     }
 
     /**
@@ -302,9 +309,5 @@ export class CardRouter {
     private errorHandler(error: Error, res: Response<any, Record<string, any>>) {
         this.log.error(error, "Error occurred in /cards entry point");
         res.status(500).send(error.message);
-    }
-
-    get router() {
-        return this._router;
     }
 }

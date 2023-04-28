@@ -1,10 +1,9 @@
-import { UploadedFile } from "express-fileupload";
-import { IStorageService } from "../IStorageService";
+import { IStorageService } from "../storage/IStorageService";
 import { Logger } from "pino";
 import sharp, { Sharp } from "sharp";
 import { IFileRepository } from "../repositories/IFileRepository";
 import { MD5 } from "crypto-js";
-import { RecognizeResult, Worker } from "tesseract.js";
+import Tesseract, { RecognizeResult, Worker } from "tesseract.js";
 import { FileURL } from "../../types/card";
 
 /**
@@ -41,36 +40,39 @@ export class FileController {
      * @param file the file to be stored
      * @return the generated ID of the provided file
      */
-    public async create(file: UploadedFile, tesseractWorker: Worker): Promise<number> {
-        // 1. Convert the file to jpg and compress it
-        const convertedFile: Sharp = sharp(file.data).jpeg({mozjpeg: true, quality: 100});
-        const fileData: Buffer = await convertedFile.toBuffer();
-        const fileHash: string = MD5(fileData.toString('base64')).toString();
+    public async create(files: string[], tesseractWorker: Worker): Promise<number[]> {
+        const fileIds: number[] = [];
+        for (const file of files) {
+            // 1. Convert the file to jpg and compress it
+            const convertedFile: Sharp = sharp(Buffer.from(file, 'base64')).jpeg({mozjpeg: true, quality: 100});
+            const fileData: Buffer = await convertedFile.toBuffer();
+            const fileHash: string = MD5(fileData.toString('base64')).toString();
 
-        // 2. Store file's metadata in DB and retrieve file ID and name if not already exist
-        const fileId: number = this.fileRepository.create({fileHash: fileHash, fileId: null}).files[0];
+            // 2. Store file's metadata in DB and retrieve file ID and name if not already exist
+            const fileId: number = this.fileRepository.create({fileHash: fileHash, fileId: null}).files[0];
 
-        // 3. Store file with service
-        const fileStructure = this.fileStructure(fileId);
-        this.log.debug('Put file in storage service for %s', file.name);
-        await this.storage.storeFile(fileStructure.name, fileData, fileStructure.mime);
+            // 3. Store file with service
+            const fileStructure = this.fileStructure(fileId);
+            this.log.debug('Put file in storage service for Id', fileId);
+            await this.storage.storeFile(fileStructure.name, fileData, fileStructure.mime);
 
-        // 4. Create thumbnail using image-thumbnail library then store it
-        this.log.debug('Create thumbnail for file and store it');
-        const thumbnailData: Buffer = await convertedFile.resize(400).toBuffer();
-        await this.storage.storeFile(fileStructure.thumb, thumbnailData, fileStructure.mime);
+            // 4. Create thumbnail using image-thumbnail library then store it
+            this.log.debug('Create thumbnail for file and store it');
+            const thumbnailData: Buffer = await convertedFile.resize(400).toBuffer();
+            await this.storage.storeFile(fileStructure.thumb, thumbnailData, fileStructure.mime);
 
-        // 5. Create OCR from file and store it asynchronously, no need to wait for request to end
-        tesseractWorker.recognize(fileData).then((fileContent: RecognizeResult) =>
-            this.fileRepository.putFileContent(fileId, fileContent.data.text)
-        );
-
-        /*
-                Tesseract.recognize(fileData, 'eng', {logger: m => this.log.debug(m)})
-                    .then((fileContent: RecognizeResult) => this.fileRepository.putFileContent(fileId, fileContent.data.text)
+            // 5. Create OCR from file and store it asynchronously, no need to wait for request to end
+            //const fileContent: RecognizeResult = await tesseractWorker.recognize(fileData);
+            //this.fileRepository.putFileContent(fileId, fileContent.data.text);
+            Tesseract.recognize(fileData, 'eng', {logger: m => this.log.debug(m)})
+                .then((fileContent: RecognizeResult) =>
+                    this.fileRepository.putFileContent(fileId, fileContent.data.text)
                 );
-        */
-        return fileId;
+
+            fileIds.push(fileId);
+        }
+
+        return fileIds;
     }
 
     /**

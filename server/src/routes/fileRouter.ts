@@ -1,12 +1,10 @@
 import { Request, Response, Router } from 'express';
 import { FileController } from "../core/controllers/fileController";
-import { UploadedFile } from "express-fileupload";
 import { Logger } from "pino";
-import { IStorageService } from "../core/IStorageService";
+import { IStorageService } from "../core/storage/IStorageService";
 import { IFileRepository } from "../core/repositories/IFileRepository";
 import { FileURL, SqliteErrorMapping } from "../types/card";
 import { SqliteError } from "better-sqlite3";
-import { Worker } from "tesseract.js"
 
 /**
  * Entry point for all CRUD routes related to files
@@ -15,10 +13,14 @@ export class FileRouter {
     private readonly _router: Router;
     private readonly fileController: FileController;
 
-    constructor(private log: Logger, storage: IStorageService, fileRepository: IFileRepository, private tesseractWorker: Worker) {
+    constructor(private log: Logger, storage: IStorageService, fileRepository: IFileRepository) {
         this.fileController = new FileController(log, storage, fileRepository);
         this._router = Router();
         this.routes();
+    }
+
+    get router() {
+        return this._router;
     }
 
     /**
@@ -26,7 +28,6 @@ export class FileRouter {
      */
     public routes() {
         this._router.get('/:cardId', this.get.bind(this));
-        this._router.post('', this.create.bind(this));
         this._router.delete('/:fileId', this.delete.bind(this));
     }
 
@@ -58,32 +59,6 @@ export class FileRouter {
             this.log.debug(fileUrls, 'Response Payload');
             res.status(200)
                 .send({fileURLs: fileUrls});
-        }).catch(error => this.errorHandler(error, res));
-    }
-
-    /**
-     * @swagger
-     * /files:
-     *   post:
-     *     summary: Store the provided binary file in the application
-     *     requestBody:
-     *         required: true
-     *         content:
-     *           schema:
-     *             type: object
-     *     responses:
-     *       201:
-     *         description: Return the created ID of the successfully stored binary file
-     *         content:
-     *           text/plain:
-     *             schema:
-     *               type: string
-     *               example: 2568
-     */
-    public create(req: Request, res: Response) {
-        this.fileController.create(req.files.file as UploadedFile, this.tesseractWorker).then((fileId: number) => {
-            this.log.debug(fileId, 'Response Payload');
-            res.status(201).send('' + fileId);
         }).catch(error => this.errorHandler(error, res));
     }
 
@@ -140,9 +115,5 @@ export class FileRouter {
         if (error instanceof SqliteError)
             error.message = SqliteErrorMapping[error.code];
         res.status(500).send(error.message);
-    }
-
-    get router() {
-        return this._router;
     }
 }
