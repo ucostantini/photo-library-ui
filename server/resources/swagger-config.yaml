@@ -1,0 +1,374 @@
+openapi: 3.0.3
+info:
+  title: Photo Library
+  description: |-
+    This tool permits you to store your photos, images, screenshots, etc. You can give them a title, tags and optionally an author and a website.
+    You can then search for some images you stored with your keywords, also searching for the content of the file, the sever using OCR  to recognize text in the provided files.
+  version: 1.0.0
+externalDocs:
+  description: Github
+  url: https://github.com/phototheque
+servers:
+  - url: /api/v1
+tags:
+  - name: cards
+  - name: tags
+paths:
+  /cards:
+    get:
+      tags:
+        - cards
+      summary: Get a list of cards
+      description: Get all cards or search for specific cards with a form provided in the query
+      operationId: getCards
+      parameters:
+        - in: query
+          name: search
+          required: false
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardSearch'
+          description: The card search form, URL encoded
+        - in: query
+          name: page
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+          description: The page requested
+        - in: query
+          name: size
+          required: true
+          schema:
+            type: integer
+            minimum: 0
+          description: The number of items per page
+        - in: query
+          name: sort
+          required: true
+          schema:
+            type: string
+            enum: [ created, relevance ]
+          description: >
+            Sort options:
+             * `created` - Sort by date created
+             * `relevance` - Sort by relevance
+        - in: query
+          name: order
+          required: true
+          schema:
+            type: string
+            enum: [ asc, desc ]
+          description: >
+            Sort order:
+             * `asc` - Ascending, from A to Z
+             * `desc` - Descending, from Z to A
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+        '400':
+          description: Missing mandatory parameters or Error parsing JSON payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Missing mandatory query parameter 'sort'
+        '404':
+          description: No cards found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: No cards found for provided search payload
+        '422':
+          description: Error in search form payload. JSON schema is used to validate the payload, please check against the declared component
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Extraneous key [invalidKeyInJsonPayload] is not permitted
+    post:
+      tags:
+        - cards
+      summary: Create a new card in the system
+      operationId: createCard
+      requestBody:
+        description: Data provided to be injected in card
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Card successfully created
+        '400':
+          description: Error parsing JSON payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Unexpected Token < in JSON at Position 0.
+        '422':
+          description: Error in form payload. JSON schema is used to validate the payload, please check against the declared component
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Extraneous key [invalidKeyInJsonPayload] is not permitted
+  /cards/{cardId}:
+    put:
+      tags:
+        - cards
+      summary: Update a card given its
+      operationId: updateCard
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The card ID to be updated
+      requestBody:
+        description: New data to be injected in card
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful update
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Card successfully updated
+        '400':
+          description: Error parsing JSON payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Unexpected Token < in JSON at Position 0.
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: No cards found for update request
+        '422':
+          description: Error in form payload. JSON schema is used to validate the payload, please check against the declared component
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Extraneous key [invalidKeyInJsonPayload] is not permitted
+    delete:
+      tags:
+        - cards
+      summary: Delete a card given its ID
+      description: Delete a card and its related files
+      operationId: deleteCard
+      parameters:
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The card ID to be deleted
+      responses:
+        '200':
+          description: Successful deletion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: Card successfully deleted
+        '404':
+          description: Card not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperationResponse'
+              example:
+                message: No cards found for delete request
+  /tags:
+    get:
+      tags:
+        - tags
+      summary: Get all tags stored in the system
+      operationId: getTags
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tags:
+                    type: array
+                    example: [ House, Expensive ]
+                    items:
+                      type: string
+                required:
+                  - tags
+components:
+  schemas:
+    CardRequest:
+      description: The card model attached to create and update requests. They don't have an ID, and no content field (those 2 are generated by the server), but has the files field, to attach files to the request.
+      type: object
+      properties:
+        title:
+          type: string
+          maximum: 200
+          description: A photo may have a more generic title than specific tags, i.e. to give context about it
+          example: Reddit post about how house prices vary region by region
+        files:
+          type: array
+          minimum: 1
+          description: You must attach to the request your files as strings in base64 format, without the header, e.g. "data:image/png;base64,". These files will have an OCR process applied to each of them, to make the search functionality more interesting and useful.
+          example: [ iVBORw0KGgoAAA, ... ]
+          items:
+            type: string
+            format: byte
+        tags:
+          type: array
+          description: You can specify what a photo is about with tags. They can be generic or specific.
+          example: [ House,Prices,Regions,Expensive, ... ]
+          minimum: 1
+          items:
+            type: string
+            minimum: 3
+        author:
+          type: string
+          description: The author of the content of the files, can be a full name, or an username
+          maximum: 30
+          example: John Smith
+        website:
+          type: string
+          description: The website the files come from
+          maximum: 30
+          example: Facebook
+      required:
+        - files
+        - tags
+    CardSearch:
+      description: Model representing a search form for a card. The title and content of the files will be searched throught the content field
+      type: object
+      properties:
+        content:
+          type: string
+          maximum: 200
+          description: You can search for the content of a card. This field will try to match the title of the card, as well as the content of all attached files.
+          example: Reddit post about how house prices vary region by region
+        tags:
+          type: array
+          description: The search request will return all cards that contains all provided tags
+          example: [ House,Prices,Regions,Expensive, ... ]
+          minimum: 1
+          items:
+            type: string
+            minimum: 3
+        author:
+          type: string
+          description: The author of the content of the files, can be a full name, or an username
+          maximum: 30
+          example: John Smith
+        website:
+          type: string
+          description: The website the files come from
+          maximum: 30
+          example: Facebook
+    CardResult:
+      description: Model representing one card returned by the server, with its ID.
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        title:
+          type: string
+          description: A photo may have a more generic title than specific tags, i.e. to give context about it
+          example: Reddit post about how house prices vary region by region
+        files:
+          type: array
+          description: The files provided in form of URLs, for the thumbnail and the file itself
+          items:
+            type: object
+            properties:
+              fileURL:
+                type: string
+                format: url
+                example: "http://localhost:9000/photo-library/314.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd"
+              thumbnailURL:
+                type: string
+                format: url
+                example: "http://localhost:9000/photo-library/314-thumb.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd"
+        tags:
+          type: array
+          description: Tags  can be generic or specific
+          example: [ House,Prices,Regions,Expensive ]
+          items:
+            type: string
+        author:
+          type: string
+          description: The author of the content of the files, can be a full name, or an username
+          example: John Smith
+        website:
+          type: string
+          description: The website the files come from
+          example: Facebook
+        created:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+      required:
+        - id
+        - title
+        - files
+        - tags
+        - author
+        - website
+        - created
+        - modified
+    OperationResponse:
+      description: Represents the geeneral response given by the server, at any time, for any reason, whether the request is successful or not, or an error happened, or the server crashed.
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardResult'
+        message:
+          type: string
+          example: Search successfully performed
+      required:
+        - message

@@ -3,7 +3,7 @@ import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { CardService } from '../../core/services/card/card.service';
-import { Card, Message, Pagination, Sorting } from '../../core/models/card';
+import { Card, OperationResponse, Pagination, Sorting } from '../../core/models/card';
 import { NotificationService } from '../../core/services/notification/notification.service';
 import { HttpErrorResponse, HttpResponse } from "@angular/common/http";
 
@@ -72,8 +72,8 @@ export class NavMenuComponent implements OnInit {
       .subscribe((cardForm: Card) => {
         if (cardForm)
           this.cardService.create(cardForm).subscribe({
-            next: (message: Message) => this.notifService.notifySuccess(message.message),
-            error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
+            next: (response: OperationResponse) => this.notifService.notifySuccess(response.message),
+            error: (response: HttpErrorResponse) => this.notifService.notifyError((response.error as OperationResponse).message)
           });
       });
   }
@@ -92,7 +92,7 @@ export class NavMenuComponent implements OnInit {
         this.paginationReset();
         this.fetchCards();
       },
-      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
+      error: (response: HttpErrorResponse) => this.notifService.notifyError((response.error as OperationResponse).message)
     });
   }
 
@@ -111,11 +111,11 @@ export class NavMenuComponent implements OnInit {
    */
   fetchCards(): void {
     this.cardService.fetch(this.selectedPagination, this.selectedSorting, this.cardFormData).subscribe({
-      next: (response: HttpResponse<Card[]>) => {
+      next: (response: HttpResponse<OperationResponse>) => {
         this.selectedPagination.pageLength = Number(response.headers.get("X-Total-Count"));
-        this.cardService.getCardsEmitter().emit({cards: response.body, pagination: this.selectedPagination});
+        this.cardService.getCardsEmitter().emit({cards: response.body.results, pagination: this.selectedPagination});
       },
-      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
+      error: (response: HttpErrorResponse) => this.notifService.notifyError((response.error as OperationResponse).message)
     });
   }
 

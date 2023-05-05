@@ -4,12 +4,12 @@ import { FilePreviewModel } from "ngx-awesome-uploader";
  * Information of a card
  */
 export interface Card {
-  cardId: number;
+  id: number;
   title: string;
   files: FileURL[];
   tags: string[];
   website: string;
-  username: string;
+  author: string;
   created: Date;
   modified: Date;
 }
@@ -46,8 +46,9 @@ export interface TagResult {
   tags: string[]
 }
 
-export interface Message {
+export interface OperationResponse {
   message: string;
+  results?: Card[];
 }
 
 /**

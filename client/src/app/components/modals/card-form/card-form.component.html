@@ -6,16 +6,18 @@
       <input formControlName="title" matInput placeholder="Advices for yoga">
     </mat-form-field>
 
-    <div *ngIf="operation === 'Create'">
-      <ngx-awesome-uploader
-        (fileAdded)="onFileAdded($event)"
-        [enableAutoUpload]=false
-        [accept]="'image/*'"
-        [adapter]="this.fileService">
-      </ngx-awesome-uploader>
+    <div *ngIf="operation === 'Edit'">
+      Warning ! Files are not auto-completed. Adding a new file will remove all already stored files.
     </div>
+    <ngx-awesome-uploader
+      (fileAdded)="onFileAdded($event)"
+      (fileRemoved)="onFileRemoved($event)"
+      [accept]="'image/*'"
+      [enableAutoUpload]=false>
+    </ngx-awesome-uploader>
 
-    <app-tags (addTag)="addTag($event)" (removeTag)="removeTag($event)" style="padding-top: 36px"></app-tags>
+    <app-tags (addTag)="addTag($event)" (removeTag)="removeTag($event)" [inputTags]="data.card?.tags"
+              style="padding-top: 36px"></app-tags>
 
     <fieldset class="scheduler-border">
       <legend class="scheduler-border">Credits</legend>

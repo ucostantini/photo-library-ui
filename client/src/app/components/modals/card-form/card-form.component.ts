@@ -1,8 +1,7 @@
-import { Component, Inject, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Card, CardRequest, Status } from '../../../core/models/card';
 import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { FileService } from '../../../core/services/file/file.service';
 import { FilePickerComponent, FilePreviewModel } from 'ngx-awesome-uploader';
 
 /**
@@ -25,15 +24,10 @@ import { FilePickerComponent, FilePreviewModel } from 'ngx-awesome-uploader';
 })
 export class CardFormComponent implements OnInit {
 
-  /**
-   * Used for some css fixes, see component's scss file
-   */
-  @ViewChild(FilePickerComponent) viewChild: FilePickerComponent;
-
   form: FormGroup;
   operation: Status;
 
-  constructor(public fileService: FileService, private dialogRef: MatDialogRef<CardFormComponent>,
+  constructor(private dialogRef: MatDialogRef<CardFormComponent>,
               @Inject(MAT_DIALOG_DATA) public data: { card: Card, isSearch: boolean }, private fb: FormBuilder) {
   }
 
@@ -46,29 +40,22 @@ export class CardFormComponent implements OnInit {
     this.operation = isSearch ? 'Search' : (inputCard ? 'Edit' : 'Create');
 
     this.form = this.fb.group({
-      title: [inputCard ? inputCard.title : '', [
+      title: [inputCard?.title, [
         Validators.maxLength(80)]
       ],
-      files: this.fb.array([], !isSearch ? [Validators.required, Validators.minLength(1)] : []),
+      files: this.fb.array([], (!isSearch && !inputCard) ? [Validators.required, Validators.minLength(1)] : []),
       tags: this.fb.array([], !isSearch ? [Validators.required, Validators.minLength(1)] : []),
-      website: [inputCard ? inputCard.website : '', !isSearch ? [
+      website: [inputCard?.website, !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(30)] : []
       ],
-      username: [inputCard ? inputCard.username : '', !isSearch ? [
+      username: [inputCard?.author, !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(20)] : []
       ]
     });
-
-    // pre-complete tags field in card form
-    if (inputCard) {
-      inputCard.tags.forEach((tag: string) => {
-        (this.form.get('tags') as FormArray).push(new FormControl(tag, []));
-      });
-    }
   }
 
   /**
@@ -83,8 +70,11 @@ export class CardFormComponent implements OnInit {
    */
   onFormSubmit(): void {
     if (this.form.valid) {
-      const formData = (this.form.getRawValue() as CardRequest);
-      let card = this.data.card ? {...formData, cardId: this.data.card.cardId} : formData;
+      const rawValue: any = this.form.getRawValue();
+      // prepare files
+      rawValue.files = rawValue.files.map(file => file.content);
+      const formData = (rawValue as CardRequest);
+      let card = this.data.card ? {...formData, cardId: this.data.card.id} : formData;
       this.dialogRef.close(card);
     }
   }
@@ -96,17 +86,19 @@ export class CardFormComponent implements OnInit {
   onFileAdded($event: FilePreviewModel): void {
     const reader = new FileReader();
     reader.readAsDataURL($event.file);
-    reader.onloadend = () => (this.form.get('files') as FormArray).push(new FormControl((reader.result as string).split(',')[1]));
+    reader.onloadend = () =>
+      (this.form.get('files') as FormArray)
+        .push(new FormControl({name: $event.fileName, content: (reader.result as string).split(',')[1]}));
   }
 
   /**
    * After deletion of file, remove file from form data
    * @param $event Backend response containing the deleted file ID
    */
-  onFileRemoved($event: FilePreviewModel): void { //TODO fix this
+  onFileRemoved($event: FilePreviewModel): void {
     const formArray = (this.form.get('files') as FormArray);
     formArray.removeAt(formArray.controls.findIndex((item: AbstractControl) =>
-      (item.value as number) === $event.uploadResponse.fileId)
+      (item.value.name) === $event.fileName)
     );
   }
 

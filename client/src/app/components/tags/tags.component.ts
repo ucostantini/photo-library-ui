@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { map, Observable, startWith } from "rxjs";
 import { MatChipInputEvent } from "@angular/material/chips";
 import { MatAutocompleteSelectedEvent } from "@angular/material/autocomplete";
@@ -14,10 +14,12 @@ import { NotificationService } from "../../core/services/notification/notificati
   templateUrl: './tags.component.html',
   styleUrls: ['./tags.component.scss']
 })
-export class TagsComponent {
+export class TagsComponent implements OnInit {
 
   @Output() addTag = new EventEmitter<string>();
   @Output() removeTag = new EventEmitter<number>();
+
+  @Input() inputTags: string[];
 
   separatorKeysCodes: number[] = [ENTER, COMMA];
   tagCtrl = new FormControl('');
@@ -28,6 +30,9 @@ export class TagsComponent {
   @ViewChild('tagInput') tagInput: ElementRef<HTMLInputElement>;
 
   constructor(private tagService: TagService, private notifService: NotificationService) {
+  }
+
+  ngOnInit(): void {
     this.tagService.fetch().subscribe({
       next: (tags: TagResult) => this.availableTags = tags.tags,
       error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error.message)
@@ -36,12 +41,17 @@ export class TagsComponent {
       startWith(null),
       map((tag: string | null) => (tag ? this._filter(tag) : this.availableTags.slice())),
     );
+
+    this.inputTags?.forEach(tag => {
+      this.tags.push(tag);
+      this.addTag.emit(tag);
+    });
+    this.tagCtrl.setValue(null);
   }
 
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim().toLowerCase();
 
-    // Add our fruit
     if (value && value.length > 3) {
       this.tags.push(value);
       this.addTag.emit(value);
@@ -54,8 +64,8 @@ export class TagsComponent {
 
   }
 
-  remove(fruit: string): void {
-    const index = this.tags.indexOf(fruit);
+  remove(tag: string): void {
+    const index = this.tags.indexOf(tag);
 
     if (index >= 0) {
       this.tags.splice(index, 1);

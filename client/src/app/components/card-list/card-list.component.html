@@ -11,6 +11,8 @@
     </app-card-details>
   </div>
 
+  <!-- TODO replace with infinite scroll ? -->
+
   <mat-paginator (page)="onPageChange($event)"
                  [length]=this.pagination.pageLength
                  [pageIndex]="this.pagination.pageIndex"

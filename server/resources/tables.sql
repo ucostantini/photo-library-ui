@@ -4,6 +4,7 @@
 -- sqlite> .quit
 CREATE TABLE IF NOT EXISTS cards
 (
+    --TODO use UUIDs, generate them at server level
     cardId   INTEGER PRIMARY KEY,
     --TODO why is there a title again ? remove it or make it optional
     title    VARCHAR(70)                        NOT NULL,
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS files
 (
     cardId      INTEGER,
     fileId      INTEGER,
+    -- TODO remove file hash
     fileName    VARCHAR(100),
     fileHash    VARCHAR(20) UNIQUE,
     fileContent TEXT,

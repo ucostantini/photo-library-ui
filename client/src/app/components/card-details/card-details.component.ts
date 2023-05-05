@@ -1,15 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Card, FileURL, Message } from '../../core/models/card';
+import { Card, FileURL, OperationResponse } from '../../core/models/card';
 import { CardService } from '../../core/services/card/card.service';
 import { CardDeleteComponent } from '../modals/card-delete/card-delete.component';
 import { MatDialog } from '@angular/material/dialog';
 import { CardFormComponent } from '../modals/card-form/card-form.component';
 import { NotificationService } from '../../core/services/notification/notification.service';
-import { FileService } from "../../core/services/file/file.service";
 import { IAlbum, Lightbox, LIGHTBOX_EVENT, LightboxConfig, LightboxEvent } from "ngx-lightbox";
 import { CarouselComponent, Image } from "angular-responsive-carousel";
 import { HttpErrorResponse } from "@angular/common/http";
-import { concatMap, filter, Subscription, tap, throwIfEmpty } from "rxjs";
+import { concatMap, filter, Subscription, throwIfEmpty } from "rxjs";
 
 /**
  * Displays an individual card's information
@@ -31,11 +30,16 @@ export class CardDetailsComponent implements OnInit {
   constructor(public dialog: MatDialog,
               private cardService: CardService,
               private notifService: NotificationService,
-              private fileService: FileService,
               private lightbox: Lightbox,
               private lightboxConfig: LightboxConfig,
               private lightboxEvent: LightboxEvent,
               private carousel: CarouselComponent) {
+  }
+
+  /**
+   * Retrieve URLs of card's files for angular-responsive-carousel library and lightbox
+   */
+  ngOnInit(): void {
     this.lightboxConfig.containerElementResolver = (doc: Document) => doc.getElementById("list");
     this.lightboxConfig.showZoom = true;
     this.lightboxConfig.showDownloadButton = true;
@@ -44,16 +48,7 @@ export class CardDetailsComponent implements OnInit {
     // TODO disable scrolling does not work, lightbox background shade does not fill page entirely
     this.lightboxConfig.disableScrolling = true;
 
-  }
-
-  /**
-   * Retrieve URLs of card's files for angular-responsive-carousel library and lightbox
-   */
-  ngOnInit(): void {
     this.carousel.initCarousel();
-    // TODO find a way to avoid JSON parsing
-    // @ts-ignore
-    this.card.tags = JSON.parse(this.card.tags);
 
     this.card.files.forEach((file: FileURL) => {
       this.thumbnails.push({path: file.thumbnailURL});
@@ -68,7 +63,6 @@ export class CardDetailsComponent implements OnInit {
 
   onImageView() {
     if (this.view) {
-      console.log(this.carousel.counter);
       this.lightbox.open(this.lightboxFiles, Number(this.carousel.counter.charAt(0)) - 1);
       this.lightboxSubscription = this.lightboxEvent.lightboxEvent$
         .subscribe(event => this.onReceivedEvent(event));
@@ -88,8 +82,8 @@ export class CardDetailsComponent implements OnInit {
     }).afterClosed().subscribe((card: Card) => {
       if (card) {
         this.cardService.update(card).subscribe({
-          next: (message: Message) => this.notifService.notifySuccess(message.message),
-          error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
+          next: (response: OperationResponse) => this.notifService.notifySuccess(response.message),
+          error: (response: HttpErrorResponse) => this.notifService.notifyError((response.error as OperationResponse).message)
         });
       }
     });
@@ -106,11 +100,10 @@ export class CardDetailsComponent implements OnInit {
     }).afterClosed().pipe(
       filter((card: Card) => card !== null && card !== undefined),
       throwIfEmpty(),
-      tap((card: Card) => this.fileService.removeFileFromCardId(card.cardId)),
-      concatMap((card: Card) => this.cardService.delete(card.cardId))
+      concatMap((card: Card) => this.cardService.delete(card.id))
     ).subscribe({
-      next: (message: Message) => this.notifService.notifySuccess(message.message),
-      error: (error: HttpErrorResponse) => this.notifService.notifyError(error.error)
+      next: (response: OperationResponse) => this.notifService.notifySuccess(response.message),
+      error: (response: HttpErrorResponse) => this.notifService.notifyError((response.error as OperationResponse).message)
     });
   }
 

@@ -76,6 +76,7 @@ export class CardRouter {
         this.cardController = new CardController(cardRepository, tagRepository, this.fileController);
         this._router = Router();
 
+        // TODO use json schema instead
         // YUP schema specification for validation of a Card object
         this.schema = yup.object({
             title: yup.string().max(60),
@@ -203,6 +204,7 @@ export class CardRouter {
      */
     public async create(req: Request, res: Response) {
         this.log.info(req.body, "Request Body Payload");
+        // TODO handle Edit : if a new file is present, remove everything in backend and relink
         const fileIds: number[] = await this.fileController.create(req.body.files as string[], this.tesseractWorker);
         req.body.files = fileIds;
         const card: CardRequest = req.body;

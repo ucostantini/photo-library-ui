@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "json-server": "^0.17.3"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@faker-js/faker": "^7.6.0"
+  }
+}
