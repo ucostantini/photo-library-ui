@@ -3,7 +3,7 @@ import { TagResult } from "../../models/card";
 import { Observable } from "rxjs";
 import { HttpClient } from "@angular/common/http";
 
-const baseURL = 'http://localhost:3034/tags';
+const baseURL = 'http://localhost:3000/tags';
 
 @Injectable({
   providedIn: 'root'

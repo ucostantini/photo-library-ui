@@ -1,123 +1,37 @@
 {
-  "cards": [
-    {
-      "cardId": 0,
-      "title": "Title 1",
-      "files": [
-        1,
-        2,
-        3
-      ],
-      "tags": [
-        "tag1",
-        "tag2",
-        "tag3"
-      ],
-      "source": {
-        "website": "Twitter",
-        "username": "Jan Jansen"
-      },
-      "created": "2022-06-01T14:25:08.716Z",
-      "modified": "2022-06-01T14:25:08.716Z"
-    },
-    {
-      "cardId": 1,
-      "title": "Title 2",
-      "files": [
-        4,
-        5,
-        6,
-        7
-      ],
-      "tags": [
-        "tag4",
-        "tag5",
-        "tag6"
-      ],
-      "source": {
-        "website": "Youtube",
-        "username": "Erika Mustermann"
-      },
-      "created": "2022-05-12T23:45:39Z",
-      "modified": "2022-08-12T14:15:12Z"
-    },
-    {
-      "cardId": 2,
-      "title": "Title 3",
-      "files": [
-        8
-      ],
-      "tags": [
-        "tag1",
-        "tag2",
-        "tag3"
-      ],
-      "source": {
-        "website": "Twitter",
-        "username": "John Smith"
-      },
-      "created": "2022-03-05T22:16:40Z",
-      "modified": "2022-03-05T22:16:40Z"
-    },
-    {
-      "cardId": 3,
-      "title": "Title 4",
-      "files": [
-        9,
-        10
-      ],
-      "tags": [
-        "tag4",
-        "tag5",
-        "tag6"
-      ],
-      "source": {
-        "website": "Twitter",
-        "username": "John Smith"
-      },
-      "created": "2022-01-20T00:43:57Z",
-      "modified": "2022-03-15T08:27:12Z"
-    },
-    {
-      "cardId": 4,
-      "title": "Title 5",
-      "files": [
-        11,
-        12,
-        13,
-        14,
-        15,
-        16
-      ],
-      "tags": [
-        "tag5",
-        "tag1",
-        "tag2"
-      ],
-      "source": {
-        "website": "Facebook",
-        "username": "John Smith"
-      },
-      "created": "2022-02-28T07:22:50Z",
-      "modified": "2022-06-05T16:47:28Z"
-    },
-    {
-      "cardId": 5,
-      "title": "Title 6",
-      "files": [
-        17
-      ],
-      "tags": [
-        "tag1",
-        "tag2",
-        "tag3"
-      ],
-      "source": {
-        "website": "Youtube",
-        "username": "Jan Jansen"
-      },
-      "created": "2022-02-21T16:37:27Z",
-      "modified": "2022-04-28T05:06:58Z"
-    }
-  ]
+  "message" : "Search successfully performed",
+  "results" : {
+    "cards" : [ {
+      "website" : "Facebook",
+      "author" : "John Smith",
+      "created" : "2000-01-23T04:56:07.000+00:00",
+      "files" : [ {
+        "fileURL" : "http://localhost:9000/photo-library/314.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd",
+        "thumbnailURL" : "http://localhost:9000/photo-library/314-thumb.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd"
+      }, {
+        "fileURL" : "http://localhost:9000/photo-library/314.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd",
+        "thumbnailURL" : "http://localhost:9000/photo-library/314-thumb.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd"
+      } ],
+      "modified" : "2000-01-23T04:56:07.000+00:00",
+      "id" : 10,
+      "title" : "Reddit post about how house prices vary region by region",
+      "tags" : [ "House", "Prices", "Regions", "Expensive" ]
+    }, {
+      "website" : "Facebook",
+      "author" : "John Smith",
+      "created" : "2000-01-23T04:56:07.000+00:00",
+      "files" : [ {
+        "fileURL" : "http://localhost:9000/photo-library/314.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd",
+        "thumbnailURL" : "http://localhost:9000/photo-library/314-thumb.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd"
+      }, {
+        "fileURL" : "http://localhost:9000/photo-library/314.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd",
+        "thumbnailURL" : "http://localhost:9000/photo-library/314-thumb.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=minioadmin%2F20220726%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220726T182820Z&X-Amz-Expires=604800&X-Amz-SignedHeaders=host&X-Amz-Signature=a186ae2d57f58c7896cfac1bbb416a72217da464f269e5396139cef9abc5dafd"
+      } ],
+      "modified" : "2000-01-23T04:56:07.000+00:00",
+      "id" : 10,
+      "title" : "Reddit post about how house prices vary region by region",
+      "tags" : [ "House", "Prices", "Regions", "Expensive" ]
+    } ],
+    "count" : 1
+  }
 }

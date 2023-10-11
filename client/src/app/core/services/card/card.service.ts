@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Card, CardResult, OperationResponse, Pagination, Sorting } from '../../models/card';
 
-const baseURL = 'http://localhost:3034/cards';
+const baseURL = 'http://localhost:3000/cards';
 
 /**
  * Provides CRUD methods for card related operations

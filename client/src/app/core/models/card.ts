@@ -15,12 +15,12 @@ export interface Card {
 }
 
 export interface CardRequest {
-  cardId?: number;
+  id?: number;
   title: string;
   files: FilePreviewModel[];
   tags: string[];
   website: string;
-  username: string;
+  author: string;
 }
 
 export interface FileURL {

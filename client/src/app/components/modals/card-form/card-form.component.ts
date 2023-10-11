@@ -50,7 +50,7 @@ export class CardFormComponent implements OnInit {
         Validators.minLength(3),
         Validators.maxLength(30)] : []
       ],
-      username: [inputCard?.author, !isSearch ? [
+      author: [inputCard?.author, !isSearch ? [
         Validators.required,
         Validators.minLength(3),
         Validators.maxLength(20)] : []
@@ -108,5 +108,26 @@ export class CardFormComponent implements OnInit {
 
   removeTag($event: number): void {
     (this.form.get('tags') as FormArray).removeAt($event);
+  }
+
+  /*
+   Returns an array of invalid control/group names, or a zero-length array if
+   no invalid controls/groups where found
+*/
+  public findInvalidControlsRecursive(formToInvestigate: FormGroup | FormArray): void {
+    var invalidControls: string[] = [];
+    let recursiveFunc = (form: FormGroup | FormArray) => {
+      Object.keys(form.controls).forEach(field => {
+        const control = form.get(field);
+        if (control.invalid) invalidControls.push(field);
+        if (control instanceof FormGroup) {
+          recursiveFunc(control);
+        } else if (control instanceof FormArray) {
+          recursiveFunc(control);
+        }
+      });
+    }
+    recursiveFunc(formToInvestigate);
+    console.error(invalidControls);
   }
 }
