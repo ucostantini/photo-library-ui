@@ -11,19 +11,28 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     command: server --console-address ":9001" /data
+    networks:
+      photo-library-network:
+        ipv4_address: 172.25.0.7
   create-minio-bucket:
     image: minio/mc
+    networks:
+      photo-library-network:
+        ipv4_address: 172.25.0.8
     depends_on:
       - minio
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc alias set myminio http://172.25.0.7:9000 minioadmin minioadmin;
       /usr/bin/mc mb myminio/photo-library;
       /usr/bin/mc anonymous set public myminio/photo-library;
       exit 0;
       "
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.10.0
+    networks:
+      photo-library-network:
+        ipv4_address: 172.25.0.9
     container_name: elasticsearch
     environment:
       - xpack.security.enabled=false
@@ -35,22 +44,28 @@ services:
       - 9200:9200
       - 9300:9300
   photo-library-frontend:
-    image: ucostantini/photo-library-frontend:latest
+    image: karushifaa/photo-library-frontend:latest
+    networks:
+      photo-library-network:
+        ipv4_address: 172.25.0.10
     depends_on:
       - photo-library-backend
     ports:
-      - 4200:4200
+      - 5100:80
   photo-library-backend:
-    image: ucostantini/photo-library-backend:latest
+    image: karushifaa/photo-library-backend:latest
+    networks:
+      photo-library-network:
+        ipv4_address: 172.25.0.11
     depends_on:
-      - minio-create-bucket
+      - create-minio-bucket
       - elasticsearch
     environment:
       DB_CLIENT: "sqlite"
-      DB_PATH: "/app/db.sqlite"
-      ELASTIC_ENDPOINT: "http://elasticsearch:9200"
+      DB_PATH: "/app/resources/db.sqlite"
+      ELASTIC_ENDPOINT: "http://172.25.0.9:9200"
       STORAGE_SERVICE: "minio"
-      MINIO_ENDPOINT: "minio"
+      MINIO_ENDPOINT: "172.25.0.7"
       MINIO_PORT: "9000"
       MINIO_ACCESS_KEY: "minioadmin"
       MINIO_SECRET_KEY: "minioadmin"
@@ -63,3 +78,11 @@ volumes:
   minio-data: {}
   elasticsearch-data:
     driver: local
+networks:
+  photo-library-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/16
+          gateway: 172.25.0.1

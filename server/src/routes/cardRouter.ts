@@ -2,7 +2,7 @@ import { Request, Response, Router } from 'express';
 import { CardController } from '../core/controllers/cardController';
 import * as yup from 'yup';
 import { BaseSchema } from 'yup';
-import { CardForm, CardRequest, Pagination } from "../types/card";
+import { CardRequest, CardForm, OperationResponse, Pagination, CardResult } from "../types/card";
 import { Logger } from "pino";
 import { ICardRepository } from "../core/repositories/ICardRepository";
 import { ITagRepository } from "../core/repositories/ITagRepository";
@@ -84,7 +84,7 @@ export class CardRouter {
             fileContent: yup.string(),
             tags: yup.array().of(yup.string().min(3)).min(1).required(),
             website: yup.string().max(30).required(),
-            username: yup.string().max(30).required()
+            author: yup.string().max(30).required()
         });
 
         this.routes();
@@ -160,17 +160,17 @@ export class CardRouter {
     public get(req: Request, response: Response) {
         this.log.info(req.query, "Request Query Payload");
         // parse provided search query as Card object, empty if absent
-        const card: CardRequest = JSON.parse(req.query._search ? req.query._search as string : null);
+        const card: CardForm = JSON.parse(req.query._search ? req.query._search as string : null);
         // parse pagination object in query
         const pagination: Pagination = JSON.parse(req.query._pagination as string);
 
-        this.cardController.get({card: card, pagination: pagination} as CardForm)
-            .then((result) => {
+        this.cardController.get({card: card, pagination: pagination} as CardRequest)
+            .then((result: CardResult) => {
                     this.log.debug(result, 'Response Payload');
                     // set the total count header to get the total number of resources matching the condition
                     response.header("X-Total-Count", '' + result.count)
                         .status(200)
-                        .send(result.cards)
+                        .send({results: result.cards, message: 'Search successfully performed'});
                 }
             ).catch((error: Error) => this.errorHandler(error, response));
     }
@@ -207,12 +207,12 @@ export class CardRouter {
         // TODO handle Edit : if a new file is present, remove everything in backend and relink
         const fileIds: number[] = await this.fileController.create(req.body.files as string[], this.tesseractWorker);
         req.body.files = fileIds;
-        const card: CardRequest = req.body;
+        const card: CardForm = req.body;
         // check validity of provided card information using defined schema
         await this.schema.validate(card);
-        const message = await this.cardController.create({card: card, pagination: null} as CardForm)
+        const message = await this.cardController.create({card: card, pagination: null} as CardRequest)
             .catch((error: Error) => this.errorHandler(error, res));
-        res.status(201).send({message: message});
+        res.status(201).send(message);
     }
 
     /**
@@ -252,15 +252,18 @@ export class CardRouter {
      */
     public update(req: Request, res: Response) {
         this.log.info(req.body, "Request Body Payload");
-        const card: CardRequest = req.body;
+        const card: CardForm = req.body;
         // check validity of provided card information using defined schema
-        this.schema
+        yup.object({
+            title: yup.string().max(60),
+            fileContent: yup.string(),
+            tags: yup.array().of(yup.string().min(3)).min(1).required(),
+            website: yup.string().max(30).required(),
+            author: yup.string().max(30).required()
+        })
             .validate(card)
-            .then(() => this.cardController.update({card: card, pagination: null} as CardForm))
-            .then((message: string) => res.status(200)
-                .send({
-                    message: message
-                }))
+            .then(() => this.cardController.update({card: card, pagination: null} as CardRequest))
+            .then((message: OperationResponse) => res.status(200).send(message))
             .catch((error: Error) => this.errorHandler(error, res));
     }
 
@@ -295,10 +298,7 @@ export class CardRouter {
     public delete(req: Request, res: Response) {
         this.log.info(req.params, "Request Parameters Payload");
         this.cardController.delete(Number(req.params.cardId))
-            .then((message: string) => res.status(200)
-                .send({
-                    message: message
-                }))
+            .then((message: OperationResponse) => res.status(200).send(message))
             .catch((error: Error) => this.errorHandler(error, res));
     }
 
@@ -310,6 +310,6 @@ export class CardRouter {
      */
     private errorHandler(error: Error, res: Response<any, Record<string, any>>) {
         this.log.error(error, "Error occurred in /cards entry point");
-        res.status(500).send(error.message);
+        res.status(500).send({ message: error.message } as OperationResponse);
     }
 }

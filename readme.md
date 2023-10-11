@@ -1,6 +1,12 @@
 # Welcome to the Photo Library project, organizing and finding photos made easier !
 
-# To get this project up and running locally
+# Docker
+1. Clone this project
+2. docker-compose up -d
+3. Access localhost:5100
+4. Profit !
+
+# Run this project for development
 
 ## Requirements
 
@@ -8,7 +14,7 @@
 - SQLite installed
 - SQLite file database created and tables created (tables located in /server/resources/tables.sql)
 
-## Development
+## Run !
 
 1. Clone this project
 2. Run "npm install" in both server/ and client/ folders

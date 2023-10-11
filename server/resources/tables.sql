@@ -1,15 +1,14 @@
 -- Create the datatabase :
--- sqlite3 db.sqlite
--- sqlite> .databases
--- sqlite> .quit
+-- bash [username@pc server]$ sqlite3 -batch ./db.sqlite < ./resources/tables.sql
+
 CREATE TABLE IF NOT EXISTS cards
 (
     --TODO use UUIDs, generate them at server level
-    cardId   INTEGER PRIMARY KEY,
+    id   INTEGER PRIMARY KEY,
     --TODO why is there a title again ? remove it or make it optional
     title    VARCHAR(70)                        NOT NULL,
     website  VARCHAR(40)                        NOT NULL,
-    username VARCHAR(40)                        NOT NULL,
+    author VARCHAR(40)                        NOT NULL,
     created  DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,
     modified DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -20,7 +19,7 @@ CREATE TRIGGER IF NOT EXISTS [UpdateLastTime]
     FOR EACH ROW
     WHEN NEW.modified < OLD.modified
 BEGIN
-    UPDATE cards SET modified = CURRENT_TIMESTAMP WHERE cardId = OLD.cardId;
+    UPDATE cards SET modified = CURRENT_TIMESTAMP WHERE id = OLD.id;
 END;
 
 CREATE TABLE IF NOT EXISTS tags
@@ -28,7 +27,7 @@ CREATE TABLE IF NOT EXISTS tags
     cardId INTEGER,
     tag    VARCHAR(30),
     PRIMARY KEY (cardId, tag),
-    FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
+    FOREIGN KEY (cardId) REFERENCES cards (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS files
@@ -40,7 +39,7 @@ CREATE TABLE IF NOT EXISTS files
     fileHash    VARCHAR(20) UNIQUE,
     fileContent TEXT,
     PRIMARY KEY (cardId, fileId),
-    FOREIGN KEY (cardId) REFERENCES cards (cardId) ON DELETE CASCADE
+    FOREIGN KEY (cardId) REFERENCES cards (id) ON DELETE CASCADE
 );
 
 /*
@@ -49,14 +48,14 @@ Example for tags column : ["car","antique","v8","70s"]"
 */
 
 CREATE VIEW IF NOT EXISTS cards_view AS
-SELECT DISTINCT cardId,
+SELECT DISTINCT id,
                 title,
                 json_group_array(DISTINCT tag) AS tags,
                 website,
-                username,
+                author,
                 created,
                 modified
 FROM cards
-         NATURAL JOIN tags
-         NATURAL JOIN files
-GROUP BY cardId, title, website, username, created, modified;
+         INNER JOIN tags ON cards.id = tags.cardId
+         INNER JOIN files ON cards.id = files.cardId
+GROUP BY id, title, website, author, created, modified;

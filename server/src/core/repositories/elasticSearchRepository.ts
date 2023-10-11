@@ -1,6 +1,6 @@
 import { Client } from '@elastic/elasticsearch'
 import { IFTSRepository } from "./IFTSRepository";
-import { CardRequest } from "../../types/card";
+import { CardForm } from "../../types/card";
 import {
     QueryDslBoolQuery,
     QueryDslQueryContainer,
@@ -13,27 +13,27 @@ export class ElasticSearchRepository implements IFTSRepository {
 
     private elastic: Client = new Client({node: process.env.ELASTIC_ENDPOINT});
 
-    async create(entity: CardRequest): Promise<number[]> {
+    async create(entity: CardForm): Promise<number[]> {
         this.elastic.index({
             index: this.index,
-            id: String(entity.cardId),
+            id: String(entity.id),
             document: entity
         });
-        return [entity.cardId];
+        return [entity.id];
     }
 
-    delete(entity: CardRequest): void {
+    delete(entity: CardForm): void {
         this.elastic.delete({
-            id: `${entity.cardId}`,
+            id: `${entity.id}`,
             index: this.index
         });
     }
 
-    async read(entity: CardRequest): Promise<number[]> {
+    async read(entity: CardForm): Promise<number[]> {
         const matches: QueryDslQueryContainer[] = [];
 
         for (const [key, value] of Object.entries(entity)) {
-            if (value.length !== 0) {
+            if (value !== null && value.length !== 0) {
                 matches.push({
                     match: {
                         [key]: {
@@ -44,8 +44,8 @@ export class ElasticSearchRepository implements IFTSRepository {
                 });
             }
         }
-        console.log(matches);
-        const response: SearchResponse = await this.elastic.search<CardRequest>({
+
+        const response: SearchResponse = await this.elastic.search<CardForm>({
             index: this.index,
             query: {
                 bool: {
@@ -56,14 +56,14 @@ export class ElasticSearchRepository implements IFTSRepository {
         return response.hits.hits.map((val: SearchHit) => Number(val._id));
     }
 
-    readAll(entity: CardRequest): Promise<number[]> {
+    readAll(entity: CardForm): Promise<number[]> {
         throw new Error("Not Implemented 501");
     }
 
-    update(entity: CardRequest): void {
+    update(entity: CardForm): void {
         this.elastic.update({
             index: this.index,
-            id: `${entity.cardId}`,
+            id: `${entity.id}`,
             doc: entity
         });
     }

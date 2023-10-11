@@ -1,4 +1,4 @@
-import { CardForm, CardResult, Pagination } from "../../types/card";
+import { CardRequest, CardResult, OperationResponse, Pagination } from "../../types/card";
 import { ICardRepository } from "../repositories/ICardRepository";
 import { ITagRepository } from "../repositories/ITagRepository";
 import { FileController } from "./fileController";
@@ -15,39 +15,39 @@ export class CardController {
     }
 
     /**
-     * Retrieved cards based on provided search condition and pagination
+     * Retrieve cards based on provided search condition and pagination
      * @param search get all cards if null, matching cards otherwise
      * @param pagination query pagination with page number and number of resources to be returned
      * @return promise containing the result values, or an error
      */
-    public async get(card: CardForm): Promise<CardResult> {
-        card.pagination = this.pageToOffset(card.pagination);
+    public async get(request: CardRequest): Promise<CardResult> {
+        request.pagination = this.pageToOffset(request.pagination);
         // if form is absent, home is request, get all cards. If form is present, get matching cards.
-        const cards: CardResult = await (card.card === null ? this.cardRepository.readAll(card) : this.cardRepository.read(card));
-        for (const card of cards.cards) {
-            card.files = await this.fileController.get(card.cardId);
+        const result: CardResult = await (request.card === null ? this.cardRepository.readAll(request) : this.cardRepository.read(request));
+        for (const card of result.cards) {
+            card.files = await this.fileController.get(card.id);
         }
-        return cards;
+        return result;
     }
 
     /**
      * Create new card based on provided data
      * @param card provided card information, must pass YUP schema specifications
      */
-    public async create(card: CardForm): Promise<string> {
+    public async create(card: CardRequest): Promise<OperationResponse> {
         this.cardRepository.create(card);
         this.tagRepository.create(card);
-        return 'Card successfully created';
+        return { message: 'Card successfully created' };
     }
 
     /**
      * Update existing card based on provided data
      * @param card provided card data, must pass YUP schema specifications
      */
-    public async update(card: CardForm): Promise<string> {
+    public async update(card: CardRequest): Promise<OperationResponse> {
         this.cardRepository.update(card);
         this.tagRepository.update(card);
-        return 'Card successfully updated';
+        return { message: 'Card successfully updated' };
     }
 
 
@@ -55,12 +55,12 @@ export class CardController {
      * Delete card and its file from DB and storage based on provided card ID
      * @param cardId the ID of the card to be deleted
      */
-    public async delete(cardId: number): Promise<string> {
-        const form: CardForm = {card: {cardId: cardId}, pagination: null};
+    public async delete(cardId: number): Promise<OperationResponse> {
+        const form: CardRequest = {card: {id: cardId}, pagination: null};
         this.cardRepository.delete(form);
         this.tagRepository.delete(form);
         await this.fileController.deleteFromCardId(cardId);
-        return 'Card successfully deleted';
+        return { message: 'Card successfully deleted' };
     }
 
     /**

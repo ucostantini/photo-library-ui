@@ -5,6 +5,7 @@ export class MinIOStorageService implements IStorageService {
     private minio: Client = new Client({
         endPoint: process.env.MINIO_ENDPOINT,
         port: +process.env.MINIO_PORT,
+        proxy
         useSSL: process.env.MINIO_USE_SSL === 'true',
         accessKey: process.env.MINIO_ACCESS_KEY,
         secretKey: process.env.MINIO_SECRET_KEY

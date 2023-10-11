@@ -1,6 +1,6 @@
 import { IRepository } from "./IRepository";
-import { CardRequest } from "../../types/card";
+import { CardForm } from "../../types/card";
 
-export interface IFTSRepository extends IRepository<CardRequest, Promise<number[]>> {
+export interface IFTSRepository extends IRepository<CardForm, Promise<number[]>> {
 
 }

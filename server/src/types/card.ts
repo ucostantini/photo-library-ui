@@ -15,28 +15,28 @@ export interface FileURL {
 }
 
 export interface Card {
-    cardId: number;
+    id: number;
     title: string;
     files: FileURL[];
     tags: string[];
     website: string;
-    username: string;
+    author: string;
     created: Date;
     modified: Date;
 }
 
-export interface CardRequest {
-    cardId?: number;
+export interface CardForm {
+    id?: number;
     title?: string;
     files?: number[];
     filesContent?: string[];
     tags?: string[];
     website?: string;
-    username?: string;
+    author?: string;
 }
 
-export interface CardForm {
-    card: CardRequest;
+export interface CardRequest {
+    card: CardForm;
     pagination: Pagination;
 }
 
@@ -45,6 +45,11 @@ export interface Pagination {
     _limit: number;
     _sort: Sort;
     _order: Order;
+}
+
+export interface OperationResponse {
+    message: string;
+    results?: Card[];
 }
 
 export enum StoredFile {

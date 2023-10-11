@@ -1,19 +1,28 @@
-FROM alpine
+FROM node:16.18.1 AS build
 
 WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --omit=dev
+RUN npm ci
 
 COPY . .
 
-RUN npm build
+RUN npm run build
 
-RUN apk --update-cache add sqlite \
-&& rm -rf /var/cache/apk/* \
-&& sqlite3 -batch ./db.sqlite < ./resources/tables.sql \
-&& chmod a+rw ./db.sqlite
+
+FROM node:16.18.1
+
+ENV NODE_ENV production
+
+WORKDIR /app
+
+COPY ./resources/db.sqlite ./resources/
+COPY package*.json ./
+
+RUN npm ci --omit=dev
+
+COPY --from=build /app/dist ./dist
 
 EXPOSE 3000
-CMD [ "node", "index.js" ]
+CMD [ "node", "dist/index.js" ]

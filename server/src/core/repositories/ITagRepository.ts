@@ -1,5 +1,5 @@
 import { IRepository } from "./IRepository";
-import { CardForm, TagResult } from "../../types/card";
+import { CardRequest, TagResult } from "../../types/card";
 
-export interface ITagRepository extends IRepository<CardForm, TagResult> {
+export interface ITagRepository extends IRepository<CardRequest, TagResult> {
 }

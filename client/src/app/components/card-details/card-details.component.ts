@@ -59,6 +59,7 @@ export class CardDetailsComponent implements OnInit {
         downloadUrl: file.fileURL
       });
     });
+    this.card.tags = JSON.parse(this.card.tags as unknown as string);
   }
 
   onImageView() {
